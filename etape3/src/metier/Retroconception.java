@@ -22,9 +22,9 @@ public class Retroconception {
 				System.out.println("\n=== Analyse de la classe " + classe.getNom() + abstractInfo + " ===\n");
 
 				// Affichage détaillé
-				afficherDetailsClasse(classe);
+				// afficherDetailsClasse(classe);
 
-				System.out.println();
+				// System.out.println();
 
 				// Affichage UML
 				afficherUML(classe);
