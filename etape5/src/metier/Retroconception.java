@@ -17,16 +17,25 @@ public class Retroconception {
 
 		for (String nomFichier : hashMapClasses.keySet()) {
 			Classe classe = hashMapClasses.get(nomFichier);
-				String abstractInfo = classe.isAbstract() ? " (abstract)" : "";
-				System.out.println("\n=== Analyse de la classe " + classe.getNom() + abstractInfo + " ===\n");
+			String abstractInfo = classe.isAbstract() ? " (abstract)" : "";
+			System.out.println("\n=== Analyse de la classe " + classe.getNom() + abstractInfo + " ===\n");
 
-				// Affichage détaillé
-				// afficherDetailsClasse(classe);
+			// Affichage détaillé
+			// afficherDetailsClasse(classe);
 
-				// System.out.println();
+			// System.out.println();
 
-				// Affichage UML
-				afficherUML(classe);
+			// Affichage UML
+			afficherUML(classe);
+		}
+
+		// Afficher les associations
+		ArrayList<Association> associations = lecture.getLstAssociation();
+		if (!associations.isEmpty()) {
+			System.out.println("\n=== Associations détectées ===\n");
+			for (Association assoc : associations) {
+				System.out.println(assoc.toString());
+			}
 		}
 	}
 

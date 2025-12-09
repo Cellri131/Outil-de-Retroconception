@@ -8,7 +8,7 @@ import java.util.regex.*;
 import java.util.HashMap;
 
 public class Lecture {
-	private HashMap<String, ArrayList<Classe>> hashMapClasses;
+	private HashMap<String, Classe> hashMapClasses;
 	private ArrayList<Classe> lstClasse;
 	private ArrayList<Attribut> lstAttribut;
 	private ArrayList<Methode> lstMethode;
@@ -16,7 +16,7 @@ public class Lecture {
 	private ArrayList<String> lstNomFichier;
 
 	public Lecture(String nom) {
-		this.hashMapClasses = new HashMap<String, ArrayList<Classe>>();
+		this.hashMapClasses = new HashMap<String, Classe>();
 		this.lstAttribut = new ArrayList<Attribut>();
 		this.lstMethode = new ArrayList<Methode>();
 		this.lstNomFichier = new ArrayList<String>();
@@ -71,10 +71,10 @@ public class Lecture {
 					Path p = Paths.get(chemin);
 					String nomFichier = String.valueOf(p.getFileName());
 
-					ArrayList<Classe> classesPourCeFichier = new ArrayList<>();
-					classesPourCeFichier.add(scanne(scFic, nomFichier));
+					Classe classePourCeFichier;
+					classePourCeFichier = scanne(scFic, nomFichier);
 
-				this.hashMapClasses.put(nomFichier, classesPourCeFichier);
+				this.hashMapClasses.put(nomFichier, classePourCeFichier);
 
 				scFic.close();
 			}				// Nettoie la list car les chemin ne sont plus utile
@@ -87,10 +87,10 @@ public class Lecture {
 				Path p = Paths.get(paraCheminFichier);
 				String nomFichier = String.valueOf(p.getFileName());
 
-				ArrayList<Classe> classesPourCeFichier = new ArrayList<>();
-				classesPourCeFichier.add(scanne(scFic, nomFichier));
+				Classe classePourCeFichier;
+				classePourCeFichier = scanne(scFic, nomFichier);
 
-				this.hashMapClasses.put(nomFichier, classesPourCeFichier);
+				this.hashMapClasses.put(nomFichier, classePourCeFichier);
 
 				scFic.close();
 			}
@@ -242,7 +242,7 @@ public class Lecture {
 	{
 		for (String nomFichier : hashMapClasses.keySet()) 
 		{
-			Classe classeOrig = hashMapClasses.get(nomFichier).get(0);
+			Classe classeOrig = hashMapClasses.get(nomFichier);
 
 			// Compteur : clé = type nettoyé, valeur = nb occurrences				
 			Map<String, Integer> compteur = new HashMap<>();
@@ -277,7 +277,7 @@ public class Lecture {
 					continue; // Ignorer si la classe n'existe pas
 				}
 
-				Classe classeDest     = hashMapClasses.get(typeDest + ".java").get(0);
+				Classe classeDest     = hashMapClasses.get(typeDest + ".java");
 
 				Multiplicite multOrig = new Multiplicite(1,1);
 				Multiplicite multDest = new Multiplicite(0, "*");  // valeur par défaut
@@ -340,8 +340,9 @@ public class Lecture {
 				continue; // Ignorer si la classe n'existe pas
 			}
 
-			Classe   classeDest = hashMapClasses.get(typeDest + ".java").get(0);				Multiplicite multOrig  = new Multiplicite(1,1);
-				Multiplicite multDest  = new Multiplicite(1, max);
+			Classe   classeDest = hashMapClasses.get(typeDest + ".java");				
+			Multiplicite multOrig  = new Multiplicite(1,1);
+			Multiplicite multDest  = new Multiplicite(1, max);
 
 				lstAssociations.add(new Association(
 					classeDest, classeOrig, multDest, multOrig, true));
@@ -371,7 +372,7 @@ public class Lecture {
 		return type.endsWith("[]") || type.startsWith("List<") || type.startsWith("Set<");
 	}
 
-	public HashMap<String, ArrayList<Classe>> getHashMapClasses() 
+	public HashMap<String, Classe> getHashMapClasses() 
 	{
 		// System.out.println(this.hashMapClasses.values());
 		return this.hashMapClasses;

@@ -105,8 +105,8 @@ public class PanneauDiagramme extends JPanel {
         }
     }
 
-    public void ajouterLiaison(BlocClasse blocOrig, BlocClasse blocDest, String type) {
-        LiaisonVue liaison = new LiaisonVue(blocOrig, blocDest, type);
+    public void ajouterLiaison(BlocClasse blocOrig, BlocClasse blocDest) {
+        LiaisonVue liaison = new LiaisonVue(blocOrig, blocDest);
         liaisons.add(liaison);
         controlleur.ajouterLiaison(liaison);
         repaint();

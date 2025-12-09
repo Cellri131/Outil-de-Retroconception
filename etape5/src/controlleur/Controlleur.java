@@ -48,18 +48,18 @@ public class Controlleur {
 
     private void creerLiaisonsPlaceholder(List<BlocClasse> blocs, HashMap<String, BlocClasse> mapBlocsParNom) {
         // TODO: À remplacer par les liaisons du métier une fois prêtes
-        // Exemple de liaisons placeholders
+        // Exemple d'associations placeholders
         if (blocs.size() >= 2) {
-            LiaisonVue liaison1 = new LiaisonVue(blocs.get(0), blocs.get(1), "heritage");
-            liaisons.add(liaison1);
+            LiaisonVue association1 = new LiaisonVue(blocs.get(0), blocs.get(1));
+            liaisons.add(association1);
         }
         if (blocs.size() >= 3) {
-            LiaisonVue liaison2 = new LiaisonVue(blocs.get(1), blocs.get(2), "association");
-            liaisons.add(liaison2);
+            LiaisonVue association2 = new LiaisonVue(blocs.get(1), blocs.get(2));
+            liaisons.add(association2);
         }
         if (blocs.size() >= 4) {
-            LiaisonVue liaison3 = new LiaisonVue(blocs.get(2), blocs.get(3), "interface");
-            liaisons.add(liaison3);
+            LiaisonVue association3 = new LiaisonVue(blocs.get(2), blocs.get(3));
+            liaisons.add(association3);
         }
     }
 

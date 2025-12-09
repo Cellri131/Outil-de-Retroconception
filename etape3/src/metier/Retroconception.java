@@ -13,22 +13,20 @@ public class Retroconception {
 		String cheminFichier = args[0];
 
 		Lecture lecture = new Lecture(cheminFichier);
-		HashMap<String, ArrayList<Classe>> hashMapClasses = lecture.getHashMapClasses();
+		HashMap<String, Classe> hashMapClasses = lecture.getHashMapClasses();
 
 		for (String nomFichier : hashMapClasses.keySet()) {
-			ArrayList<Classe> classes = hashMapClasses.get(nomFichier);
-			for (Classe classe : classes) {
-				String abstractInfo = classe.isAbstract() ? " (abstract)" : "";
-				System.out.println("\n=== Analyse de la classe " + classe.getNom() + abstractInfo + " ===\n");
+			Classe classe = hashMapClasses.get(nomFichier);
+			String abstractInfo = classe.isAbstract() ? " (abstract)" : "";
+			System.out.println("\n=== Analyse de la classe " + classe.getNom() + abstractInfo + " ===\n");
 
-				// Affichage détaillé
-				// afficherDetailsClasse(classe);
+			// Affichage détaillé
+			// afficherDetailsClasse(classe);
 
-				// System.out.println();
+			// System.out.println();
 
-				// Affichage UML
-				afficherUML(classe);
-			}
+			// Affichage UML
+			afficherUML(classe);
 		}
 
 		// Afficher les associations
