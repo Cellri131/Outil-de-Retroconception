@@ -30,6 +30,15 @@ public class Retroconception {
 				afficherUML(classe);
 			}
 		}
+
+		// Afficher les associations
+		ArrayList<Association> associations = lecture.getLstAssociation();
+		if (!associations.isEmpty()) {
+			System.out.println("\n=== Associations détectées ===\n");
+			for (Association assoc : associations) {
+				System.out.println(assoc.toString());
+			}
+		}
 	}
 
 	private static void afficherDetailsClasse(Classe classe) {

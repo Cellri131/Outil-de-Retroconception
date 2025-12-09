@@ -20,6 +20,7 @@ public class Lecture {
 		this.lstAttribut = new ArrayList<Attribut>();
 		this.lstMethode = new ArrayList<Methode>();
 		this.lstNomFichier = new ArrayList<String>();
+		this.lstAssociations = new ArrayList<Association>();
 
 		analyserFichier(nom);
 	}
@@ -94,76 +95,15 @@ public class Lecture {
 				scFic.close();
 			}
 
-			/*for (String nomFichier : this.lstNomFichier)
-			{
-				Classe classeOrig = this.hashMapClasses.get(nomFichier).get(0);
+			genererAssociation();
 
-				for(Attribut attribut : classeOrig.lstAttribut())
-				{
-					for(String nomFichierCheck : lstNomFichier)
-					{
-						if(attribut.getTypeAttribut().equals(nomFichierCheck) && !attribut.getTypeAttribut().equals(nomFichier))
-						{
-							Classe classeDest =  this.hashMapClasses.get(nomFichierCheck).get(0);
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}	
+	}
 
-							Association ass = new Association (classeDest, classeOrig,Multiplicite multDest, Multiplicite multOrig, boolean unidirectionnel);
-							
-							this.lstAssociations.add(ass);
-						}
-					}
-				}
-			}*/
-
-
-			for (String nomFichier : hashMapClasses.keySet()) 
-			{
-				Classe classeOrig = hashMapClasses.get(nomFichier).get(0);
-
-				// Compter combien de fois chaque type de classe apparaît dans les attributs
-				Map<String, Integer> compteur = new HashMap<>();
-				
-				for (Attribut attr : classeOrig.lstAttribut()) 
-				{
-					String type = nettoyerType(attr.getTypeAttribut());
-
-					if (hashMapClasses.containsKey(type)) 
-					{
-						compteur.put(type, compteur.getOrDefault(type, 0) + 1);
-					}
-				}
-
-				// Créer les associations avec multiplicité
-				for (Map.Entry<String, Integer> entry : compteur.entrySet()) 
-				{
-					String typeDest       = entry.getKey();
-					int    max            = entry.getValue();
-
-					Classe classeDest     = hashMapClasses.get(typeDest).get(0); // récupérer la Classe dans l'ArrayList
-
-					Multiplicite multOrig = new Multiplicite(1, 1); // origine = 1..1
-					Multiplicite multDest;
-
-					// Vérifie si le type peut contenir plusieurs instances (tableau ou collection)
-					boolean multi = estMultiInstance(typeDest);
-
-					if (multi) 
-					{
-						multDest = new Multiplicite(0, Integer.MAX_VALUE); // 0..*
-					} 
-					else 
-					{
-						multDest = new Multiplicite(1, max); // 1..N selon occurrences
-					}
-
-					lstAssociations.add(new Association(classeDest, classeOrig, multDest, multOrig, true));
-				}
-			}
-
-	} 
-	catch (Exception e) 
-	{
-		e.printStackTrace();
-	}	}
 
 	private Classe scanne(Scanner scFic, String nomFichierAvExt) {
 		Scanner scLigne;
@@ -266,12 +206,14 @@ public class Lecture {
 
 						for (String p : listParam) {
 							String[] pTokens = p.trim().split("\\s+");
-							String typeParam = pTokens[0];
-							String nomParam = pTokens[1];
-
-							parametre = new Parametre(nomParam, typeParam);
-
-							lstParametres.add(parametre);
+							if (pTokens.length >= 2) {
+								String typeParam = pTokens[0];
+								String nomParam = pTokens[1];
+								parametre = new Parametre(nomParam, typeParam);
+								lstParametres.add(parametre);
+							} else {
+								System.out.println("Paramètre ignoré (format inattendu): " + p);
+							}
 						}
 					}
 
@@ -293,6 +235,118 @@ public class Lecture {
 		}
 
 		return new Classe(nomFichier, isClasseAbstract, this.lstAttribut, this.lstMethode);
+	}
+
+
+	private void genererAssociation()
+	{
+		for (String nomFichier : hashMapClasses.keySet()) 
+		{
+			Classe classeOrig = hashMapClasses.get(nomFichier).get(0);
+
+			// Compteur : clé = type nettoyé, valeur = nb occurrences				
+			Map<String, Integer> compteur = new HashMap<>();
+			
+			// Array pour savoir si ce type était multi-instance
+			ArrayList<String> listeMultiInstance = new ArrayList<>();
+
+			for (Attribut attr : classeOrig.getLstAttribut()) 
+			{
+				String typeOriginal = attr.getTypeAttribut().trim();
+				String typeNettoye  = nettoyerType(typeOriginal).trim();
+				
+				/*if (!hashMapClasses.containsKey(typeNettoye))
+							continue;*/
+
+				if (estMultiInstance(typeOriginal)) 
+				{
+					// Ajoute tel quel
+					listeMultiInstance.add(typeNettoye);
+				}
+				else // Simple instance
+				{
+					compteur.put(typeNettoye, compteur.getOrDefault(typeNettoye, 0) + 1);
+				}
+			}
+
+			// -------- MULTI-INSTANCE --------
+			for (String typeDest : listeMultiInstance) 
+			{
+				// Vérifier que la classe existe dans la HashMap
+				if (!hashMapClasses.containsKey(typeDest + ".java")) {
+					continue; // Ignorer si la classe n'existe pas
+				}
+
+				Classe classeDest     = hashMapClasses.get(typeDest + ".java").get(0);
+
+				Multiplicite multOrig = new Multiplicite(1,1);
+				Multiplicite multDest = new Multiplicite(0, "*");  // valeur par défaut
+
+
+				// Si la classe apparaît en paramètre d'une méthode => multiplicité 1..*
+				for (Methode methode : classeOrig.getLstMethode()) 
+				{
+					for (Parametre param : methode.getLstParametre()) 
+					{
+						// comparer le type paramètre avec le nom de classe destination
+						if (nettoyerType(param.getTypePara()).equals(typeDest)) 
+						{
+							multDest = new Multiplicite(1, "*");
+						}
+					}
+				}
+
+
+				// Vérifier si la classe destination référence aussi la classe origine
+				boolean bidirectionnel = false;
+				for (Attribut attrDest : classeDest.getLstAttribut()) {
+					String typeAttrDest = nettoyerType(attrDest.getTypeAttribut().trim());
+					if (typeAttrDest.equals(classeOrig.getNom())) {
+						bidirectionnel = true;
+						break;
+					}
+				}
+				// Vérifier aussi dans les paramètres des méthodes de la classe destination
+				if (!bidirectionnel) {
+					for (Methode methodeDest : classeDest.getLstMethode()) {
+						for (Parametre paramDest : methodeDest.getLstParametre()) {
+							if (nettoyerType(paramDest.getTypePara()).equals(classeOrig.getNom())) {
+								bidirectionnel = true;
+								break;
+							}
+						}
+						if (bidirectionnel) break;
+					}
+				}
+
+				lstAssociations.add(new Association(
+					classeDest, classeOrig, multDest, multOrig, !bidirectionnel));
+
+				// --- Affichage pour debug ---
+    			System.out.println("[ASSOCIATION MULTI] " + classeOrig.getNom() + " --> " 
+                       + classeDest.getNom() + " : " 
+                       + multOrig + " -> " + multDest);
+			}
+
+			// -------- SIMPLE INSTANCE --------
+			for (Map.Entry<String,Integer> entry : compteur.entrySet()) 
+			{
+
+				String   typeDest   = entry.getKey();
+				int      max        = entry.getValue();
+
+			// Vérifier que la classe existe dans la HashMap
+			if (!hashMapClasses.containsKey(typeDest + ".java")) {
+				continue; // Ignorer si la classe n'existe pas
+			}
+
+			Classe   classeDest = hashMapClasses.get(typeDest + ".java").get(0);				Multiplicite multOrig  = new Multiplicite(1,1);
+				Multiplicite multDest  = new Multiplicite(1, max);
+
+				lstAssociations.add(new Association(
+					classeDest, classeOrig, multDest, multOrig, true));
+			}
+		}
 	}
 
 
@@ -321,5 +375,10 @@ public class Lecture {
 	{
 		// System.out.println(this.hashMapClasses.values());
 		return this.hashMapClasses;
+	}
+
+	public ArrayList<Association> getLstAssociation()
+	{
+		return this.lstAssociations;
 	}
 }

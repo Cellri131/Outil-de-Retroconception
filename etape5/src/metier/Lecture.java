@@ -20,7 +20,8 @@ public class Lecture {
 		analyserFichier(nom);
 	}
 
-	public void analyserFichier(String paraCheminFichier) {
+	public void analyserFichier(String paraCheminFichier) 
+	{
 		Scanner scFic;
 
 		File f = new File(paraCheminFichier);
@@ -46,9 +47,12 @@ public class Lecture {
 			}
 		}
 
-		try {
-			if (!lstCheminFich.isEmpty()) {
-				for (String chemin : lstCheminFich) {
+		try 
+		{
+			if (!lstCheminFich.isEmpty()) 
+			{
+				for (String chemin : lstCheminFich)
+				{
 					scFic = new Scanner(new FileInputStream(chemin), "UTF8");
 
 					Path p = Paths.get(chemin);
@@ -121,6 +125,7 @@ public class Lecture {
 		List<Parametre> lstParametres = new ArrayList<Parametre>();
 
 		String nomFichier = nomFichierAvExt.replace(".java", "");
+		String nomClasse = nomFichier;
 
 		while (scFic.hasNextLine()) {
 			// retire les espaces en début/fin
@@ -206,11 +211,56 @@ public class Lecture {
 								.add(new Methode(nomMethode, typeRetour, visibilite, new ArrayList<>(lstParametres)));
 					}
 				}
+
+				
 			}
+
+			if (ligne.contains("extends"))
+				{
+
+					String classeOrigine = ligne.substring(ligne.indexOf("extends") + 7).trim();
+					//String classeDestinataire = ligne.substring(0, ligne.indexOf("extends")).trim();
+					String classeDestinataire = nomFichier;
+					classeDestinataire = classeDestinataire.replace("public ", "").replace("class ", "").trim(); // affichage avec print, mais a remettre avec la Classe
+					
+					nomClasse = "[ " + classeOrigine + " ] "  + nomFichier;
+				
+
+					//Heritage heritage = new Heritage(ClasseExiste(classeDestinataire), ClasseExiste(classeOrigine));
+					
+
+					//System.out.println("Nouvel héritage créé : " + heritage.toString() );
+
+
+					System.out.println("Verif liste Classe " + this.hashMapClasses.values());
+
+					ClasseExiste(classeOrigine);
+					ClasseExiste(classeDestinataire);
+					
+
+				}
 		}
 
 		return new Classe(nomFichier, this.lstAttribut, this.lstMethode);
 	}
+
+	public Classe ClasseExiste(String nomClasse)
+	{
+		for (ArrayList<Classe> listeClasses : this.hashMapClasses.values()) 
+		{
+			for (Classe classe : listeClasses) 
+			{
+				if (classe.getNom().equals(nomClasse)) 
+				{
+					System.out.println("Classe trouvée : ---------------------------------------------------------" + nomClasse);
+					return classe;
+				}
+			}
+		}
+
+		System.out.println("Classe non trouvé " + nomClasse);
+		return null;
+	
 
 	public HashMap<String, ArrayList<Classe>> getHashMapClasses() {
 		return this.hashMapClasses;
