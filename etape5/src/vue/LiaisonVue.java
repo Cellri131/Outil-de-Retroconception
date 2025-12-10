@@ -59,4 +59,12 @@ public class LiaisonVue {
     public void setBlocDestination(BlocClasse blocDestination) {
         this.blocDestination = blocDestination;
     }
+
+    @Override
+    public String toString() {
+        return "LiaisonVue{" +
+                "blocOrigine=" + blocOrigine.getClass().getSimpleName() +
+                ", blocDestination=" + blocDestination.getClass().getSimpleName() +
+                '}';
+    }
 }

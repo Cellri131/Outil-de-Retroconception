@@ -12,12 +12,14 @@ import javax.swing.SwingUtilities;
 
 
 
-public class FenetrePrincipale extends JFrame {
+public class FenetrePrincipale extends JFrame 
+{
 
     private PanneauProjets panneauProjets;
     private PanneauDiagramme panneauDiagramme;
 
-    public FenetrePrincipale() {
+    public FenetrePrincipale() 
+    {
         setTitle("Générateur de diagramme UML");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1400, 800);
@@ -43,21 +45,26 @@ public class FenetrePrincipale extends JFrame {
         add(new BarreMenus(this), BorderLayout.NORTH);
     }
 
-    public void chargerProjet(String cheminProjet) {
+    public void chargerProjet(String cheminProjet) 
+    {
         panneauDiagramme.chargerProjet(cheminProjet);
     }
 
 
-    public void sauvegarderDiagramme() {
+    public void sauvegarderDiagramme() 
+    {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY); // choisir un fichier
         chooser.setSelectedFile(new File("diagramme.png")); // nom par défaut
 
         int retour = chooser.showSaveDialog(panneauDiagramme);
-        if (retour == JFileChooser.APPROVE_OPTION) {
+
+        if (retour == JFileChooser.APPROVE_OPTION) 
+        {
 
             File fichierSortie = chooser.getSelectedFile();
-            if (!fichierSortie.getName().toLowerCase().endsWith(".png")) {
+            if (!fichierSortie.getName().toLowerCase().endsWith(".png")) 
+            {
                 fichierSortie = new File(fichierSortie.getParentFile(), fichierSortie.getName() + ".png");
             }
             
