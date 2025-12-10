@@ -167,7 +167,7 @@ public class PanneauDiagramme extends JPanel
     private void organiserEnGrille()
     {
         int cols = (int) Math.ceil(Math.sqrt(blocsClasses.size()));
-        int spacing = 250; // Espacement entre les blocs
+        int spacing = 275; // Espacement entre les blocs
         int startX = 50;
         int startY = 50;
         

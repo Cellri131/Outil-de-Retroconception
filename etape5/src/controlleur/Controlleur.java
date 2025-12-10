@@ -49,6 +49,8 @@ public class Controlleur
         // Créer les liaisons depuis associations, heritages, et interfaces
         creerLiaisonsDepuisAssoc(lecture.getLstAssociation(), mapBlocsParNom);
 
+        creerLiaisonsDepuisHerit(lecture.getLstHeritage(), mapBlocsParNom);
+
         return blocs;
     }
 
@@ -119,7 +121,9 @@ public class Controlleur
 
         for (Heritage herit : lstHerit) 
         {
-            LiaisonVue liaison = new LiaisonVue(mapBlocsParNom.get(herit.getClasseOrig().getNom()), mapBlocsParNom.get(herit.getClasseDest().getNom()), "heritage");
+            BlocClasse blocOrigine = mapBlocsParNom.get(herit.getClasseOrig().getNom());
+            BlocClasse blocDestination = mapBlocsParNom.get(herit.getClasseDest().getNom());
+            LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "heritage");
             liaisons.add(liaison);
         }
     }
