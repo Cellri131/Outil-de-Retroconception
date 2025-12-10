@@ -133,7 +133,7 @@ public class BarreMenus extends JMenuBar
             File fichierSelectionne = chooser.getSelectedFile();
             String cheminAbsolu = fichierSelectionne.getAbsolutePath();
 
-            SauvegardeProjetXml(cheminAbsolu + " " + fichierSelectionne.getName());
+            SauvegardeProjetXml(cheminAbsolu);
         } 
         else 
         {
@@ -217,7 +217,7 @@ public class BarreMenus extends JMenuBar
 
     private void actionOptimiser() 
     {
-        JOptionPane.showMessageDialog(null, "Pas fini");
+        fenetrePrincipale.optimiserPositions();
     }
 
     private void actionAPropos() 

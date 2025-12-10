@@ -103,4 +103,9 @@ public class FenetrePrincipale extends JFrame
     {
         panneauDiagramme.setAfficherMethodes(b);
     }
+
+    public void optimiserPositions()
+    {
+        panneauDiagramme.optimiserPositions();
+    }
 }

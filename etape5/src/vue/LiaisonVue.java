@@ -27,7 +27,7 @@ public class LiaisonVue
     private int sideDestination;
     
     // Rayon pour cliquer sur les points d'ancrage
-    private static final int ANCHOR_RADIUS = 5;
+    private static final int ANCHOR_RADIUS = 10;
     
     // Référence à la liste des blocs pour le routage avec évitement
     private List<BlocClasse> tousLesBlocs = new ArrayList<>();
