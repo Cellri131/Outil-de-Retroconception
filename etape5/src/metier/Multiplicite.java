@@ -44,8 +44,6 @@ public class Multiplicite
 		this.fin = fin;
 	}
 
-
-
     public String toString() 
 	{
         if (fin == Integer.MAX_VALUE)

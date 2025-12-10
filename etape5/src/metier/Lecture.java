@@ -7,7 +7,8 @@ import java.util.*;
 import java.util.regex.*;
 import java.util.HashMap;
 
-public class Lecture {
+public class Lecture 
+{
 	private HashMap<String, Classe> hashMapClasses;
 	private ArrayList<Classe> lstClasse;
 	private ArrayList<Attribut> lstAttribut;
@@ -15,7 +16,8 @@ public class Lecture {
 	private ArrayList<Association> lstAssociations;
 	private ArrayList<String> lstNomFichier;
 
-	public Lecture(String nom) {
+	public Lecture(String nom) 
+	{
 		this.hashMapClasses = new HashMap<String, Classe>();
 		this.lstAttribut = new ArrayList<Attribut>();
 		this.lstMethode = new ArrayList<Methode>();
@@ -152,18 +154,20 @@ public class Lecture {
 				// c'est un attribut, pas une méthode
 				if (!ligne.contains("(") && ligne.endsWith(";")) {
 					// Découper la ligne : visibilité, type, nom
-					String[] ligneAttribut = ligne.split("\\s+"); // séparer par espaces
-					visibiliteAtribut = ligneAttribut[0];
+					Scanner scAttribut = new Scanner(ligne);
+					visibiliteAtribut = scAttribut.next();
 
-					if (ligneAttribut[1].equals("static")) {
+					String motSuivant = scAttribut.next();
+					if (motSuivant.equals("static")) {
 						portee = "classe";
-						type = ligneAttribut[2];
-						nom = ligneAttribut[3].replace(";", ""); // retirer le ;
+						type = scAttribut.next();
+						nom = scAttribut.next().replace(";", ""); // retirer le ;
 					} else {
 						portee = "instance";
-						type = ligneAttribut[1];
-						nom = ligneAttribut[2].replace(";", ""); // retirer le ;
+						type = motSuivant;
+						nom = scAttribut.next().replace(";", ""); // retirer le ;
 					}
+					scAttribut.close();
 
 					System.out.println("Le nouvel attribut a été creer : ");
 					lstAttribut.add(new Attribut(nom, type, visibiliteAtribut, portee));
@@ -172,18 +176,22 @@ public class Lecture {
 				// Détecter les méthodes (abstraites ou non)
 				if (ligne.contains("(") && ligne.contains(")") &&
 						(!ligne.endsWith(";") || ligne.contains("abstract"))) // Inclure les méthodes abstraites qui se
-																				// terminent par ;
+																	// terminent par ;
 				{
 					boolean isMethodeAbstract = ligne.contains("abstract");
-					String[] ligneMethode = ligne.split("\\s+");
-					visibilite = ligneMethode[0];
+					Scanner scMethode = new Scanner(ligne);
+					visibilite = scMethode.next();
 
-					int offset = isMethodeAbstract ? 1 : 0;
+					if (isMethodeAbstract) {
+						scMethode.next(); // skip "abstract"
+					}
 
-					if (ligne.contains("static")) {
+					String motSuivant = scMethode.next();
+					if (motSuivant.equals("static")) {
 						portee = "classe";
-						typeRetour = ligneMethode[2 + offset];
-						nomMethode = ligneMethode[3 + offset].substring(0, ligneMethode[3 + offset].indexOf("("));
+						typeRetour = scMethode.next();
+						String methodAvecParam = scMethode.next();
+						nomMethode = methodAvecParam.substring(0, methodAvecParam.indexOf("("));
 					} else {
 						portee = "instance";
 
@@ -191,30 +199,37 @@ public class Lecture {
 							typeRetour = "";
 							nomConstructeur = "Constructeur";
 						} else {
-							typeRetour = ligneMethode[1 + offset];
-							nomMethode = ligneMethode[2 + offset].substring(0, ligneMethode[2 + offset].indexOf("("));
+							typeRetour = motSuivant;
+							String methodAvecParam = scMethode.next();
+							nomMethode = methodAvecParam.substring(0, methodAvecParam.indexOf("("));
 						}
 
 					}
-
-					String params = ligne.substring(ligne.indexOf("(") + 1, ligne.indexOf(")"));
+					scMethode.close();					String params = ligne.substring(ligne.indexOf("(") + 1, ligne.indexOf(")"));
 
 					lstParametres = new ArrayList<Parametre>(); // Réinitialiser pour chaque méthode
 
 					if (!params.isEmpty()) {
-						String[] listParam = params.split(",");
+						Scanner scParams = new Scanner(params);
+						scParams.useDelimiter(",");
 
-						for (String p : listParam) {
-							String[] pTokens = p.trim().split("\\s+");
-							if (pTokens.length >= 2) {
-								String typeParam = pTokens[0];
-								String nomParam = pTokens[1];
-								parametre = new Parametre(nomParam, typeParam);
-								lstParametres.add(parametre);
-							} else {
-								System.out.println("Paramètre ignoré (format inattendu): " + p);
+						while (scParams.hasNext()) {
+							String paramStr = scParams.next().trim();
+							Scanner scParam = new Scanner(paramStr);
+							
+							if (scParam.hasNext()) {
+								String typeParam = scParam.next();
+								if (scParam.hasNext()) {
+									String nomParam = scParam.next();
+									parametre = new Parametre(nomParam, typeParam);
+									lstParametres.add(parametre);
+								} else {
+									System.out.println("Paramètre ignoré (format inattendu): " + paramStr);
+								}
 							}
+							scParam.close();
 						}
+						scParams.close();
 					}
 
 					if (!nomConstructeur.equals("")) {
@@ -267,6 +282,7 @@ public class Lecture {
 				{
 					compteur.put(typeNettoye, compteur.getOrDefault(typeNettoye, 0) + 1);
 				}
+				
 			}
 
 			// -------- MULTI-INSTANCE --------
@@ -296,10 +312,59 @@ public class Lecture {
 					}
 				}
 
+				// Vérifier si la classe destination référence aussi la classe origine
+				boolean bidirectionnel = false;
+				for (Attribut attrDest : classeDest.getLstAttribut()) 
+				{
+					String typeAttrDest = nettoyerType(attrDest.getTypeAttribut().trim());
+					if (typeAttrDest.equals(classeOrig.getNom())) 
+					{
+						bidirectionnel = true;
+						break;
+					}
+				}
+				
+				// Vérifier aussi dans les paramètres des méthodes de la classe destination
+				if (!bidirectionnel) 
+				{
+					for (Methode methodeDest : classeDest.getLstMethode()) 
+					{
+						for (Parametre paramDest : methodeDest.getLstParametre()) 
+						{
+							if (nettoyerType(paramDest.getTypePara()).equals(classeOrig.getNom())) 
+							{
+								bidirectionnel = true;
+								break;
+							}
+						}
+						if (bidirectionnel) break;
+					}
+				}
+
+			lstAssociations.add(new Association(
+				classeDest, classeOrig, multDest, multOrig, !bidirectionnel));
+			}
+
+			// -------- SIMPLE INSTANCE --------
+			for (Map.Entry<String,Integer> entry : compteur.entrySet()) 
+			{
+
+				String   typeDest   = entry.getKey();
+				int      max        = entry.getValue();
+
+				// Vérifier que la classe existe dans la HashMap
+				if (!hashMapClasses.containsKey(typeDest + ".java")) {
+					continue; // Ignorer si la classe n'existe pas
+				}
+
+				Classe   classeDest = hashMapClasses.get(typeDest + ".java");				
+				Multiplicite multOrig  = new Multiplicite(1,1);
+				Multiplicite multDest  = new Multiplicite(1, max);
 
 				// Vérifier si la classe destination référence aussi la classe origine
 				boolean bidirectionnel = false;
-				for (Attribut attrDest : classeDest.getLstAttribut()) {
+				for (Attribut attrDest : classeDest.getLstAttribut()) 
+				{
 					String typeAttrDest = nettoyerType(attrDest.getTypeAttribut().trim());
 					if (typeAttrDest.equals(classeOrig.getNom())) {
 						bidirectionnel = true;
@@ -321,34 +386,56 @@ public class Lecture {
 
 				lstAssociations.add(new Association(
 					classeDest, classeOrig, multDest, multOrig, !bidirectionnel));
-
-				// --- Affichage pour debug ---
-    			System.out.println("[ASSOCIATION MULTI] " + classeOrig.getNom() + " --> " 
-                       + classeDest.getNom() + " : " 
-                       + multOrig + " -> " + multDest);
 			}
-
-			// -------- SIMPLE INSTANCE --------
-			for (Map.Entry<String,Integer> entry : compteur.entrySet()) 
-			{
-
-				String   typeDest   = entry.getKey();
-				int      max        = entry.getValue();
-
-			// Vérifier que la classe existe dans la HashMap
-			if (!hashMapClasses.containsKey(typeDest + ".java")) {
-				continue; // Ignorer si la classe n'existe pas
-			}
-
-			Classe   classeDest = hashMapClasses.get(typeDest + ".java");				
-			Multiplicite multOrig  = new Multiplicite(1,1);
-			Multiplicite multDest  = new Multiplicite(1, max);
-
-				lstAssociations.add(new Association(
-					classeDest, classeOrig, multDest, multOrig, true));
-			}
+			nettoyerAssociations();
 		}
 	}
+
+	/**
+	 * Nettoie la liste des associations pour :
+	 * - supprimer les doublons (ex : A→B et B→A)
+	 * - transformer ces doublons en une seule association bidirectionnelle A↔B
+	 * - conserver une seule association unique par couple de classes
+	*/
+	private void nettoyerAssociations() 
+	{
+		// Cette Map va contenir UNE seule association par paire de classes
+		Map<String, Association> uniques = new HashMap<>();
+
+		for (Association asso : lstAssociations) 
+		{
+
+			String origine = asso.getClasseOrig().getNom();
+			String dest    = asso.getClasseDest().getNom();
+
+			String key;
+
+			if (origine.compareTo(dest) < 0) 
+				key = origine + "-" + dest;
+			else
+				key = dest + "-" + origine;
+		
+
+			if (!uniques.containsKey(key)) 
+			{
+				// Première association → on la garde
+				uniques.put(key, asso);
+			}
+			else 
+			{
+				// Une association opposée existe déjà
+				Association exist = uniques.get(key);
+			}
+		}
+
+		// On remplace la liste par la liste unique
+		lstAssociations = new ArrayList<>(uniques.values());
+	}
+
+
+	
+
+
 
 
 	/**
