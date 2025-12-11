@@ -31,6 +31,11 @@ public class PanneauDiagramme extends JPanel {
     private static final double MAX_ZOOM = 3.0;
     private static final double ZOOM_STEP = 0.1;
     private boolean afficherTextZoom = true;
+    
+    // Pan (déplacement de l'espace de travail)
+    private int panOffsetX = 0;
+    private int panOffsetY = 0;
+    private boolean isPanning = false;
 
     public PanneauDiagramme() {
         this.blocsClasses = new ArrayList<>();
@@ -66,6 +71,22 @@ public class PanneauDiagramme extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                // Vérifier si on clique sur le texte de zoom pour le réinitialiser
+                if (e.getX() >= 10 && e.getX() <= 100 && e.getY() >= getHeight() - 20 && e.getY() <= getHeight() - 10) {
+                    zoomLevel = 1.0;
+                    panOffsetX = 0;
+                    panOffsetY = 0;
+                    repaint();
+                    return;
+                }
+                
+                // Vérifier si c'est un clic droit pour commencer le pan
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    isPanning = true;
+                    pointDernier = e.getPoint();
+                    return;
+                }
+                
                 // Convertir les coordonnées écran en coordonnées logiques (avec zoom)
                 double logicalX = (e.getX() - getWidth() / 2) / zoomLevel + getWidth() / (2 * zoomLevel);
                 double logicalY = (e.getY() - getHeight() / 2) / zoomLevel + getHeight() / (2 * zoomLevel);
@@ -104,6 +125,12 @@ public class PanneauDiagramme extends JPanel {
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (isPanning) {
+                    isPanning = false;
+                    repaint();
+                    return;
+                }
+                
                 if (blocEnDeplacement != null) {
                     blocEnDeplacement.setSelectionne(false);
                 }
@@ -118,6 +145,20 @@ public class PanneauDiagramme extends JPanel {
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
+                // Pan avec clic droit
+                if (isPanning) {
+                    int newPanX = panOffsetX + (e.getX() - pointDernier.x);
+                    int newPanY = panOffsetY + (e.getY() - pointDernier.y);
+                    
+                    // Empêcher le pan d'aller dans le négatif
+                    panOffsetX = Math.min(0, newPanX);
+                    panOffsetY = Math.min(0, newPanY);
+                    
+                    pointDernier = e.getPoint();
+                    repaint();
+                    return;
+                }
+                
                 // Drag d'un point d'ancrage de liaison
                 if (liaisonEnDeplacement != null) {
                     if (draggingOriginAnchor) {
@@ -297,6 +338,9 @@ public class PanneauDiagramme extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        // Appliquer le pan offset
+        g2d.translate(panOffsetX, panOffsetY);
+        
         // Appliquer le zoom
         g2d.translate(getWidth() / 2, getHeight() / 2);
         g2d.scale(zoomLevel, zoomLevel);

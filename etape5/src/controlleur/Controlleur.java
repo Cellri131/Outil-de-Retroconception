@@ -50,7 +50,6 @@ public class Controlleur {
 
         creerLiaisonsDepuisHerit(lecture.getLstHeritage(), mapBlocsParNom);
 
-        System.out.println("++++++++++++++++++++ OPTIMISATION DES POSITIONS ++++++++++++++++++++");
         panneauDiagramme.optimiserPositionsClasses();
 
         return blocs;
