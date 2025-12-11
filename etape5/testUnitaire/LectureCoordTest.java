@@ -4,45 +4,45 @@ import metier.LectureCoord;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.nio.file.Path;
 import java.util.Map;
 
-public class LectureCoordTest 
-{
+public class LectureCoordTest {
 
     @Test
-    public void testLecture(@TempDir Path tempDir) throws Exception 
-    {
+    public void testLectureAnimalerie() {
 
-        // --- 1. Création d'un faux fichier de sauvegarde ---
-        File dossierSauvegarde = tempDir.toFile();
-        File fichierTest = new File(dossierSauvegarde, "testCoord.txt");
+        LectureCoord lecture = new LectureCoord();
 
-        try (FileWriter writer = new FileWriter(fichierTest)) 
-        {
-            writer.write("src/com/exemple/MaClasse.java\n");
-            writer.write("methodeA 10 20\n");
-            writer.write("methodeB 30 40\n");
-        }
+        // Lecture du fichier animalerie
+        lecture.lecture("animalerie.xml");
 
-        // --- 2. Instanciation de ta classe ---
-        LectureCoord lectureCoord = new LectureCoord();
+        Map<String, int[]> coords = lecture.gethashCoordonnees();
 
-        // On passe le chemin relatif utilisé dans la classe
-        // mais ici on bypass "donnees/sauvegardes/"
-        // donc on force un chemin réel :
-        lectureCoord.lecture(fichierTest.getAbsolutePath());
+        // === AFFICHAGE POUR DEBUG ===
+        System.out.println("=== Affichage de la map dans le test ===");
+        coords.forEach((key, value) -> {
+            System.out.println(key + " -> x=" + value[0] + ", y=" + value[1]);
+        });
+        System.out.println("========================================");
 
-        // --- 3. Vérifications ---
-        Map<String, int[]> resultat = lectureCoord.gethashCoordonnees();
+        // Vérification de la map
+        assertNotNull(coords, "La map ne doit pas être null.");
+        assertEquals(2, coords.size(), "La map doit contenir exactement 2 éléments.");
 
-        assertEquals(2, resultat.size(), "La map doit contenir 2 éléments");
+        // Vérification des coordonnées chargées
+        assertArrayEquals(new int[]{42, 16}, coords.get("Chat"),
+                "Les coordonnées de Chat sont incorrectes.");
 
-        assertArrayEquals(new int[]{10, 20}, resultat.get("methodeA"));
-        assertArrayEquals(new int[]{30, 40}, resultat.get("methodeB"));
+        assertArrayEquals(new int[]{50, 45}, coords.get("Collier"),
+                "Les coordonnées de Collier sont incorrectes.");
+
+        // Vérification du chemin dossier détecté
+        String chemin = lecture.getCheminDossier();
+        assertNotNull(chemin, "Le chemin dossier doit être détecté.");
+        assertTrue(chemin.contains("animalerie"),
+                "Le chemin doit contenir 'animalerie'.");
+        System.out.println("Chemin dossier détecté : " + chemin);
     }
 }
+
+

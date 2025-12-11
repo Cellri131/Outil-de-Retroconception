@@ -4,14 +4,17 @@ import java.util.*;
 import metier.*;
 import vue.BlocClasse;
 import vue.LiaisonVue;
+import vue.PanneauDiagramme;
 
 public class Controlleur 
 {
     private Lecture lecture;
     private List<LiaisonVue> liaisons;
+    private PanneauDiagramme panneauDiagramme;
 
-    public Controlleur() 
+    public Controlleur(PanneauDiagramme panneauDiagramme) 
     {
+        this.panneauDiagramme = panneauDiagramme;
         this.liaisons = new ArrayList<>();
     }
 
@@ -50,6 +53,8 @@ public class Controlleur
         creerLiaisonsDepuisAssoc(lecture.getLstAssociation(), mapBlocsParNom);
 
         creerLiaisonsDepuisHerit(lecture.getLstHeritage(), mapBlocsParNom);
+
+        panneauDiagramme.optimiserPositionsClasses();
 
         return blocs;
     }

@@ -31,7 +31,7 @@ public class PanneauDiagramme extends JPanel
         this.blocsClasses        = new ArrayList<>();
         this.liaisons            = new ArrayList<>();
         this.cheminProjetCourant = null;
-        this.controlleur         = new Controlleur();
+        this.controlleur         = new Controlleur(this);
 
         setLayout(null);
         setBackground(new Color(255, 255, 255));
