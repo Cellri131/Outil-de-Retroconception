@@ -207,7 +207,7 @@ public class BarreMenus extends JMenuBar
 
     private void actionAffichageMethodes() 
     {
-        fenetrePrincipale.affichageMethodes(afficherAttributsItem.getState());
+        fenetrePrincipale.affichageMethodes(afficherMethodesItem.getState());
     }
 
     private void actionAligner()
