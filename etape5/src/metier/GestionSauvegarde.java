@@ -2,7 +2,11 @@ package metier;
 
 import vue.BlocClasse;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -25,11 +29,14 @@ public class GestionSauvegarde {
         String basePath = System.getProperty("user.dir");
         String cheminDossier = basePath + "/etape5/donnees/sauvegardes/" + dossierFichSelec;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(cheminDossier))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(cheminDossier))) 
+        {
             String ligne;
 
-            while ((ligne = reader.readLine()) != null) {
-                if (ligne.contains("/")) {
+            while ((ligne = reader.readLine()) != null) 
+            {
+                if (ligne.contains("/")) 
+                {
                     this.cheminDossier = ligne.trim();
                     continue;
                 } else {
@@ -49,25 +56,78 @@ public class GestionSauvegarde {
                 }
             }
 
-        } catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
             e.printStackTrace();
         }
 
     }
 
-    public void sauvegardeFichier() {
-
-    }
-
-    public Map<String, int[]> gethashCoordonnees() {
+    public Map<String, int[]> gethashCoordonnees() 
+    {
         return this.hashCoordonnees;
     }
 
-    public String getCheminDossier() {
+    public String getCheminDossier() 
+    {
         return this.cheminDossier;
     }
 
-    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
+    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) 
+    {
+        int      indiceslash            = cheminProjet.lastIndexOf("/");
+        String   nomProjetASauv         = cheminProjet.substring(indiceslash +1 ).trim();
 
+        String   fichierLectureEcriture = "donnees/projets.xml";
+        int      nbrDossierMemeNom      = 0;
+  
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fichierLectureEcriture))) 
+        {
+            String ligne;
+
+            while ((ligne = br.readLine()) != null) 
+            {
+      
+                int    indicePremierSlash = ligne.lastIndexOf("/");
+                int    indicePremierTab   = ligne.indexOf("\t");
+
+                String nomDossierDejaSauv = ligne.substring(indicePremierSlash +1 , indicePremierTab).trim();
+                
+                if(nomDossierDejaSauv.equals(nomProjetASauv))
+                {
+                    nbrDossierMemeNom ++;
+                }
+
+            }
+
+        } 
+        catch (FileNotFoundException e) 
+        {
+            // Si le fichier n'existe pas encore, on peut l'ignorer
+        } 
+        catch (IOException e) 
+        {
+            e.printStackTrace();
+        }
+
+
+
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(fichierLectureEcriture, true))) 
+        {
+            String ligneAAjouter = cheminProjet + "\t" + nomProjetASauv;
+            if(nbrDossierMemeNom > 0)
+            {
+                ligneAAjouter +=  "_" + (nbrDossierMemeNom + 1); 
+            }
+
+            bw.write(ligneAAjouter);
+            bw.newLine();
+
+        } catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
     }
 }
