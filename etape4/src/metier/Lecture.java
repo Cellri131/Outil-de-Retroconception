@@ -438,6 +438,8 @@ public class Lecture {
 				{
 					compteur.put(typeNettoye, compteur.getOrDefault(typeNettoye, 0) + 1);
 				}
+
+				
 			}
 
 			// -------- MULTI-INSTANCE --------
@@ -493,6 +495,7 @@ public class Lecture {
 			lstAssociations.add(new Association(
 				classeDest, classeOrig, multDest, multOrig, !bidirectionnel));
 			}
+			nettoyerAssociations();
 
 			// -------- SIMPLE INSTANCE --------
 			for (Map.Entry<String,Integer> entry : compteur.entrySet()) 

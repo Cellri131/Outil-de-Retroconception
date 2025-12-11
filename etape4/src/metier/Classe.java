@@ -5,15 +5,15 @@ import java.util.ArrayList;
 public class Classe 
 {
 
-	private String             nom;
-	private String classeParente;
+	private String  nom;
+	private String  classeParente;
 	private boolean isHeritage;
-	private boolean            isAbstract;
+	private boolean isAbstract;
 	private boolean isImplementing ;
-	private String implementing;
-	private boolean            isInterface;
-	private boolean            isRecord;
-	private boolean            isEnum;
+	private String  implementing;
+	private boolean isInterface;
+	private boolean isRecord;
+	private boolean isEnum;
 	
 	private ArrayList<Attribut> lstAttribut;
 	private ArrayList<Methode> lstMethode;
