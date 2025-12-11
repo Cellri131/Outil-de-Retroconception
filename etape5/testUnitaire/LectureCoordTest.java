@@ -1,6 +1,6 @@
 package testUnitaire;
 
-import metier.LectureCoord;
+import metier.GestionSauvegarde;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,7 @@ public class LectureCoordTest {
     @Test
     public void testLectureAnimalerie() {
 
-        LectureCoord lecture = new LectureCoord();
+        GestionSauvegarde lecture = new GestionSauvegarde();
 
         // Lecture du fichier animalerie
         lecture.lecture("animalerie.xml");
