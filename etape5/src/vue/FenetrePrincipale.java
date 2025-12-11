@@ -104,8 +104,13 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.setAfficherMethodes(b);
     }
 
-    public void optimiserPositions()
+    public void optimiserPositionsClasses()
     {
-        panneauDiagramme.optimiserPositions();
+        panneauDiagramme.optimiserPositionsClasses();
+    }
+
+    public void optimiserPositionsLiaisons()
+    {
+        panneauDiagramme.optimiserPositionsLiaisons();
     }
 }

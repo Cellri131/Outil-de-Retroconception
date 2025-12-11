@@ -83,19 +83,19 @@ public class BarreMenus extends JMenuBar
 
         afficherAttributsItem = new JCheckBoxMenuItem("Afficher attributs", true);
         afficherMethodesItem = new JCheckBoxMenuItem("Afficher méthodes", true);
-        JMenuItem alignerItem = new JMenuItem("Aligner les symboles");
         JMenuItem optimiserItem = new JMenuItem("Optimiser les positions");
+        JMenuItem optimiserLiaisonsItem = new JMenuItem("Optimiser les liaisons uniquement");
 
         afficherAttributsItem.addActionListener(e -> actionAffichageAttributs());
         afficherMethodesItem.addActionListener(e -> actionAffichageMethodes());
-        alignerItem.addActionListener(e -> actionAligner());
         optimiserItem.addActionListener(e -> actionOptimiser());
+        optimiserLiaisonsItem.addActionListener(e -> actionOptimiserLiaisons());
 
         menu.add(afficherAttributsItem);
         menu.add(afficherMethodesItem);
         menu.addSeparator();
-        //menu.add(alignerItem);
         menu.add(optimiserItem);
+        //menu.add(optimiserLiaisonsItem);
 
         return menu;
     }
@@ -210,14 +210,20 @@ public class BarreMenus extends JMenuBar
         fenetrePrincipale.affichageMethodes(afficherAttributsItem.getState());
     }
 
-    private void actionAligner() 
+    private void actionAligner()
     {
         JOptionPane.showMessageDialog(null, "Pas fini");
     }
 
     private void actionOptimiser() 
     {
-        fenetrePrincipale.optimiserPositions();
+        fenetrePrincipale.optimiserPositionsClasses();
+        fenetrePrincipale.optimiserPositionsLiaisons();
+    }
+
+    private void actionOptimiserLiaisons() 
+    {
+        fenetrePrincipale.optimiserPositionsLiaisons();
     }
 
     private void actionAPropos() 

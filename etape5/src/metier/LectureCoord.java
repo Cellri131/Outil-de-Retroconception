@@ -1,12 +1,15 @@
+package metier;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LectureCoord {
+public class LectureCoord 
+{
 
     private Map<String, int[]> hashCoordonnees;
-    
+    private String             nomclass;
 
     public LectureCoord() 
     {
@@ -52,7 +55,8 @@ public class LectureCoord {
                 
             }
 
-        } catch (Exception e) 
+        } 
+        catch (Exception e) 
         {
             e.printStackTrace();
         }
@@ -60,14 +64,14 @@ public class LectureCoord {
     }
 
 
-    /*public Map<String, int[]> getCoordonnees() 
+    public Map<String, int[]> gethashCoordonnees() 
     {
-        return coordonnees;
+        return this.hashCoordonnees;
     }
 
-    public void ajouterCoord(String nom, int x, int y) 
+    public String getAllAtributBlockClass() 
     {
-        coordonnees.put(nom, new int[]{x, y});
-    }*/
+        return this.nomclass; 
+    }
 
 }

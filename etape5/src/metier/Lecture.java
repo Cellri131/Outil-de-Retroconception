@@ -411,6 +411,8 @@ public class Lecture {
 
 	private void genererAssociation()
 	{
+		ArrayList<Attribut> attributsARetirer = new ArrayList<>();
+
 		for (String nomFichier : hashMapClasses.keySet()) 
 		{
 			Classe classeOrig = hashMapClasses.get(nomFichier);
@@ -433,10 +435,14 @@ public class Lecture {
 				{
 					// Ajoute tel quel
 					listeMultiInstance.add(typeNettoye);
+					attributsARetirer.add(attr);
 				}
 				else // Simple instance
 				{
 					compteur.put(typeNettoye, compteur.getOrDefault(typeNettoye, 0) + 1);
+					if (hashMapClasses.containsKey(typeNettoye + ".java")) {
+						attributsARetirer.add(attr);
+					}
 				}
 			}
 
@@ -470,18 +476,25 @@ public class Lecture {
 
 				// Vérifier si la classe destination référence aussi la classe origine
 				boolean bidirectionnel = false;
-				for (Attribut attrDest : classeDest.getLstAttribut()) {
+				for (Attribut attrDest : classeDest.getLstAttribut()) 
+				{
 					String typeAttrDest = nettoyerType(attrDest.getTypeAttribut().trim());
-					if (typeAttrDest.equals(classeOrig.getNom())) {
+					if (typeAttrDest.equals(classeOrig.getNom())) 
+					{
 						bidirectionnel = true;
 						break;
 					}
 				}
+
 				// Vérifier aussi dans les paramètres des méthodes de la classe destination
-				if (!bidirectionnel) {
-					for (Methode methodeDest : classeDest.getLstMethode()) {
-						for (Parametre paramDest : methodeDest.getLstParametre()) {
-							if (nettoyerType(paramDest.getTypePara()).equals(classeOrig.getNom())) {
+				if (!bidirectionnel) 
+				{
+					for (Methode methodeDest : classeDest.getLstMethode()) 
+					{
+						for (Parametre paramDest : methodeDest.getLstParametre()) 
+						{
+							if (nettoyerType(paramDest.getTypePara()).equals(classeOrig.getNom())) 
+							{
 								bidirectionnel = true;
 								break;
 							}
@@ -501,41 +514,43 @@ public class Lecture {
 				String   typeDest   = entry.getKey();
 				int      max        = entry.getValue();
 
-		// Vérifier que la classe existe dans la HashMap
-		if (!hashMapClasses.containsKey(typeDest + ".java")) {
-			continue; // Ignorer si la classe n'existe pas
-		}
-
-		Classe   classeDest = hashMapClasses.get(typeDest + ".java");				
-		Multiplicite multOrig  = new Multiplicite(1,1);
-				Multiplicite multDest  = new Multiplicite(1, max);
-
-				// Vérifier si la classe destination référence aussi la classe origine
-				boolean bidirectionnel = false;
-				for (Attribut attrDest : classeDest.getLstAttribut()) {
-					String typeAttrDest = nettoyerType(attrDest.getTypeAttribut().trim());
-					if (typeAttrDest.equals(classeOrig.getNom())) {
-						bidirectionnel = true;
-						break;
-					}
-				}
-				// Vérifier aussi dans les paramètres des méthodes de la classe destination
-				if (!bidirectionnel) {
-					for (Methode methodeDest : classeDest.getLstMethode()) {
-						for (Parametre paramDest : methodeDest.getLstParametre()) {
-							if (nettoyerType(paramDest.getTypePara()).equals(classeOrig.getNom())) {
-								bidirectionnel = true;
-								break;
-							}
-						}
-						if (bidirectionnel) break;
-					}
-				}
-
-				lstAssociations.add(new Association(
-					classeDest, classeOrig, multDest, multOrig, !bidirectionnel));
+			// Vérifier que la classe existe dans la HashMap
+			if (!hashMapClasses.containsKey(typeDest + ".java")) {
+				continue; // Ignorer si la classe n'existe pas
 			}
-			nettoyerAssociations();
+
+			Classe   classeDest = hashMapClasses.get(typeDest + ".java");				
+			Multiplicite multOrig  = new Multiplicite(1,1);
+					Multiplicite multDest  = new Multiplicite(1, max);
+
+					// Vérifier si la classe destination référence aussi la classe origine
+					boolean bidirectionnel = false;
+					for (Attribut attrDest : classeDest.getLstAttribut()) {
+						String typeAttrDest = nettoyerType(attrDest.getTypeAttribut().trim());
+						if (typeAttrDest.equals(classeOrig.getNom())) {
+							bidirectionnel = true;
+							break;
+						}
+					}
+					// Vérifier aussi dans les paramètres des méthodes de la classe destination
+					if (!bidirectionnel) {
+						for (Methode methodeDest : classeDest.getLstMethode()) {
+							for (Parametre paramDest : methodeDest.getLstParametre()) {
+								if (nettoyerType(paramDest.getTypePara()).equals(classeOrig.getNom())) {
+									bidirectionnel = true;
+									break;
+								}
+							}
+							if (bidirectionnel) break;
+						}
+					}
+
+					lstAssociations.add(new Association(
+						classeDest, classeOrig, multDest, multOrig, !bidirectionnel));
+				}
+				nettoyerAssociations();
+			// SUPPRESSION DES ATTRIBUTS DE RELATION
+			classeOrig.getLstAttribut().removeAll(attributsARetirer);
 		}
 	}
 

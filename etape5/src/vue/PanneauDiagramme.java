@@ -145,7 +145,7 @@ public class PanneauDiagramme extends JPanel
         });
     }
 
-    public void optimiserPositions()
+    public void optimiserPositionsClasses()
     {
         if (blocsClasses.isEmpty()) {
             return;
@@ -154,12 +154,23 @@ public class PanneauDiagramme extends JPanel
         // organiser les blocs en grille
         organiserEnGrille();
         
+        // Étape 4 : Redessiner
+        repaint();
+    }
+
+    public void optimiserPositionsLiaisons()
+    {
+        if (liaisons.isEmpty()) {
+            return;
+        }
+
         // réinitialiser les positions des ancres pour les liaisons
         reinitialiserAnchages();
         
         // Étape 4 : Redessiner
         repaint();
     }
+
     
     /**
      * Organise les blocs en une grille régulière avec espacement optimal
@@ -167,17 +178,38 @@ public class PanneauDiagramme extends JPanel
     private void organiserEnGrille()
     {
         int cols = (int) Math.ceil(Math.sqrt(blocsClasses.size()));
-        int spacing = 275; // Espacement entre les blocs
+        int spacingX = 275; // Espacement  entre les blocs
+        int spacingY = 275;
         int startX = 50;
         int startY = 50;
+        System.out.println("HAGRAZOUGLOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
         
-        for (int i = 0; i < blocsClasses.size(); i++) {
+        for (BlocClasse bloc : blocsClasses) 
+        {
+            System.out.println("Comparaison de spacingX avec la largeur de bloc : " + spacingX * 2 + " lb : " + bloc.getLargeur());
+            System.out.println("Comparaison de spacingY avec la hauteur de bloc : " + spacingY * 2 + " lb : " + bloc.getHauteur());
+            if (spacingX * 1 < bloc.getLargeur() * 2)
+            {
+                spacingX = bloc.getLargeur() * 2;
+            System.out.println("Remplacé spacing x par " + spacingX);
+
+            }
+            if (spacingY * 1 < bloc.getHauteur() * 2)
+            {
+                spacingY = bloc.getHauteur() * 2;
+            System.out.println("Remplacé spacing y par " + spacingY);
+            }
+
+        }
+
+        for (int i = 0; i < blocsClasses.size(); i++) 
+        {
             BlocClasse bloc = blocsClasses.get(i);
             int col = i % cols;
             int row = i / cols;
             
-            int newX = startX + col * spacing;
-            int newY = startY + row * spacing;
+            int newX = startX + col * spacingX;
+            int newY = startY + row * spacingY;
             
             bloc.setX(newX);
             bloc.setY(newY);
