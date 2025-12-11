@@ -25,6 +25,13 @@ public class PanneauDiagramme extends JPanel
     private LiaisonVue liaisonEnDeplacement;
     private boolean draggingOriginAnchor;
     private boolean draggingDestinationAnchor;
+    
+    // Zoom
+    private double zoomLevel = 1.0;
+    private static final double MIN_ZOOM = 0.1;
+    private static final double MAX_ZOOM = 3.0;
+    private static final double ZOOM_STEP = 0.1;
+    private boolean afficherTextZoom = true;
 
     public PanneauDiagramme() 
     {
@@ -66,6 +73,10 @@ public class PanneauDiagramme extends JPanel
             @Override
             public void mousePressed(MouseEvent e) 
             {
+                // Convertir les coordonnées écran en coordonnées logiques (avec zoom)
+                double logicalX = (e.getX() - getWidth() / 2) / zoomLevel + getWidth() / (2 * zoomLevel);
+                double logicalY = (e.getY() - getHeight() / 2) / zoomLevel + getHeight() / (2 * zoomLevel);
+                
                 pointDernier = e.getPoint();
                 blocEnDeplacement = null;
                 liaisonEnDeplacement = null;
@@ -92,7 +103,7 @@ public class PanneauDiagramme extends JPanel
                 // Sinon, vérifier si on clique sur un bloc
                 for (BlocClasse bloc : blocsClasses) 
                 {
-                    if (bloc.contient(e.getX(), e.getY())) 
+                    if (bloc.contient((int)logicalX, (int)logicalY)) 
                     {
                         blocEnDeplacement = bloc;
                         bloc.setSelectionne(true);
@@ -134,12 +145,45 @@ public class PanneauDiagramme extends JPanel
 
                 // Drag d'un bloc
                 if (blocEnDeplacement != null) {
-                    int dx = e.getX() - pointDernier.x;
-                    int dy = e.getY() - pointDernier.y;
+                    // Convertir les déplacements en fonction du zoom
+                    double dx = (e.getX() - pointDernier.x) / zoomLevel;
+                    double dy = (e.getY() - pointDernier.y) / zoomLevel;
 
-                    blocEnDeplacement.deplacer(dx, dy);
-                    pointDernier = e.getPoint();
+                    // Vérifier les limites pour éviter un déplacement hors zone
+                    int newX = blocEnDeplacement.getX() + (int)dx;
+                    int newY = blocEnDeplacement.getY() + (int)dy;
+                    
+
+                    // Empêcher le déplacement hors de la zone de travail
+                    if (newX >= 0 && newY >= 0) {
+                        blocEnDeplacement.deplacer((int)dx, (int)dy);
+                        pointDernier = e.getPoint();
+                    } else if (newX >= 0 && newY < 0) {
+                        blocEnDeplacement.deplacer((int)dx, 0);
+                        pointDernier = e.getPoint();
+                    }
+                    else if (newX < 0 && newY >= 0) {
+                        blocEnDeplacement.deplacer(0, (int)dy);
+                        pointDernier = e.getPoint();
+                    }
+                    
                     repaint();
+                }
+            }
+        });
+
+        // Listener pour la molette de souris (zoom)
+        addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if (e.isControlDown()) {
+                    double oldZoom = zoomLevel;
+                    zoomLevel -= e.getWheelRotation() * ZOOM_STEP;
+                    zoomLevel = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoomLevel));
+                    
+                    if (zoomLevel != oldZoom) {
+                        repaint();
+                    }
                 }
             }
         });
@@ -178,26 +222,16 @@ public class PanneauDiagramme extends JPanel
     private void organiserEnGrille()
     {
         int cols = (int) Math.ceil(Math.sqrt(blocsClasses.size()));
-        int spacingX = 275; // Espacement  entre les blocs
+        int spacingX = 275; // Espacement entre les blocs
         int spacingY = 275;
         int startX = 50;
         int startY = 50;
-        System.out.println("HAGRAZOUGLOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
         
         for (BlocClasse bloc : blocsClasses) 
         {
-            System.out.println("Comparaison de spacingX avec la largeur de bloc : " + spacingX * 2 + " lb : " + bloc.getLargeur());
-            System.out.println("Comparaison de spacingY avec la hauteur de bloc : " + spacingY * 2 + " lb : " + bloc.getHauteur());
-            if (spacingX * 1 < bloc.getLargeur() * 2)
+            if (spacingY < bloc.getHauteurCalculee())
             {
-                spacingX = bloc.getLargeur() * 2;
-            System.out.println("Remplacé spacing x par " + spacingX);
-
-            }
-            if (spacingY * 1 < bloc.getHauteur() * 2)
-            {
-                spacingY = bloc.getHauteur() * 2;
-            System.out.println("Remplacé spacing y par " + spacingY);
+                spacingY = bloc.getHauteurCalculee();
             }
 
         }
@@ -288,6 +322,11 @@ public class PanneauDiagramme extends JPanel
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        // Appliquer le zoom
+        g2d.translate(getWidth() / 2, getHeight() / 2);
+        g2d.scale(zoomLevel, zoomLevel);
+        g2d.translate(-getWidth() / (2 * zoomLevel), -getHeight() / (2 * zoomLevel));
+
         // Dessiner les liaisons
         dessinerLiaisons(g2d);
 
@@ -295,6 +334,23 @@ public class PanneauDiagramme extends JPanel
         for (BlocClasse bloc : blocsClasses) {
             bloc.dessiner(g2d, this.afficherAttributs, this.afficherMethodes);
         }
+        
+        // Afficher le pourcentage de zoom
+        afficherZoomPercentage(g2d);
+    }
+    
+    private void afficherZoomPercentage(Graphics2D g2d) {
+        if (!afficherTextZoom) {
+            return;
+        }
+        
+        // Réinitialiser la transformation pour afficher le texte sans zoom
+        g2d.setTransform(new java.awt.geom.AffineTransform());
+        
+        g2d.setColor(new Color(100, 100, 100));
+        g2d.setFont(new Font("Arial", Font.PLAIN, 12));
+        String zoomText = String.format("Zoom: %d%%", (int) (zoomLevel * 100));
+        g2d.drawString(zoomText, 10, getHeight() - 10);
     }
 
     private void dessinerLiaisons(Graphics2D g2d) {
@@ -328,6 +384,28 @@ public class PanneauDiagramme extends JPanel
     public void setAfficherAttributs(boolean b) 
     {
         this.afficherAttributs = b;
+        this.repaint();
+    }
+
+    public double getZoomLevel() 
+    {
+        return zoomLevel;
+    }
+
+    public void setZoomLevel(double zoom) 
+    {
+        this.zoomLevel = zoom;
+        this.repaint();
+    }
+
+    public boolean isAfficherTextZoom() 
+    {
+        return afficherTextZoom;
+    }
+
+    public void setAfficherTextZoom(boolean afficher) 
+    {
+        this.afficherTextZoom = afficher;
         this.repaint();
     }
 }
