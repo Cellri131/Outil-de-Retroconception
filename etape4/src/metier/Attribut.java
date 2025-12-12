@@ -5,23 +5,23 @@ public class Attribut {
 	private String nomAttribut;
 	private String type;
 	private String visibilite;
-	private String porte;
+	private String portee;
 	private boolean isConstant;
 
-	public Attribut(String nomAttribut, String type, String visibilite, String porte, boolean isConstant)
+	public Attribut(String nomAttribut, String type, String visibilite, String portee, boolean isConstant)
 	{
 		this.nomAttribut = nomAttribut;
 		this.type = type;
 		this.visibilite = visibilite;
-		this.porte = porte;
+		this.portee = portee;
 		this.isConstant = isConstant;
 	}
 
-	public String getNomAttribut() {
+	public String getNom() {
 		return this.nomAttribut;
 	}
 
-	public String getTypeAttribut() {
+	public String getType() {
 		return this.type;
 	}
 
@@ -29,8 +29,8 @@ public class Attribut {
 		return this.visibilite;
 	}
 
-	public String getPorte() {
-		return this.porte;
+	public String getPortee() {
+		return this.portee;
 	}
 
 	public boolean isConstant() {
@@ -60,7 +60,7 @@ public class Attribut {
         }
 
         // Souligner les attributs statiques (portée = "classe") avec code ANSI
-        if (this.porte.equals("classe")) {
+        if (this.portee.equals("classe")) {
             // Code ANSI pour souligner : \u001B[4m au début, \u001B[0m à la fin
             sRet = "\u001B[4m" + sRet + "\u001B[0m";
         }

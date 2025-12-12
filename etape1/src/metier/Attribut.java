@@ -5,21 +5,21 @@ public class Attribut {
 	private String nomAttribut;
 	private String type;
 	private String visibilite;
-	private String porte;
+	private String portee;
 
-	public Attribut(String nomAttribut, String type, String visibilite, String porte)
+	public Attribut(String nomAttribut, String type, String visibilite, String portee)
 	{
 		this.nomAttribut = nomAttribut;
 		this.type = type;
 		this.visibilite = visibilite;
-		this.porte = porte;
+		this.portee = portee;
 	}
 
-	public String getNomAttribut() {
+	public String getNom() {
 		return this.nomAttribut;
 	}
 
-	public String getTypeAttribut() {
+	public String getType() {
 		return this.type;
 	}
 
@@ -27,8 +27,8 @@ public class Attribut {
 		return this.visibilite;
 	}
 
-	public String getPorte() {
-		return this.porte;
+	public String getPortee() {
+		return this.portee;
 	}
 
 	public String toString()

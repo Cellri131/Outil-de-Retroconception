@@ -71,7 +71,7 @@ public class Retroconception
 			int cpt = 1;
 			for (Attribut a : attributs) {
 				System.out.printf("attribut : %d\tnom : %-8s\ttype : %-8s\tvisibilité : %-8s\tportée : %s%n",
-						cpt++, a.getNomAttribut(), a.getTypeAttribut(), a.getVisibilite(), a.getPorte());
+						cpt++, a.getNom(), a.getType(), a.getVisibilite(), a.getPorte());
 			}
 			System.out.println(); // Ligne vide après les attributs
 		}
@@ -207,7 +207,7 @@ public class Retroconception
 			for (Attribut a : attributs) {
 				// Pour les enums, afficher uniquement le nom sans symbole ni type
 				if (classe.isEnum()) {
-					System.out.println(a.getNomAttribut());
+					System.out.println(a.getNom());
 				} else {
 					System.out.println(a.toString());
 				}

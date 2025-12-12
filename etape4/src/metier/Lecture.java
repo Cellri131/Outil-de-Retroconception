@@ -475,7 +475,7 @@ public class Lecture
 
 			for (Attribut attr : classeOrig.getLstAttribut()) 
 			{
-				String typeOriginal = attr.getTypeAttribut().trim();
+				String typeOriginal = attr.getType().trim();
 				String typeNettoye  = nettoyerType(typeOriginal).trim();
 				
 				/*if (!hashMapClasses.containsKey(typeNettoye))
@@ -528,7 +528,7 @@ public class Lecture
 				boolean bidirectionnel = false;
 				for (Attribut attrDest : classeDest.getLstAttribut()) 
 				{
-					String typeAttrDest = nettoyerType(attrDest.getTypeAttribut().trim());
+					String typeAttrDest = nettoyerType(attrDest.getType().trim());
 					if (typeAttrDest.equals(classeOrig.getNom())) 
 					{
 						bidirectionnel = true;
@@ -576,7 +576,7 @@ public class Lecture
 					// Vérifier si la classe destination référence aussi la classe origine
 					boolean bidirectionnel = false;
 					for (Attribut attrDest : classeDest.getLstAttribut()) {
-						String typeAttrDest = nettoyerType(attrDest.getTypeAttribut().trim());
+						String typeAttrDest = nettoyerType(attrDest.getType().trim());
 						if (typeAttrDest.equals(classeOrig.getNom())) {
 							bidirectionnel = true;
 							break;

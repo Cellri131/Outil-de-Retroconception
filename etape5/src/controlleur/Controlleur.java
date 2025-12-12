@@ -69,8 +69,8 @@ public class Controlleur {
                 case "protected" -> visibilite = "~";
             }
 
-            String nomAtt = att.getNomAttribut();
-            String typeAtt = att.getTypeAttribut();
+            String nomAtt = att.getNom();
+            String typeAtt = att.getType();
             attributsStr.add(visibilite + " " + nomAtt + " : " + typeAtt);
         }
 
