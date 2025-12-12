@@ -1,5 +1,17 @@
 # Outil de Rétroconception Java-UML
 
+## Compilation et exécution
+
+### Pour compiler
+javac -d bin @compile.list
+
+### Pour exécuter
+java -cp bin controlleur.Retroconception  <dossier ou fichier java>
+
+### Les deux 
+linux   : ./run.sh
+windows : ./run.bat
+
 ## 🎯 Objectif
 Développer un outil de rétro-conception permettant de générer des **diagrammes de classes UML** à partir de classes écrites en **Java**.  
 Le projet doit être entièrement codé en Java en utilisant uniquement les bibliothèques du JDK.
