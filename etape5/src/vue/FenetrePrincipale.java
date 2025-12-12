@@ -32,6 +32,7 @@ public class FenetrePrincipale extends JFrame
 
         setLayout(new BorderLayout());
         
+        // La ligne de division entre panel projet et panel diagramme
         JSplitPane splitPane = new JSplitPane(
             JSplitPane.HORIZONTAL_SPLIT,
             true,

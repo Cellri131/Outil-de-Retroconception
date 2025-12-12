@@ -1,5 +1,5 @@
 public class Chat extends Animal {
-    private String couleur;
+    private final String couleur;
     private Collier collier;
 
     public Chat(String nom, int age, String couleur) {
@@ -9,10 +9,6 @@ public class Chat extends Animal {
 
     public String getCouleur() {
         return couleur;
-    }
-
-    public void setCouleur(String couleur) {
-        this.couleur = couleur;
     }
 
     public void miauler() {

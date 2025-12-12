@@ -1,7 +1,14 @@
 package controlleur;
 
 import java.util.*;
-import metier.*;
+import metier.lecture.*;
+import metier.GestionSauvegarde;
+import metier.Association;
+import metier.Classe;
+import metier.Methode;
+import metier.Interface;
+import metier.Heritage;
+import metier.Attribut;
 import vue.BlocClasse;
 import vue.LiaisonVue;
 import vue.PanneauDiagramme;
@@ -46,9 +53,11 @@ public class Controlleur {
         }
 
         // Créer les liaisons depuis associations, heritages, et interfaces
-        creerLiaisonsDepuisAssoc(lecture.getLstAssociation(), mapBlocsParNom);
+        creerLiaisonsDepuisAssoc(lecture.getLstAssociations(), mapBlocsParNom);
 
         creerLiaisonsDepuisHerit(lecture.getLstHeritage(), mapBlocsParNom);
+
+        //creerLiaisonsDepuisInterface(lecture.getLstInterface(), mapBlocsParNom);
 
         panneauDiagramme.optimiserPositionsClasses();
 
@@ -60,6 +69,8 @@ public class Controlleur {
 
         List<String> attributsStr = new ArrayList<>();
         for (Attribut att : classe.getLstAttribut()) {
+            String sRet;
+
             String visibilite = att.getVisibilite();
 
             switch (visibilite) {
@@ -69,9 +80,24 @@ public class Controlleur {
                 case "protected" -> visibilite = "~";
             }
 
-            String nomAtt = att.getNom();
-            String typeAtt = att.getType();
-            attributsStr.add(visibilite + " " + nomAtt + " : " + typeAtt);
+            sRet = visibilite + " ";
+            
+            sRet += att.getNom() + " : ";
+            
+            sRet += att.getType();
+
+            if (att.isConstant()) {
+                sRet += " {frozen}";
+            }
+
+            // Souligner les attributs statiques (portée = "classe") avec code ANSI
+            if (att.getPortee().equals("classe")) {
+                // Code ANSI pour souligner : \u001B[4m au début, \u001B[0m à la fin
+                sRet = "\u001B[4m" + sRet + "\u001B[0m";
+            }
+
+            attributsStr.add(sRet);
+            
         }
 
         List<String> methodesStr = new ArrayList<>();
@@ -115,6 +141,16 @@ public class Controlleur {
             BlocClasse blocOrigine = mapBlocsParNom.get(herit.getClasseOrig().getNom());
             BlocClasse blocDestination = mapBlocsParNom.get(herit.getClasseDest().getNom());
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "heritage");
+            liaisons.add(liaison);
+        }
+    }
+
+    private void creerLiaisonsDepuisInterface(List<Interface> lstInter, HashMap<String, BlocClasse> mapBlocsParNom) {
+
+        for (Interface inter : lstInter) {
+            BlocClasse blocOrigine = mapBlocsParNom.get(inter.getClasseOrig().getNom());
+            BlocClasse blocDestination = mapBlocsParNom.get(inter.getClasseDest().getNom());
+            LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "interface");
             liaisons.add(liaison);
         }
     }

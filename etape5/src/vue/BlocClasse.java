@@ -68,12 +68,28 @@ public class BlocClasse
         {
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.PLAIN, 9));
+            FontMetrics fmAttributs = g.getFontMetrics();
 
             if (afficherAttributs)
             {
                 for (String att : attributs) 
                 {
-                    g.drawString(att, x + PADDING, yActuel);
+                    // pour gérer les soulignement
+                    // Vérifier si l'attribut contient un code ANSI de soulignement
+                    boolean isSouligne = att.contains("\u001B[4m");
+                    
+                    // Retirer les codes ANSI pour l'affichage
+                    String displayText = att.replace("\u001B[4m", "").replace("\u001B[0m", "");
+                    
+                    g.drawString(displayText, x + PADDING, yActuel);
+                    
+                    // Si l'attribut doit être souligné, tracer une ligne sous le texte
+                    if (isSouligne) {
+                        int textWidth = fmAttributs.stringWidth(displayText);
+                        int underlineY = yActuel + 2;
+                        g.drawLine(x + PADDING, underlineY, x + PADDING + textWidth, underlineY);
+                    }
+                    
                     yActuel += HAUTEUR_LIGNE;
                 }
                 
