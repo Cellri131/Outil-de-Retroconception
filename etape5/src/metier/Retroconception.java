@@ -71,7 +71,7 @@ public class Retroconception
 			int cpt = 1;
 			for (Attribut a : attributs) {
 				System.out.printf("attribut : %d\tnom : %-8s\ttype : %-8s\tvisibilité : %-8s\tportée : %s%n",
-						cpt++, a.getNom(), a.getType(), a.getVisibilite(), a.getPorte());
+						cpt++, a.getNom(), a.getType(), a.getVisibilite(), a.getPortee());
 			}
 			System.out.println(); // Ligne vide après les attributs
 		}

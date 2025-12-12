@@ -27,7 +27,7 @@ public class Attribut {
 		return this.visibilite;
 	}
 
-	public String getPorte() {
+	public String getPortee() {
 		return this.porte;
 	}
 
