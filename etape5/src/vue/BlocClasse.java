@@ -11,6 +11,10 @@ import java.util.List;
 public class BlocClasse 
 {
 
+    //--------------------------//
+    //        ATTRIBUTS         //
+    //--------------------------//
+
     private String nom;
     private boolean estInterface;
     private boolean estSelectionne;
@@ -32,6 +36,11 @@ public class BlocClasse
     private static final Color COULEUR_BORDURE = new Color(0, 0, 0);
     private static final Color COULEUR_ENTETE  = new Color(100, 150, 200);
 
+
+    //-------------------------//
+    //      CONSTRUCTEUR       //
+    //-------------------------//
+    
     public BlocClasse(String nom, int x, int y) 
     {
         this.nom = nom;
@@ -44,6 +53,10 @@ public class BlocClasse
         this.attributs = new ArrayList<>();
         this.methodes  = new ArrayList<>();
     }
+
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
 
     public void dessiner(Graphics2D g, boolean afficherAttributs, boolean afficherMethodes) 
     {

@@ -8,6 +8,10 @@ import javax.swing.*;
 
 public class PanneauDiagramme extends JPanel {
 
+    //--------------------------//
+    //        ATTRIBUTS         //
+    //--------------------------//
+
     private List<BlocClasse>    blocsClasses;
     private List<LiaisonVue>    liaisons;
 
@@ -37,6 +41,11 @@ public class PanneauDiagramme extends JPanel {
     private int                 panOffsetY = 0;
     private boolean             isPanning = false;
 
+
+    //-------------------------//
+    //      CONSTRUCTEUR       //
+    //-------------------------//
+
     public PanneauDiagramme(FenetrePrincipale fenetrePrincipale) 
     {
         this.blocsClasses           = new ArrayList<>();
@@ -50,6 +59,10 @@ public class PanneauDiagramme extends JPanel {
 
         ajouterListenersInteraction();
     }
+
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
 
     public void chargerProjet(String cheminProjet) 
     {

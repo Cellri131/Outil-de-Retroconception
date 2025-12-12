@@ -8,9 +8,18 @@ import javax.swing.*;
 
 public class PanneauProjets extends JPanel {
 
+    //--------------------------//
+    //        ATTRIBUTS         //
+    //--------------------------//
+
     private FenetrePrincipale fenetrePrincipale;
     private String cheminDossiers;
 
+
+    //-------------------------//
+    //      CONSTRUCTEUR       //
+    //-------------------------//
+    
     public PanneauProjets(FenetrePrincipale fenetrePrincipale) {
         this.fenetrePrincipale = fenetrePrincipale;
         
@@ -49,6 +58,10 @@ public class PanneauProjets extends JPanel {
         });
         add(boutonActualiser, BorderLayout.SOUTH);
     }
+
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
 
     private void chargerProjets(JPanel panelProjets) 
     {

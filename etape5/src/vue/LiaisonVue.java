@@ -7,6 +7,10 @@ import java.util.List;
 public class LiaisonVue 
 {
 
+    //--------------------------//
+    //        ATTRIBUTS         //
+    //--------------------------//
+
     private String type; // association, heritage, interface
     private boolean unidirectionnel;
     private String multOrig;
@@ -31,6 +35,11 @@ public class LiaisonVue
     
     // Référence à la liste des blocs pour le routage avec évitement
     private List<BlocClasse> tousLesBlocs = new ArrayList<>();
+
+
+    //--------------------------//
+    //      CONSTRUCTEURS       //
+    //--------------------------//
 
     public LiaisonVue(BlocClasse blocOrigine, BlocClasse blocDestination, String type) 
     {
@@ -59,6 +68,10 @@ public class LiaisonVue
         this.posRelOrigine     = 0.5;
         this.posRelDestination = 0.5;
     }
+
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
 
     // 0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT
     private Point getPointOnSide(BlocClasse bloc, int side, double posRel) 

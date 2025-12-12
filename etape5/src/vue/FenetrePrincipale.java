@@ -21,10 +21,19 @@ import javax.swing.SwingUtilities;
 public class FenetrePrincipale extends JFrame 
 {
 
+    //--------------------------//
+    //        ATTRIBUTS         //
+    //--------------------------//
+
     private PanneauProjets   panneauProjets;
     private PanneauDiagramme panneauDiagramme;
     private Controlleur controlleur;
 
+
+    //-------------------------//
+    //      CONSTRUCTEUR       //
+    //-------------------------//
+    
     public FenetrePrincipale() 
     {
         setTitle("Générateur de diagramme UML");
@@ -54,6 +63,10 @@ public class FenetrePrincipale extends JFrame
         this.add(splitPane, BorderLayout.CENTER);
         this.add(new BarreMenus(this), BorderLayout.NORTH);
     }
+
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
 
     public void chargerProjet(String cheminProjet) 
     {
