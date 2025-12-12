@@ -99,12 +99,12 @@ public class PanneauDiagramme extends JPanel {
 
                 // Vérifier si on clique sur un point d'ancrage de liaison
                 for (LiaisonVue liaison : liaisons) {
-                    if (liaison.isOnOriginAnchor(e.getPoint())) {
+                    if (liaison.isOnOriginAnchor(e.getPoint(), zoomLevel, panOffsetX, panOffsetY, getWidth(), getHeight())) {
                         liaisonEnDeplacement = liaison;
                         draggingOriginAnchor = true;
                         return;
                     }
-                    if (liaison.isOnDestinationAnchor(e.getPoint())) {
+                    if (liaison.isOnDestinationAnchor(e.getPoint(), zoomLevel, panOffsetX, panOffsetY, getWidth(), getHeight())) {
                         liaisonEnDeplacement = liaison;
                         draggingDestinationAnchor = true;
                         return;
@@ -162,9 +162,9 @@ public class PanneauDiagramme extends JPanel {
                 // Drag d'un point d'ancrage de liaison
                 if (liaisonEnDeplacement != null) {
                     if (draggingOriginAnchor) {
-                        liaisonEnDeplacement.dragOriginAnchor(e.getPoint());
+                        liaisonEnDeplacement.dragOriginAnchor(e.getPoint(), zoomLevel, panOffsetX, panOffsetY, getWidth(), getHeight());
                     } else if (draggingDestinationAnchor) {
-                        liaisonEnDeplacement.dragDestinationAnchor(e.getPoint());
+                        liaisonEnDeplacement.dragDestinationAnchor(e.getPoint(), zoomLevel, panOffsetX, panOffsetY, getWidth(), getHeight());
                     }
                     repaint();
                     return;

@@ -498,6 +498,19 @@ public class LiaisonVue
         if (ancrageOrigine == null) return false;
         return mouse.distance(ancrageOrigine) <= ANCHOR_RADIUS;
     }
+    
+    /**
+     * Vérifie si une position de souris est sur le point d'ancrage d'origine (avec zoom et pan)
+     */
+    public boolean isOnOriginAnchor(Point mouse, double zoomLevel, int panOffsetX, int panOffsetY, int panelWidth, int panelHeight) {
+        if (ancrageOrigine == null) return false;
+        
+        // Convertir le point d'ancrage en coordonnées écran
+        double screenX = ancrageOrigine.x * zoomLevel + panelWidth / 2 - panelWidth / (2 * zoomLevel) * zoomLevel + panOffsetX;
+        double screenY = ancrageOrigine.y * zoomLevel + panelHeight / 2 - panelHeight / (2 * zoomLevel) * zoomLevel + panOffsetY;
+        
+        return Math.sqrt(Math.pow(mouse.x - screenX, 2) + Math.pow(mouse.y - screenY, 2)) <= ANCHOR_RADIUS;
+    }
 
     /**
      * Vérifie si une position de souris est sur le point d'ancrage de destination
@@ -505,6 +518,19 @@ public class LiaisonVue
     public boolean isOnDestinationAnchor(Point mouse) {
         if (ancrageDestination == null) return false;
         return mouse.distance(ancrageDestination) <= ANCHOR_RADIUS;
+    }
+    
+    /**
+     * Vérifie si une position de souris est sur le point d'ancrage de destination (avec zoom et pan)
+     */
+    public boolean isOnDestinationAnchor(Point mouse, double zoomLevel, int panOffsetX, int panOffsetY, int panelWidth, int panelHeight) {
+        if (ancrageDestination == null) return false;
+        
+        // Convertir le point d'ancrage en coordonnées écran
+        double screenX = ancrageDestination.x * zoomLevel + panelWidth / 2 - panelWidth / (2 * zoomLevel) * zoomLevel + panOffsetX;
+        double screenY = ancrageDestination.y * zoomLevel + panelHeight / 2 - panelHeight / (2 * zoomLevel) * zoomLevel + panOffsetY;
+        
+        return Math.sqrt(Math.pow(mouse.x - screenX, 2) + Math.pow(mouse.y - screenY, 2)) <= ANCHOR_RADIUS;
     }
 
     /**
@@ -516,6 +542,21 @@ public class LiaisonVue
         sideOrigine = closestSide;
         posRelOrigine = getRelativePosFromMouse(mouse, blocOrigine, closestSide);
     }
+    
+    /**
+     * Déplace le point d'ancrage d'origine (avec zoom et pan)
+     */
+    public void dragOriginAnchor(Point mouse, double zoomLevel, int panOffsetX, int panOffsetY, int panelWidth, int panelHeight) {
+        // Convertir coordonnées écran en coordonnées logiques
+        double logicalX = (mouse.x - panOffsetX - panelWidth / 2) / zoomLevel + panelWidth / (2 * zoomLevel);
+        double logicalY = (mouse.y - panOffsetY - panelHeight / 2) / zoomLevel + panelHeight / (2 * zoomLevel);
+        Point logicalMouse = new Point((int)logicalX, (int)logicalY);
+        
+        // Déterminer le côté le plus proche
+        int closestSide = getClosestSide(logicalMouse, blocOrigine);
+        sideOrigine = closestSide;
+        posRelOrigine = getRelativePosFromMouse(logicalMouse, blocOrigine, closestSide);
+    }
 
     /**
      * Déplace le point d'ancrage de destination
@@ -525,6 +566,21 @@ public class LiaisonVue
         int closestSide = getClosestSide(mouse, blocDestination);
         sideDestination = closestSide;
         posRelDestination = getRelativePosFromMouse(mouse, blocDestination, closestSide);
+    }
+    
+    /**
+     * Déplace le point d'ancrage de destination (avec zoom et pan)
+     */
+    public void dragDestinationAnchor(Point mouse, double zoomLevel, int panOffsetX, int panOffsetY, int panelWidth, int panelHeight) {
+        // Convertir coordonnées écran en coordonnées logiques
+        double logicalX = (mouse.x - panOffsetX - panelWidth / 2) / zoomLevel + panelWidth / (2 * zoomLevel);
+        double logicalY = (mouse.y - panOffsetY - panelHeight / 2) / zoomLevel + panelHeight / (2 * zoomLevel);
+        Point logicalMouse = new Point((int)logicalX, (int)logicalY);
+        
+        // Déterminer le côté le plus proche
+        int closestSide = getClosestSide(logicalMouse, blocDestination);
+        sideDestination = closestSide;
+        posRelDestination = getRelativePosFromMouse(logicalMouse, blocDestination, closestSide);
     }
 
     /**
