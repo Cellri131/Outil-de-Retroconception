@@ -1,24 +1,28 @@
 package controlleur;
 
+import metier.lecture.Lecture;
 import java.util.*;
 import metier.*;
 import vue.BlocClasse;
 import vue.LiaisonVue;
 import vue.PanneauDiagramme;
 
-public class Controlleur {
+public class Controlleur 
+{
     private Lecture lecture;
     private List<LiaisonVue> liaisons;
     private PanneauDiagramme panneauDiagramme;
     private GestionSauvegarde gestionSauvegarde;
 
-    public Controlleur(PanneauDiagramme panneauDiagramme) {
+    public Controlleur(PanneauDiagramme panneauDiagramme) 
+    {
         this.panneauDiagramme = panneauDiagramme;
         this.liaisons = new ArrayList<>();
         this.gestionSauvegarde = new GestionSauvegarde();
     }
 
-    public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) {
+    public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) 
+    {
         lecture = new Lecture(cheminProjet);
         liaisons.clear();
 
@@ -46,7 +50,7 @@ public class Controlleur {
         }
 
         // Créer les liaisons depuis associations, heritages, et interfaces
-        creerLiaisonsDepuisAssoc(lecture.getLstAssociation(), mapBlocsParNom);
+        creerLiaisonsDepuisAssoc(lecture.getLstAssociations(), mapBlocsParNom);
 
         creerLiaisonsDepuisHerit(lecture.getLstHeritage(), mapBlocsParNom);
 
