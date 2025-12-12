@@ -1,9 +1,11 @@
 package vue;
 
+import controlleur.Controlleur;
 import java.awt.BorderLayout;
 import java.awt.Dimension; 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -11,12 +13,17 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 
-
+/**
+* Fenêtre principale de l'IHM du générateur de diagramme UML.
+* Gère également la liasion avec le controlleur.
+* @author Jules
+*/
 public class FenetrePrincipale extends JFrame 
 {
 
     private PanneauProjets   panneauProjets;
     private PanneauDiagramme panneauDiagramme;
+    private Controlleur controlleur;
 
     public FenetrePrincipale() 
     {
@@ -28,7 +35,8 @@ public class FenetrePrincipale extends JFrame
         setResizable(true);
 
         panneauProjets   = new PanneauProjets(this);
-        panneauDiagramme = new PanneauDiagramme();
+        panneauDiagramme = new PanneauDiagramme(this);
+        this.controlleur = new Controlleur(this);
 
         setLayout(new BorderLayout());
         
@@ -110,7 +118,6 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.setAfficherAttributs(b);
     }
 
-
     public void affichageMethodes(boolean b)
     {
         panneauDiagramme.setAfficherMethodes(b);
@@ -129,5 +136,22 @@ public class FenetrePrincipale extends JFrame
     public void actionSauvegarder()
     {
         panneauDiagramme.actionSauvegarder();
+    }
+
+
+    /**
+    * Méthodes passerelle au controlleur
+    */
+    public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) 
+    {
+        return controlleur.chargerProjetEnBlocsClasses(cheminProjet);
+    }
+
+    public List<LiaisonVue> getLiaisons() {
+        return controlleur.getLiaisons();
+    }
+
+    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
+        controlleur.sauvegarderClasses(blocClasses, cheminProjet);
     }
 }

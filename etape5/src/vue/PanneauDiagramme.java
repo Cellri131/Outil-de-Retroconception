@@ -1,6 +1,5 @@
 package vue;
 
-import controlleur.Controlleur;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -9,39 +8,41 @@ import javax.swing.*;
 
 public class PanneauDiagramme extends JPanel {
 
-    private List<BlocClasse> blocsClasses;
-    private List<LiaisonVue> liaisons;
+    private List<BlocClasse>    blocsClasses;
+    private List<LiaisonVue>    liaisons;
 
-    private String cheminProjetCourant;
-    private BlocClasse blocEnDeplacement;
-    private Point pointDernier;
-    private Controlleur controlleur;
+    private FenetrePrincipale   fenetrePrincipale;
 
-    private boolean afficherAttributs = true;
-    private boolean afficherMethodes = true;
+    private String              cheminProjetCourant;
+    private BlocClasse          blocEnDeplacement;
+    private Point               pointDernier;
+
+    private boolean             afficherAttributs = true;
+    private boolean             afficherMethodes = true;
 
     // Pour le drag des points d'ancrage de liaisons
-    private LiaisonVue liaisonEnDeplacement;
-    private boolean draggingOriginAnchor;
-    private boolean draggingDestinationAnchor;
+    private LiaisonVue          liaisonEnDeplacement;
+    private boolean             draggingOriginAnchor;
+    private boolean             draggingDestinationAnchor;
 
     // Zoom
-    private double zoomLevel = 1.0;
+    private double              zoomLevel = 1.0;
     private static final double MIN_ZOOM = 0.1;
     private static final double MAX_ZOOM = 3.0;
     private static final double ZOOM_STEP = 0.1;
-    private boolean afficherTextZoom = true;
+    private boolean             afficherTextZoom = true;
     
-    // Pan (déplacement de l'espace de travail)
-    private int panOffsetX = 0;
-    private int panOffsetY = 0;
-    private boolean isPanning = false;
+    // Pan
+    private int                 panOffsetX = 0;
+    private int                 panOffsetY = 0;
+    private boolean             isPanning = false;
 
-    public PanneauDiagramme() {
-        this.blocsClasses = new ArrayList<>();
-        this.liaisons = new ArrayList<>();
-        this.cheminProjetCourant = null;
-        this.controlleur = new Controlleur(this);
+    public PanneauDiagramme(FenetrePrincipale fenetrePrincipale) 
+    {
+        this.blocsClasses           = new ArrayList<>();
+        this.liaisons               = new ArrayList<>();
+        this.cheminProjetCourant    = null;
+        this.fenetrePrincipale      = fenetrePrincipale;
 
         setLayout(null);
         setBackground(new Color(255, 255, 255));
@@ -50,14 +51,15 @@ public class PanneauDiagramme extends JPanel {
         ajouterListenersInteraction();
     }
 
-    public void chargerProjet(String cheminProjet) {
+    public void chargerProjet(String cheminProjet) 
+    {
         this.cheminProjetCourant = cheminProjet;
         this.blocsClasses.clear();
         this.liaisons.clear();
 
-        List<BlocClasse> blocCharges = controlleur.chargerProjetEnBlocsClasses(cheminProjet);
+        List<BlocClasse> blocCharges = fenetrePrincipale.chargerProjetEnBlocsClasses(cheminProjet);
         blocsClasses.addAll(blocCharges);
-        liaisons.addAll(controlleur.getLiaisons());
+        liaisons.addAll(fenetrePrincipale.getLiaisons());
 
         // Passer la liste des blocs à toutes les liaisons pour le contournement
         for (LiaisonVue liaison : liaisons) {
@@ -379,12 +381,6 @@ public class PanneauDiagramme extends JPanel {
         repaint();
     }
 
-    public void supprimerLiaison(LiaisonVue liaison) {
-        liaisons.remove(liaison);
-        controlleur.supprimerLiaison(liaison);
-        this.repaint();
-    }
-
     public List<BlocClasse> getBlocsClasses() {
         return blocsClasses;
     }
@@ -422,6 +418,6 @@ public class PanneauDiagramme extends JPanel {
     }
 
     public void actionSauvegarder() {
-        this.controlleur.sauvegarderClasses(this.blocsClasses, cheminProjetCourant);
+        this.fenetrePrincipale.sauvegarderClasses(this.blocsClasses, cheminProjetCourant);
     }
 }

@@ -9,6 +9,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+/**
+* Barre de menu du haut de la fenêtre principale. 
+* Contient tous les accès outils d'affichage, édition, fichiers
+* @author Jules
+*/
 public class BarreMenus extends JMenuBar 
 {
 
@@ -95,7 +100,7 @@ public class BarreMenus extends JMenuBar
         menu.add(afficherMethodesItem);
         menu.addSeparator();
         menu.add(optimiserItem);
-        //menu.add(optimiserLiaisonsItem);
+        menu.add(optimiserLiaisonsItem);
 
         return menu;
     }

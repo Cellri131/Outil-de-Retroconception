@@ -1,29 +1,28 @@
 package controlleur;
 
-import metier.lecture.Lecture;
 import java.util.*;
-import metier.lecture.*;
-import metier.GestionSauvegarde;
 import metier.Association;
-import metier.Classe;
-import metier.Methode;
-import metier.Interface;
-import metier.Heritage;
 import metier.Attribut;
+import metier.Classe;
+import metier.GestionSauvegarde;
+import metier.Heritage;
+import metier.Interface;
+import metier.Methode;
+import metier.lecture.*;
 import vue.BlocClasse;
+import vue.FenetrePrincipale;
 import vue.LiaisonVue;
-import vue.PanneauDiagramme;
 
 public class Controlleur 
 {
     private Lecture lecture;
     private List<LiaisonVue> liaisons;
-    private PanneauDiagramme panneauDiagramme;
+    private FenetrePrincipale fenetrePrincipale;
     private GestionSauvegarde gestionSauvegarde;
 
-    public Controlleur(PanneauDiagramme panneauDiagramme) 
+    public Controlleur(FenetrePrincipale fenetrePrincipale) 
     {
-        this.panneauDiagramme = panneauDiagramme;
+        this.fenetrePrincipale = fenetrePrincipale;
         this.liaisons = new ArrayList<>();
         this.gestionSauvegarde = new GestionSauvegarde();
     }
@@ -63,7 +62,7 @@ public class Controlleur
 
         //creerLiaisonsDepuisInterface(lecture.getLstInterface(), mapBlocsParNom);
 
-        panneauDiagramme.optimiserPositionsClasses();
+        fenetrePrincipale.optimiserPositionsClasses();
 
         return blocs;
     }
@@ -161,14 +160,6 @@ public class Controlleur
 
     public List<LiaisonVue> getLiaisons() {
         return liaisons;
-    }
-
-    public void ajouterLiaison(LiaisonVue liaison) {
-        liaisons.add(liaison);
-    }
-
-    public void supprimerLiaison(LiaisonVue liaison) {
-        liaisons.remove(liaison);
     }
 
     public boolean estSauvegardee() {

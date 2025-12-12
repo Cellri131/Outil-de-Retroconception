@@ -4,6 +4,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+* L'affichage des blocs de Classe dans le diagramme UML
+* @author Jules
+*/
 public class BlocClasse 
 {
 
