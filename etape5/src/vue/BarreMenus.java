@@ -121,12 +121,40 @@ public class BarreMenus extends JMenuBar
             File fichierSelectionne = chooser.getSelectedFile();
             String cheminAbsolu = fichierSelectionne.getAbsolutePath();
 
+            verifierFichiersProjet(cheminAbsolu);
+            
             SauvegardeProjetXml(cheminAbsolu);
         } 
         else 
         {
             System.out.println("Aucun fichier choisi");
         }    
+    }
+
+    private void verifierFichiersProjet(String cheminDossiers)
+    {
+        File projet = new File(cheminDossiers);
+        String messageInvalide = "Attention le projet a un ou des fichiers non valides";
+
+        if (projet.isDirectory())
+        {
+            File[] tabFichiers = projet.listFiles();
+            boolean fichierInvalides = false;
+
+            for (File file : tabFichiers)
+            {
+                if (file.isFile() && !file.getName().endsWith(".java"))
+                {
+                    fichierInvalides = true;
+                    break;
+                }
+            }
+
+            if (fichierInvalides)
+            {
+                JOptionPane.showMessageDialog(this,messageInvalide,"Format invalide",JOptionPane.WARNING_MESSAGE);
+            }
+        }
     }
 
     private void SauvegardeProjetXml(String cheminFichier) 

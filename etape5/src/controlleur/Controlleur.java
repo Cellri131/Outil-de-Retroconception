@@ -102,7 +102,7 @@ public class Controlleur
         creerLiaisonsDepuisAssoc        (lecture.getLstAssociation(), mapBlocsParNom);
 
         creerLiaisonsDepuisHerit        (lecture.getLstHeritage(), mapBlocsParNom);
-        creerLiaisonsDepuisInterface(lecture.getLstInterfaces(), mapBlocsParNom);
+        creerLiaisonsDepuisInterface(lecture.getLstInterface(), mapBlocsParNom);
 
         creerLiaisonsDepuisInterface  (lecture.getLstInterface(), mapBlocsParNom);
 
