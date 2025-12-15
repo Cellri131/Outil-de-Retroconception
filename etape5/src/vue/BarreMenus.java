@@ -30,6 +30,7 @@ public class BarreMenus extends JMenuBar
     //-------------------------//
     //      CONSTRUCTEUR       //
     //-------------------------//
+    
     public BarreMenus(FenetrePrincipale fenetrePrincipale) 
     {
         add(creerMenuFichier());

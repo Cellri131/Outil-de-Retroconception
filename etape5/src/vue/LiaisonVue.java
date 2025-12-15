@@ -4,6 +4,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+* Classe qui gère l'affichage visuel des liens entre 2 {@link BlocClasse}s
+* @author Jules
+*/
 public class LiaisonVue 
 {
 
@@ -11,30 +15,30 @@ public class LiaisonVue
     //        ATTRIBUTS         //
     //--------------------------//
 
-    private String type; // association, heritage, interface
-    private boolean unidirectionnel;
-    private String multOrig;
-    private String multDest;
+    private String              type; // association, heritage, interface
+    private boolean             unidirectionnel;
+    private String              multOrig;
+    private String              multDest;
 
-    private BlocClasse blocOrigine;
-    private BlocClasse blocDestination;
+    private BlocClasse          blocOrigine;
+    private BlocClasse          blocDestination;
 
-    private Point ancrageOrigine;
-    private Point ancrageDestination;
+    private Point               ancrageOrigine;
+    private Point               ancrageDestination;
 
     // Stockage des positions des points d'ancrage (0-100, pourcentage le long du bord)
-    private double posRelOrigine;  // Position relative sur le bord de l'origine
-    private double posRelDestination; // Position relative sur le bord de la destination
+    private double              posRelOrigine;  // Position relative sur le bord de l'origine
+    private double              posRelDestination; // Position relative sur le bord de la destination
     
     // Côtés choisis pour les connexions (0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT)
-    private int sideOrigine;
-    private int sideDestination;
+    private int                 sideOrigine;
+    private int                 sideDestination;
     
     // Rayon pour cliquer sur les points d'ancrage
-    private static final int ANCHOR_RADIUS = 10;
+    private static final int    ANCHOR_RADIUS = 10;
     
     // Référence à la liste des blocs pour le routage avec évitement
-    private List<BlocClasse> tousLesBlocs = new ArrayList<>();
+    private List<BlocClasse>    tousLesBlocs = new ArrayList<>();
 
 
     //--------------------------//
@@ -73,7 +77,13 @@ public class LiaisonVue
     //      METHODES        //
     //----------------------//
 
-    // 0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT
+    /**
+    * Renvoie un point sur un coté d'un {@link BlocClasse}, en fonction d'un coté et d'une position relative
+    * @param bloc Le bloc sur lequel se baser
+    * @param side Un entier de 0 à 3. 0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT
+    * @param posRel La position relative de 0 à 100 (pourcentage le long du bord) sur le coté du bloc 
+    * @return Un {@link Point}
+    */
     private Point getPointOnSide(BlocClasse bloc, int side, double posRel) 
     {
         int x = bloc.getX();
@@ -98,7 +108,12 @@ public class LiaisonVue
         return new Point(x, y);
     }
 
-    // 0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT
+    /**
+    * Renvoie un entier qui représente le coté le plus proche d'un point depuis un {@link BlocClasse}
+    * @param mouse Le point de l'endroit de la souris
+    * @param bloc Le bloc sur lequel baser le ccoté
+    * @return Un entier de 0 à 3 qui représente le coté d'un blocClasse. 0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT
+    */
     private int getClosestSide(Point mouse, BlocClasse bloc) 
     {
         int x = bloc.getX();
@@ -119,6 +134,13 @@ public class LiaisonVue
         return 3;
     }
 
+    /**
+    * Renvoie la position relative d'un bloc (de 0 à 100) en fonction d'un bloc, un point proche et un coté donné.
+    * @param mouse Le point de l'endroit de la souris
+    * @param bloc Le bloc sur lequel baser le ccoté
+    * @param side Le coté sur lequel baser la position : un entier de 0 à 3. 0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT
+    * @return La position relative d'un coté d'un bloc de 0 à 100 
+    */
     private double getRelativePosFromMouse(Point mouse, BlocClasse bloc, int side) 
     {
         int x = bloc.getX();
@@ -146,7 +168,14 @@ public class LiaisonVue
         return Math.max(0.1, Math.min(0.9, posRel));
     }
 
-
+    /**
+    * Crée une liste de points qui représente un chemin d'un point Start à un point End.
+    * @param start Point de départ
+    * @param end Point d'arrivée
+    * @param startSide Coté de départ du bloc (0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT)
+    * @param endSide Coté d'arrivée (0=DROITE, 1=BAS, 2=GAUCHE, 3=HAUT) 
+    * @return Une {@link List} de {@link Point}s, qui représente le chemin.
+    */
     private List<Point> createOrthogonalPath(Point start, Point end, int startSide, int endSide) {
         List<Point> path = new ArrayList<>();
         path.add(start);
@@ -228,8 +257,12 @@ public class LiaisonVue
     }
     
     /**
-     * Récupère les blocs qui intersectent une ligne horizontale
-     */
+    * Renvoie la liste les blocs qui coupent une ligne horizontale
+    * @param x1 Abcisse du début de la ligne
+    * @param x2 Abcisse de la fin de la ligne
+    * @param y Ordonnée de la ligne
+    * @return Une {@link List} de {@link BlocClasse}s, qui représente les blocs qui sont sur la ligne donnée.
+    */
     private List<BlocClasse> getObstaclesOnHorizontalLine(int x1, int x2, int y) {
         List<BlocClasse> obstacles = new ArrayList<>();
         int minX = Math.min(x1, x2);
@@ -253,9 +286,14 @@ public class LiaisonVue
     }
     
     /**
-     * Récupère les blocs qui intersectent une ligne verticale
-     */
-    private List<BlocClasse> getObstaclesOnVerticalLine(int x, int y1, int y2) {
+    * Renvoie la liste les blocs qui coupent une ligne verticale
+    * @param x Abcisse de la ligne
+    * @param y Ordonnée du début de la ligne
+    * @param y Ordonnée de la fin de la ligne
+    * @return Une {@link List} de {@link BlocClasse}s, qui représente les blocs qui sont sur la ligne donnée.
+    */
+    private List<BlocClasse> getObstaclesOnVerticalLine(int x, int y1, int y2) 
+    {
         List<BlocClasse> obstacles = new ArrayList<>();
         int minY = Math.min(y1, y2);
         int maxY = Math.max(y1, y2);
@@ -278,8 +316,12 @@ public class LiaisonVue
     }
     
     /**
-     * Calcule une position Y pour contourner les obstacles horizontaux
-     */
+    * Calcule une position Y pour contourner les obstacles horizontaux
+    * @param originalY
+    * @param 
+    * @param 
+    * @return 
+    */
     private int getDeflectionY(int originalY, List<BlocClasse> obstacles) {
         int topMin = Integer.MAX_VALUE;
         int bottomMax = Integer.MIN_VALUE;

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 src\vue\VueTerminal.java
 
 src\controlleur\Retroconception.java
@@ -19,7 +18,7 @@ src\metier\objet\Liaison.java
 src\metier\objet\Methode.java
 src\metier\objet\Multiplicite.java
 src\metier\objet\Parametre.java
-=======
+
 src/metier/Association.java
 src/metier/Attribut.java
 src/metier/Classe.java
@@ -29,7 +28,5 @@ src/metier/Liaison.java
 src/metier/Methode.java
 src/metier/Multiplicite.java
 src/metier/Parametre.java
-
 src/metier/Retroconception.java
 src/metier/Lecture.java
->>>>>>> c656893b9c6cae87f0fc61a6f6fb977db65205db

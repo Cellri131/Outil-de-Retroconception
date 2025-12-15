@@ -1,148 +1,110 @@
 package metier.lecture;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import metier.objet.*;
 
-import metier.Classe;
-import metier.Attribut;
-import metier.Methode;
-import metier.Parametre;
-import metier.Heritage;
-import metier.Association;
-
-import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
+/**
+ * Classe principale pour la lecture et l'analyse de fichiers Java.
+ * Orchestre l'analyse des fichiers, la génération des associations et des héritages.
+ */
 public class Lecture
 {
-    private UtilLecture             utilLecture;
-    private AnalyseAssociation      analyseAssociation;
-    private ScannerClasse           scannerClasse;
+	private HashMap  <String, Classe> hashMapClasses ;
+	private ArrayList<Heritage>       lstHeritage    ;
+	private ArrayList<Association>    lstAssociations;
+	private ArrayList<Interface>      lstInterface   ;
 
-	private HashMap<String, Classe> hashMapClasses;
-	private ArrayList<Classe>       lstClasse;
-	private ArrayList<Attribut>     lstAttribut;
-	private ArrayList<Methode>      lstMethode;
-	private ArrayList<Heritage>     lstHeritage;
-	private ArrayList<Association>  lstAssociations;
-	private ArrayList<String>       lstNomFichier;
+	public Lecture(String cheminFichier)
+	{
+		this.hashMapClasses  = new HashMap  <>();
+		this.lstHeritage     = new ArrayList<>();
+		this.lstAssociations = new ArrayList<>();
+		this.lstInterface    = new ArrayList<>();
 
-	public Lecture(String nom) 
-    {
-        this.utilLecture        = new UtilLecture(this);
-        this.analyseAssociation = new AnalyseAssociation(this.utilLecture);
-		this.scannerClasse      = new ScannerClasse(this);
-
-		this.hashMapClasses  = new HashMap<String, Classe>();
-		this.lstAttribut     = new ArrayList<Attribut>();
-		this.lstMethode      = new ArrayList<Methode>();
-		this.lstHeritage     = new ArrayList<Heritage>();
-		this.lstNomFichier   = new ArrayList<String>();
-		this.lstAssociations = new ArrayList<Association>();
-
-		analyserFichier(nom);
+		analyserFichier(cheminFichier);
 	}
 
-	public void analyserFichier(String paraCheminFichier) 
+	/**
+	 * Analyse un fichier ou un répertoire de fichiers Java.
+	 * @param cheminFichier Chemin du fichier ou dossier à analyser
+	 */
+	private void analyserFichier(String cheminFichier)
 	{
-		Scanner scFic;
+		// Analyse des fichiers
+		AnalyseurFichier analyseur = new AnalyseurFichier();
+		this.hashMapClasses        = analyseur.analyser(cheminFichier);
 
-		File f = new File(paraCheminFichier);
+		// Génération des associations
+		GenerateurAssociation generateurAssoc = new GenerateurAssociation(this.hashMapClasses);
+		this.lstAssociations = generateurAssoc.generer();
+	}
 
-		List<String> lstCheminFich = new ArrayList<String>();
-		this.lstClasse = new ArrayList<Classe>();
-
-		// ----- Si c'est un répertoire -----
-		if (f.isDirectory()) // fichier ou dossier ( dossier pour Directory )
+	/**
+	 * Affiche les relations d'héritage entre les classes.
+	 */
+	public void afficherHeritage()
+	{
+		for (Classe classe : hashMapClasses.values())
 		{
-			this.hashMapClasses = new HashMap<>();
+			String nomParent = classe.getClasseParente();
 
-			// Récupére tous les fichiers du dossier
-			File[] tabFichiers = f.listFiles();
-
-			if (tabFichiers != null)
+			if (nomParent != null && !nomParent.isEmpty())
 			{
-				for (File file : tabFichiers) 
+				Classe classParent = getClasse(nomParent);
+
+				if (classParent != null)
 				{
-					lstCheminFich.add(file.getAbsolutePath()); // récupere tous les chemins de chaque fichier
+					Heritage heritage = new Heritage(classParent, classe);
+					lstHeritage.add(heritage);
 
-					Path p = file.toPath();
-					String nomFichier = String.valueOf(p.getFileName()).replace(".java", "");
-
-					this.lstNomFichier.add(nomFichier);
+					System.out.println(heritage);
 				}
-
-				// Libére la mémoire
-				tabFichiers = null;
 			}
 		}
-
-		try
-		{
-
-			if (!lstCheminFich.isEmpty()) 
-			{
-				for (String chemin : lstCheminFich) 
-				{
-					scFic = new Scanner(new FileInputStream(chemin), "UTF8");
-
-					Path p = Paths.get(chemin);
-					String nomFichier = String.valueOf(p.getFileName());
-
-					Classe classePourCeFichier;
-					classePourCeFichier = this.scannerClasse.scanne(scFic, nomFichier);
-
-                    this.hashMapClasses.put(nomFichier, classePourCeFichier);
-
-                    scFic.close();
-                }
-                
-				lstCheminFich.clear();
-			} 
-			else 
-			{
-				scFic = new Scanner(new FileInputStream(paraCheminFichier), "UTF8");
-
-				Path p = Paths.get(paraCheminFichier);
-				String nomFichier = String.valueOf(p.getFileName());
-
-				Classe classePourCeFichier;
-				classePourCeFichier = this.scannerClasse.scanne(scFic, nomFichier);
-
-				this.hashMapClasses.put(nomFichier, classePourCeFichier);
-
-				scFic.close();
-			}
-
-			this.analyseAssociation.genererAssociation(this.hashMapClasses);
-
-			for (Classe classe : hashMapClasses.values())
-			{
-				String nomParent = classe.getClasseParente();
-
-				if (nomParent != null && !nomParent.isEmpty())
-				{
-					Classe classParent = getClasse(nomParent);
-
-					if (classParent != null)
-					{
-						Heritage heritage = new Heritage(classParent, classe);
-						lstHeritage.add(heritage);
-
-						System.out.println(heritage);
-					}
-					// Cette classe a bien une classe parente
-					// Maintenant cherche la classe parente et crée Heritage
-				}
-			}
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}	
 	}
 
-    // Recupere une classe en fonction du nom
+	/**
+	 * Affiche les implémentations d'interfaces.
+	 */
+
+	/**
+	 * Affiche les implémentations d'interfaces (version 2).
+	 */
+	public void afficherImplementation()
+	{
+		for (Classe classe : hashMapClasses.values())
+		{
+			String[] tabNomInterfaces = classe.getNomInterface().split(",");
+
+			if (tabNomInterfaces.length > 0 && !tabNomInterfaces[0].isEmpty())
+			{
+				for (String nomInterface : tabNomInterfaces)
+				{
+					nomInterface = nomInterface.trim();
+					Classe interfaceClasse = getClasse(nomInterface);
+
+					if (interfaceClasse != null)
+					{
+						Interface inter = new Interface(interfaceClasse, classe);
+						lstInterface.add(inter);
+
+						System.out.println(inter);
+					}
+					else
+					{
+						System.out.println("⚠ Interface introuvable : " + nomInterface);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Récupère une classe par son nom.
+	 * @param nomFichier Nom du fichier (classe)
+	 * @return La classe trouvée ou null
+	 */
 	private Classe getClasse(String nomFichier)
 	{
 		for (Classe classe : hashMapClasses.values())
@@ -153,66 +115,9 @@ public class Lecture
 		return null;
 	}
 
+	// ========== Getters ==========
 
-    public void setHashMapClasses(HashMap<String, Classe> hashMapClasses) {
-        this.hashMapClasses = hashMapClasses;
-    }
-
-    public void setLstClasse(ArrayList<Classe> lstClasse) {
-        this.lstClasse = lstClasse;
-    }
-
-    public void setLstAttribut(ArrayList<Attribut> lstAttribut) {
-        this.lstAttribut = lstAttribut;
-    }
-
-    public void setLstMethode(ArrayList<Methode> lstMethode) {
-        this.lstMethode = lstMethode;
-    }
-
-    public void setLstHeritage(ArrayList<Heritage> lstHeritage) {
-        this.lstHeritage = lstHeritage;
-    }
-
-    public void setLstAssociations(ArrayList<Association> lstAssociations) {
-        this.lstAssociations = lstAssociations;
-    }
-
-    public void setLstNomFichier(ArrayList<String> lstNomFichier) {
-        this.lstNomFichier = lstNomFichier;
-    }
-
-    public HashMap<String, Classe> getHashMapClasses() {
-        return hashMapClasses;
-    }
-
-    public ArrayList<Classe> getLstClasse() {
-        return lstClasse;
-    }
-
-    public ArrayList<Attribut> getLstAttribut() {
-        return lstAttribut;
-    }
-
-    public ArrayList<Methode> getLstMethode() {
-        return lstMethode;
-    }
-
-    public ArrayList<Heritage> getLstHeritage() {
-        return lstHeritage;
-    }
-
-    public ArrayList<Association> getLstAssociations() {
-        return lstAssociations;
-    }
-
-    public ArrayList<String> getLstNomFichier() {
-        return lstNomFichier;
-    }
-
-    public UtilLecture getUtilLecture() {
-        return utilLecture;
-    }
-
-    
+	public HashMap  <String, Classe> getHashMapClasses() {return this.hashMapClasses;}
+	public ArrayList<Association>    getLstAssociation() {return this.lstAssociations;}
+	public ArrayList<Heritage>       getLstHeritage   () {return this.lstHeritage;}
 }

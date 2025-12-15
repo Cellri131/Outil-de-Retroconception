@@ -1,9 +1,10 @@
 package testUnitaire;
 
-import metier.GestionSauvegarde;
-
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import metier.sauvegarde.GestionSauvegarde;
+
 import java.util.Map;
 
 public class LectureCoordTest {

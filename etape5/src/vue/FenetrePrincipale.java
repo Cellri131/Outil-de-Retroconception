@@ -29,7 +29,6 @@ public class FenetrePrincipale extends JFrame
     private PanneauDiagramme panneauDiagramme;
     private Controlleur controlleur;
 
-
     //-------------------------//
     //      CONSTRUCTEUR       //
     //-------------------------//

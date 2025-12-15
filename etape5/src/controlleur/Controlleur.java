@@ -1,17 +1,12 @@
 package controlleur;
+
 import java.util.*;
-import metier.Association;
-import metier.Attribut;
-import metier.Classe;
-import metier.GestionSauvegarde;
-import metier.Heritage;
-import metier.Interface;
-import metier.Methode;
 import metier.lecture.*;
+import metier.objet.*;
+import metier.sauvegarde.*;
 import vue.BlocClasse;
 import vue.FenetrePrincipale;
 import vue.LiaisonVue;
-
 /**
 * Contrôleur qui met en relation le métier et la vue IHM.
 * A accès à la fenêtre principale de la vue, et à la classe de lecture
@@ -82,7 +77,7 @@ public class Controlleur
         }
 
         // Créer les lstLiaisons depuis associations, heritages, et interfaces
-        creerLiaisonsDepuisAssoc        (lecture.getLstAssociations(), mapBlocsParNom);
+        creerLiaisonsDepuisAssoc        (lecture.getLstAssociation(), mapBlocsParNom);
 
         creerLiaisonsDepuisHerit        (lecture.getLstHeritage(), mapBlocsParNom);
 
