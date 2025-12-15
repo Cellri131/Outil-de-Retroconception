@@ -67,10 +67,6 @@ public class Lecture
 	/**
 	 * Affiche les implémentations d'interfaces.
 	 */
-
-	/**
-	 * Affiche les implémentations d'interfaces (version 2).
-	 */
 	public void afficherLstInterface()
 	{
 		for (Interface inter : lstInterface)
