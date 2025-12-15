@@ -1,3 +1,3 @@
 *.class
-donnees/projets.xml
+projets.xml
 donnees/sauvegardes/*.xml

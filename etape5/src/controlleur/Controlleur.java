@@ -55,6 +55,7 @@ public class Controlleur
     public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) 
     {
         lecture = new Lecture(cheminProjet);
+        lstBlocs.clear();
         lstLiaisons.clear();
 
         // hasmap pour associer les noms de classes aux blocs
