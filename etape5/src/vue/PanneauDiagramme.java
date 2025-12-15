@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
-public class PanneauDiagramme extends JPanel {
-
+public class PanneauDiagramme extends JPanel
+{
     //--------------------------//
     //        ATTRIBUTS         //
     //--------------------------//
@@ -96,7 +96,8 @@ public class PanneauDiagramme extends JPanel {
                 }
                 
                 // Vérifier si c'est un clic droit pour commencer le pan
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.getButton() == MouseEvent.BUTTON3)
+                {
                     isPanning = true;
                     pointDernier = e.getPoint();
                     return;

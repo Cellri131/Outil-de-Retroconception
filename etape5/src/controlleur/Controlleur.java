@@ -7,6 +7,7 @@ import metier.sauvegarde.*;
 import vue.BlocClasse;
 import vue.FenetrePrincipale;
 import vue.LiaisonVue;
+
 /**
 * Contrôleur qui met en relation le métier et la vue IHM.
 * A accès à la fenêtre principale de la vue, et à la classe de lecture
@@ -61,8 +62,10 @@ public class Controlleur
         int posX    = 50;
         int posY    = 50;
 
-        for (Classe classe : hashMapclasses.values()) {
-            if (classe != null) {
+        for (Classe classe : hashMapclasses.values()) 
+        {
+            if (classe != null) 
+            {
                 BlocClasse bloc = creerBlocAPartirDeClasse(classe, posX, posY);
                 blocs.add(bloc);
                 mapBlocsParNom.put(classe.getNom(), bloc);
@@ -81,7 +84,7 @@ public class Controlleur
 
         creerLiaisonsDepuisHerit        (lecture.getLstHeritage(), mapBlocsParNom);
 
-        //creerLiaisonsDepuisInterface  (lecture.getLstInterface(), mapBlocsParNom);
+        creerLiaisonsDepuisInterface  (lecture.getLstInterface(), mapBlocsParNom);
 
         fenetrePrincipale.optimiserPositionsClasses();
 
@@ -132,7 +135,8 @@ public class Controlleur
 
         // Traitement de la liste des méthodes
         List<String> methodesStr = new ArrayList<>();
-        for (Methode met : classe.getLstMethode()) {
+        for (Methode met : classe.getLstMethode()) 
+        {
             String visibilite = met.getVisibilite();
 
             switch (visibilite) {
@@ -198,6 +202,7 @@ public class Controlleur
             BlocClasse blocDestination = mapBlocsParNom.get(inter.getClasseDest().getNom());
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "interface");
             lstLiaisons.add(liaison);
+            System.out.println("Interface ajoutée : " + inter);
         }
     }
 

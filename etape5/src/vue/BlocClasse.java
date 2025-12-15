@@ -50,8 +50,8 @@ public class BlocClasse
         this.hauteur = 150;
         this.estInterface   = false;
         this.estSelectionne = false;
-        this.attributs = new ArrayList<>();
-        this.methodes  = new ArrayList<>();
+        this.attributs = new ArrayList<String>();
+        this.methodes  = new ArrayList<String>();
     }
 
     //----------------------//
