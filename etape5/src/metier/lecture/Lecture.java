@@ -106,16 +106,6 @@ public class Lecture
 	}
 
 
-	public void afficherLstInterface()
-	{
-		for (Interface inter : lstInterface)
-		{
-			System.out.println(inter);
-		}
-	}
-
-
-
 	/**
 	 * Récupère une classe par son nom.
 	 * @param nomFichier Nom du fichier (classe)
