@@ -67,35 +67,33 @@ public class Controlleur
         String nomDeSauvegardeProjet = estSauvegarde(cheminProjet);
         
         System.out.println(nomDeSauvegardeProjet);
-        if(!nomDeSauvegardeProjet.equals(""))
-        {
-            System.out.println(nomDeSauvegardeProjet.equals(""));
 
-            mapBlocsParNom = gestionSauvegarde.chargerSauvegardeCoord(nomDeSauvegardeProjet, hashMapclasses);   
-        }
-        else
-        {
-            int posX    = 50;
-            int posY    = 50;
+        
+        int posX    = 50;
+        int posY    = 50;
 
-            for (Classe classe : hashMapclasses.values()) 
+        for (Classe classe : hashMapclasses.values()) 
+        {
+            if (classe != null) 
             {
-                if (classe != null) 
-                {
-                    BlocClasse bloc = creerBlocAPartirDeClasse(classe, posX, posY);
-                    this.lstBlocs.add(bloc);
-                    mapBlocsParNom.put(classe.getNom(), bloc);
+                BlocClasse bloc = creerBlocAPartirDeClasse(classe, posX, posY);
+                this.lstBlocs.add(bloc);
+                mapBlocsParNom.put(classe.getNom(), bloc);
 
-                    posX += 250;
-                    if (posX > 1000) 
-                    {
-                        posX    = 50;
-                        posY    += 200;
-                    }
+                posX += 250;
+                if (posX > 1000) 
+                {
+                    posX    = 50;
+                    posY    += 200;
                 }
             }
         }
+    
 
+        if(!nomDeSauvegardeProjet.equals(""))
+        {
+            mapBlocsParNom = gestionSauvegarde.chargerSauvegardeCoord(nomDeSauvegardeProjet, mapBlocsParNom);   
+        }
         
 
         // Créer les lstLiaisons depuis associations, heritages, et interfaces

@@ -60,7 +60,7 @@ public class Lecture
 					Heritage heritage = new Heritage(classParent, classe);
 					lstHeritage.add(heritage);
 
-					System.out.println(heritage);
+					//System.out.println(heritage);
 				}
 			}
 		}
