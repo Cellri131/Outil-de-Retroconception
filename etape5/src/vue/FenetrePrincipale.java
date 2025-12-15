@@ -1,9 +1,11 @@
 package vue;
 
+import controlleur.Controlleur;
 import java.awt.BorderLayout;
 import java.awt.Dimension; 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -11,13 +13,27 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 
-
+/**
+* Fenêtre principale de l'IHM du générateur de diagramme UML.
+* Gère également la liasion avec le controlleur.
+* @author Jules
+*/
 public class FenetrePrincipale extends JFrame 
 {
 
+    //--------------------------//
+    //        ATTRIBUTS         //
+    //--------------------------//
+
     private PanneauProjets   panneauProjets;
     private PanneauDiagramme panneauDiagramme;
+    private Controlleur controlleur;
 
+
+    //-------------------------//
+    //      CONSTRUCTEUR       //
+    //-------------------------//
+    
     public FenetrePrincipale() 
     {
         setTitle("Générateur de diagramme UML");
@@ -28,10 +44,12 @@ public class FenetrePrincipale extends JFrame
         setResizable(true);
 
         panneauProjets   = new PanneauProjets(this);
-        panneauDiagramme = new PanneauDiagramme();
+        panneauDiagramme = new PanneauDiagramme(this);
+        this.controlleur = new Controlleur(this);
 
         setLayout(new BorderLayout());
         
+        // La ligne de division entre panel projet et panel diagramme
         JSplitPane splitPane = new JSplitPane(
             JSplitPane.HORIZONTAL_SPLIT,
             true,
@@ -45,6 +63,10 @@ public class FenetrePrincipale extends JFrame
         this.add(splitPane, BorderLayout.CENTER);
         this.add(new BarreMenus(this), BorderLayout.NORTH);
     }
+
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
 
     public void chargerProjet(String cheminProjet) 
     {
@@ -109,7 +131,6 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.setAfficherAttributs(b);
     }
 
-
     public void affichageMethodes(boolean b)
     {
         panneauDiagramme.setAfficherMethodes(b);
@@ -128,5 +149,22 @@ public class FenetrePrincipale extends JFrame
     public void actionSauvegarder()
     {
         panneauDiagramme.actionSauvegarder();
+    }
+
+
+    /**
+    * Méthodes passerelle au controlleur
+    */
+    public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) 
+    {
+        return controlleur.chargerProjetEnBlocsClasses(cheminProjet);
+    }
+
+    public List<LiaisonVue> getLiaisons() {
+        return controlleur.getLiaisons();
+    }
+
+    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
+        controlleur.sauvegarderClasses(blocClasses, cheminProjet);
     }
 }

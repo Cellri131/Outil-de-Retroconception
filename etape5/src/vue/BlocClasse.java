@@ -4,8 +4,16 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+* L'affichage des blocs de Classe dans le diagramme UML
+* @author Jules
+*/
 public class BlocClasse 
 {
+
+    //--------------------------//
+    //        ATTRIBUTS         //
+    //--------------------------//
 
     private String nom;
     private boolean estInterface;
@@ -28,6 +36,11 @@ public class BlocClasse
     private static final Color COULEUR_BORDURE = new Color(0, 0, 0);
     private static final Color COULEUR_ENTETE  = new Color(100, 150, 200);
 
+
+    //-------------------------//
+    //      CONSTRUCTEUR       //
+    //-------------------------//
+    
     public BlocClasse(String nom, int x, int y) 
     {
         this.nom = nom;
@@ -40,6 +53,10 @@ public class BlocClasse
         this.attributs = new ArrayList<>();
         this.methodes  = new ArrayList<>();
     }
+
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
 
     public void dessiner(Graphics2D g, boolean afficherAttributs, boolean afficherMethodes) 
     {
@@ -68,12 +85,28 @@ public class BlocClasse
         {
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.PLAIN, 9));
+            FontMetrics fmAttributs = g.getFontMetrics();
 
             if (afficherAttributs)
             {
                 for (String att : attributs) 
                 {
-                    g.drawString(att, x + PADDING, yActuel);
+                    // pour gérer les soulignement
+                    // Vérifier si l'attribut contient un code ANSI de soulignement
+                    boolean isSouligne = att.contains("\u001B[4m");
+                    
+                    // Retirer les codes ANSI pour l'affichage
+                    String displayText = att.replace("\u001B[4m", "").replace("\u001B[0m", "");
+                    
+                    g.drawString(displayText, x + PADDING, yActuel);
+                    
+                    // Si l'attribut doit être souligné, tracer une ligne sous le texte
+                    if (isSouligne) {
+                        int textWidth = fmAttributs.stringWidth(displayText);
+                        int underlineY = yActuel + 2;
+                        g.drawLine(x + PADDING, underlineY, x + PADDING + textWidth, underlineY);
+                    }
+                    
                     yActuel += HAUTEUR_LIGNE;
                 }
                 

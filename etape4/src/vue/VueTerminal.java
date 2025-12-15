@@ -100,7 +100,7 @@ public class VueTerminal
 			for (Attribut a : attributs)
 			{
 				System.out.printf("attribut : %d\tnom : %-8s\ttype : %-8s\tvisibilité : %-8s\tportée : %s%n",
-						cpt++, a.getNomAttribut(), a.getTypeAttribut(), a.getVisibilite(), a.getPorte());
+						cpt++, a.getNom(), a.getType(), a.getVisibilite(), a.getPortee());
 			}
 			System.out.println(); // Ligne vide après les attributs
 		}
@@ -275,12 +275,18 @@ public class VueTerminal
 			for (Attribut a : attributs)
 			{
 				// Pour les enums, afficher uniquement le nom sans symbole ni type
+<<<<<<< HEAD:etape4/src/vue/VueTerminal.java
 				if (classe.isEnum())
 				{
 					System.out.println(a.getNomAttribut());
 				}
 				else
 				{
+=======
+				if (classe.isEnum()) {
+					System.out.println(a.getNom());
+				} else {
+>>>>>>> c656893b9c6cae87f0fc61a6f6fb977db65205db:etape4/src/metier/Retroconception.java
 					System.out.println(a.toString());
 				}
 			}

@@ -1,35 +1,70 @@
 package controlleur;
-
 import java.util.*;
-import metier.*;
+import metier.Association;
+import metier.Attribut;
+import metier.Classe;
+import metier.GestionSauvegarde;
+import metier.Heritage;
+import metier.Interface;
+import metier.Methode;
+import metier.lecture.*;
 import vue.BlocClasse;
+import vue.FenetrePrincipale;
 import vue.LiaisonVue;
-import vue.PanneauDiagramme;
 
-public class Controlleur {
-    private Lecture lecture;
-    private List<LiaisonVue> liaisons;
-    private PanneauDiagramme panneauDiagramme;
-    private GestionSauvegarde gestionSauvegarde;
+/**
+* Contrôleur qui met en relation le métier et la vue IHM.
+* A accès à la fenêtre principale de la vue, et à la classe de lecture
+* @author Jules, Thibault, Hugo
+*/
+public class Controlleur 
+{
+    //--------------------------//
+    //        ATTRIBUTS         //
+    //--------------------------//
 
-    public Controlleur(PanneauDiagramme panneauDiagramme) {
-        this.panneauDiagramme = panneauDiagramme;
-        this.liaisons = new ArrayList<>();
-        this.gestionSauvegarde = new GestionSauvegarde();
+    private Lecture             lecture;
+    private List<LiaisonVue>    lstLiaisons;
+    private FenetrePrincipale   fenetrePrincipale;
+    private GestionSauvegarde   gestionSauvegarde;
+
+    //-------------------------//
+    //      CONSTRUCTEUR       //
+    //-------------------------//
+
+    /**
+    * Constructeur du controlleur
+    * @param classe La classe sur laquelle se base le BlocClasse 
+    */
+    public Controlleur(FenetrePrincipale fenetrePrincipale) 
+    {
+        this.fenetrePrincipale  = fenetrePrincipale;
+        this.lstLiaisons        = new ArrayList<>();
+        this.gestionSauvegarde  = new GestionSauvegarde();
     }
 
-    public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) {
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
+
+    /**
+    * Charge un projet de classes .java pour convertir son contenu en liste de BlocClasse.
+    * @param cheminProjet Le chemin du projet
+    * @return La liste des BlocClasse generés
+    */
+    public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) 
+    {
         lecture = new Lecture(cheminProjet);
-        liaisons.clear();
+        lstLiaisons.clear();
 
-        List<BlocClasse> blocs = new ArrayList<>();
-        HashMap<String, Classe> hashMapclasses = lecture.getHashMapClasses();
+        List<BlocClasse> blocs                  = new ArrayList<>();
+        HashMap<String, Classe> hashMapclasses  = lecture.getHashMapClasses();
 
-        // Créer une map pour associer les noms de classes aux blocs
+        // hasmap pour associer les noms de classes aux blocs
         HashMap<String, BlocClasse> mapBlocsParNom = new HashMap<>();
 
-        int posX = 50;
-        int posY = 50;
+        int posX    = 50;
+        int posY    = 50;
 
         for (Classe classe : hashMapclasses.values()) {
             if (classe != null) {
@@ -38,28 +73,41 @@ public class Controlleur {
                 mapBlocsParNom.put(classe.getNom(), bloc);
 
                 posX += 250;
-                if (posX > 1000) {
-                    posX = 50;
-                    posY += 200;
+                if (posX > 1000) 
+                {
+                    posX    = 50;
+                    posY    += 200;
                 }
             }
         }
 
-        // Créer les liaisons depuis associations, heritages, et interfaces
-        creerLiaisonsDepuisAssoc(lecture.getLstAssociation(), mapBlocsParNom);
+        // Créer les lstLiaisons depuis associations, heritages, et interfaces
+        creerLiaisonsDepuisAssoc        (lecture.getLstAssociations(), mapBlocsParNom);
 
-        creerLiaisonsDepuisHerit(lecture.getLstHeritage(), mapBlocsParNom);
+        creerLiaisonsDepuisHerit        (lecture.getLstHeritage(), mapBlocsParNom);
 
-        panneauDiagramme.optimiserPositionsClasses();
+        //creerLiaisonsDepuisInterface  (lecture.getLstInterface(), mapBlocsParNom);
+
+        fenetrePrincipale.optimiserPositionsClasses();
 
         return blocs;
     }
 
+    /**
+    * Crée un BlocClasse à partir d'une Classe
+    * @param classe La classe sur laquelle se base le BlocClasse 
+    * @param x Abcisse du bloc à créer
+    * @param y Ordonnée du bloc à créer
+    * @return Le bloc classe créé
+    */
     private BlocClasse creerBlocAPartirDeClasse(Classe classe, int x, int y) {
         BlocClasse bloc = new BlocClasse(classe.getNom(), x, y);
 
+        // Traitement de la liste des attributs
         List<String> attributsStr = new ArrayList<>();
         for (Attribut att : classe.getLstAttribut()) {
+            String sRet;
+
             String visibilite = att.getVisibilite();
 
             switch (visibilite) {
@@ -69,11 +117,25 @@ public class Controlleur {
                 case "protected" -> visibilite = "~";
             }
 
-            String nomAtt = att.getNomAttribut();
-            String typeAtt = att.getTypeAttribut();
-            attributsStr.add(visibilite + " " + nomAtt + " : " + typeAtt);
+            sRet = visibilite + " ";
+            
+            sRet += att.getNom() + " : ";
+            
+            sRet += att.getType();
+
+            if (att.isConstant()) {
+                sRet += " {frozen}";
+            }
+
+            if (att.getPortee().equals("classe")) {
+                // Pour souligner
+                sRet = "\u001B[4m" + sRet + "\u001B[0m";
+            }
+
+            attributsStr.add(sRet);
         }
 
+        // Traitement de la liste des méthodes
         List<String> methodesStr = new ArrayList<>();
         for (Methode met : classe.getLstMethode()) {
             String visibilite = met.getVisibilite();
@@ -96,6 +158,11 @@ public class Controlleur {
         return bloc;
     }
 
+    /**
+    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Association}s
+    * @param lstAssoc La list d'{@link Association}s sur laquelle baser les lstLiaisons
+    * @param mapBlocsParNom {@link HashMap<String, BlocClasse>} de String, BlocClasse avec le nom de chaque bloc et chaque bloc
+    */
     private void creerLiaisonsDepuisAssoc(List<Association> lstAssoc, HashMap<String, BlocClasse> mapBlocsParNom) {
         for (Association assoc : lstAssoc) {
             String multOrig = (assoc.getMultOrig() != null) ? assoc.getMultOrig().toString() : "";
@@ -105,37 +172,58 @@ public class Controlleur {
 
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "association", assoc.isUnidirectionnel(),
                     multOrig, multDest);
-            liaisons.add(liaison);
+            lstLiaisons.add(liaison);
         }
     }
 
+    /**
+    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Heritage}s
+    * @param lstAssoc La list d'{@link Heritage}s sur laquelle baser les lstLiaisons
+    * @param mapBlocsParNom {@link HashMap<String, BlocClasse>} de String, BlocClasse avec le nom de chaque bloc et chaque bloc
+    */
     private void creerLiaisonsDepuisHerit(List<Heritage> lstHerit, HashMap<String, BlocClasse> mapBlocsParNom) {
 
         for (Heritage herit : lstHerit) {
             BlocClasse blocOrigine = mapBlocsParNom.get(herit.getClasseOrig().getNom());
             BlocClasse blocDestination = mapBlocsParNom.get(herit.getClasseDest().getNom());
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "heritage");
-            liaisons.add(liaison);
+            lstLiaisons.add(liaison);
         }
     }
 
-    public List<LiaisonVue> getLiaisons() {
-        return liaisons;
+    /**
+    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Interface}s
+    * @param lstAssoc La list d'{@link Interface}s sur laquelle baser les lstLiaisons
+    * @param mapBlocsParNom {@link HashMap<String, BlocClasse>} de String, BlocClasse avec le nom de chaque bloc et chaque bloc
+    */
+    private void creerLiaisonsDepuisInterface(List<Interface> lstInter, HashMap<String, BlocClasse> mapBlocsParNom) {
+
+        for (Interface inter : lstInter) {
+            BlocClasse blocOrigine = mapBlocsParNom.get(inter.getClasseOrig().getNom());
+            BlocClasse blocDestination = mapBlocsParNom.get(inter.getClasseDest().getNom());
+            LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "interface");
+            lstLiaisons.add(liaison);
+        }
     }
 
-    public void ajouterLiaison(LiaisonVue liaison) {
-        liaisons.add(liaison);
-    }
-
-    public void supprimerLiaison(LiaisonVue liaison) {
-        liaisons.remove(liaison);
-    }
-
-    public boolean estSauvegardee() {
+    /**
+     * NON IMPLEMENTÉ, RETURN TOUJOURS FALSE POUR L'INSTANT
+    * Vérifie si le projet spécifié a déjà une sauvegarde dans projets.xml
+    * @param cheminProjet 
+    */
+    public boolean estSauvegardee(String cheminProjet) {
         return false;
     }
 
     public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
         gestionSauvegarde.sauvegarderClasses(blocClasses, cheminProjet);
+    }
+
+    //-----------//
+    //  GETTERS  //
+    //-----------//
+
+    public List<LiaisonVue> getLiaisons() {
+        return lstLiaisons;
     }
 }

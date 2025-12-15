@@ -15,11 +15,11 @@ public class Attribut {
 		this.porte = porte;
 	}
 
-	public String getNomAttribut() {
+	public String getNom() {
 		return this.nomAttribut;
 	}
 
-	public String getTypeAttribut() {
+	public String getType() {
 		return this.type;
 	}
 
@@ -27,7 +27,7 @@ public class Attribut {
 		return this.visibilite;
 	}
 
-	public String getPorte() {
+	public String getPortee() {
 		return this.porte;
 	}
 
