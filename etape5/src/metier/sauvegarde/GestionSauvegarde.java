@@ -196,35 +196,41 @@ public class GestionSauvegarde
     }
 
 
- 
-
-    public HashMap<String, BlocClasse> chargerSauvegardeCoord(String nomFichier,  HashMap<String, Classe> mapClass)
+    public HashMap<String, BlocClasse> chargerSauvegardeCoord(String nomFichier,  HashMap<String, BlocClasse> mapBlocClasse)
     {
+        HashMap<String, BlocClasse> mapNouvBlocClasse = new HashMap<>();
+
         String   basePath               = System.getProperty("user.dir");
+
+        System.out.println(basePath);
         String   cheminPath             = basePath + "/donnees/sauvegardes/";
+
+        System.out.println(cheminPath);
 
         File file = new File(cheminPath + nomFichier + ".xml");
 
-        HashMap<String, BlocClasse> mapBlocsParNom = new HashMap<>();
+        System.out.println("nomfich :" + nomFichier);
 
         try (Scanner scanner = new Scanner(file)) 
         {
             while (scanner.hasNextLine()) 
             {
                 String ligne = scanner.nextLine();
+                System.out.println(ligne);
 
                 if(!ligne.contains("/"))
                 {
 
                     String[] tabClass = ligne.split("\\s+");
                     
-                    Classe classe     = mapClass.get(tabClass[0].trim());
-                    int    posX       = Integer.parseInt(tabClass[1].trim());
-                    int    posY       = Integer.parseInt(tabClass[2].trim());
+                    BlocClasse blocClasse   = mapBlocClasse.get(tabClass[0].trim());
+                    int    posX             = Integer.parseInt(tabClass[1].trim());
+                    int    posY             = Integer.parseInt(tabClass[2].trim());
 
-                    BlocClasse bloc = this.ctrl.creerBlocAPartirDeClasse(classe, posX, posY);
-                    ctrl.ajouterBlockList(bloc);
-                    mapBlocsParNom.put(classe.getNom(), bloc);
+                    blocClasse.setX(posX);
+                    blocClasse.setY(posY);
+
+                    mapNouvBlocClasse.put(blocClasse.getNom(), blocClasse);
                 }
             }
         }
@@ -234,6 +240,6 @@ public class GestionSauvegarde
             e.getMessage();
         }
 
-        return mapBlocsParNom;
+        return mapNouvBlocClasse;
     }
 }
