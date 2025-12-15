@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 # Compiler tous les fichiers Java avec les packages
 echo "Compilation du projet..."
-javac -d bin src/metier/*.java
+javac -d bin @compile.list
 if [ $? -ne 0 ]; then
     echo
     echo "✗ Erreur de compilation"
@@ -23,4 +23,4 @@ if [ $# -eq 0 ]; then
 fi
 
 # Exécuter le programme
-java -cp bin metier.Retroconception "$@"
+java -cp bin controlleur.Retroconception "$@"

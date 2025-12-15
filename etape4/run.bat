@@ -6,7 +6,7 @@ cd /d "%~dp0"
 
 REM Compiler tous les fichiers Java avec les packages
 echo Compilation du projet...
-javac -d bin src\metier\*.java
+javac -d bin @compile.list
 
 if %errorlevel% neq 0 (
     echo.
@@ -24,4 +24,4 @@ if "%~1"=="" (
 )
 
 REM Executer le programme
-java -cp bin metier.Retroconception %*
+java -cp bin controlleur.Retroconception %*

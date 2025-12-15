@@ -1,2 +1,0 @@
-public record Trecord(String field1, int field2, int field3, int field4) {
-}
