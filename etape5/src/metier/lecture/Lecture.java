@@ -23,6 +23,8 @@ public class Lecture
 		this.lstInterface    = new ArrayList<>();
 
 		analyserFichier(cheminFichier);
+		afficherHeritage();
+		creerLstInterface();
 	}
 
 	/**
@@ -67,10 +69,6 @@ public class Lecture
 	/**
 	 * Affiche les implémentations d'interfaces.
 	 */
-
-	/**
-	 * Affiche les implémentations d'interfaces (version 2).
-	 */
 	public void afficherLstInterface()
 	{
 		System.out.println("--- Affichage des interfaces ---");
@@ -86,10 +84,14 @@ public class Lecture
 		System.out.println("--- Création des interfaces ---");
 		for (Classe classe : hashMapClasses.values())
 		{
-			String[] tabNomInterfaces = classe.getNomInterface().split(",");
-
-			if (tabNomInterfaces.length > 0 && !tabNomInterfaces[0].isEmpty())
+			String nomInterfacesStr = classe.getNomInterface();
+			
+			// Vérifier que le nom n'est pas vide
+			if (nomInterfacesStr != null && !nomInterfacesStr.isEmpty())
 			{
+				// Diviser les interfaces séparées par des virgules
+				String[] tabNomInterfaces = nomInterfacesStr.split(",");
+				
 				for (String nomInterface : tabNomInterfaces)
 				{
 					nomInterface = nomInterface.replace("{", "").trim();
@@ -110,6 +112,7 @@ public class Lecture
 			}
 		}
 	}
+
 
 	/**
 	 * Récupère une classe par son nom.
@@ -133,5 +136,5 @@ public class Lecture
 	public HashMap  <String, Classe> getHashMapClasses() {return this.hashMapClasses;}
 	public ArrayList<Association>    getLstAssociation() {return this.lstAssociations;}
 	public ArrayList<Heritage>       getLstHeritage   () {return this.lstHeritage;}
-	public ArrayList<Interface>       getLstInterfaces  () {return this.lstInterface;}
+	public ArrayList<Interface>       getLstInterface () {return this.lstInterface;}
 }
