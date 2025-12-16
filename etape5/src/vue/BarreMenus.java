@@ -1,7 +1,6 @@
 package vue;
 
 import java.io.File;
-import java.io.FileWriter;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -129,32 +128,14 @@ public class BarreMenus extends JMenuBar
         }    
     }
 
-    private void verifierFichiersProjet(String cheminDossiers)
+    private void verifierFichiersProjet(String cheminFichier)
     {
-        File projet = new File(cheminDossiers);
-
+        boolean verifierProjet = fenetrePrincipale.verifierProjet(cheminFichier);
         String messageInvalide = "Attention : Fichiers non valides detectés.";
-        String messageErreur = "\n( ";
 
-        if (projet.isDirectory())
+        if (!verifierProjet)
         {
-            File[] tabFichiers = projet.listFiles();
-            boolean fichierInvalides = false;
-
-            for (File file : tabFichiers)
-            {
-                if (file.isFile() && !file.getName().endsWith(".java"))
-                {
-                    messageErreur += file.getName() + ", ";
-                    fichierInvalides = true;
-                }
-            }
-
-            messageErreur += ")";
-            if (fichierInvalides)
-            {
-                JOptionPane.showMessageDialog(this,messageInvalide+messageErreur ,"Format invalide",JOptionPane.WARNING_MESSAGE);
-            }
+            JOptionPane.showMessageDialog(null, messageInvalide, "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -1,5 +1,7 @@
 package metier.lecture;
 
+import java.io.File;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import metier.objet.*;
@@ -112,6 +114,29 @@ public class Lecture
 			}
 		}
 	}
+
+	public static boolean verifierFichiersProjet(String cheminDossiers)
+    {
+        File projet = new File(cheminDossiers);
+
+        //String messageInvalide = "Attention : Fichiers non valides detectés.";
+        //String messageErreur = "\n( ";
+
+        if (projet.isDirectory())
+        {
+            File[] tabFichiers = projet.listFiles();
+
+            for (File file : tabFichiers)
+            {
+                if (file.isFile() && !file.getName().endsWith(".java"))
+                {
+                    // += file.getName() + ", ";
+                    return false;
+                }
+            }
+        }
+		return true;
+    }
 
 	/**
 	 * Récupère une classe par son nom.

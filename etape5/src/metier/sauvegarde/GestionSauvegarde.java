@@ -1,7 +1,7 @@
 package metier.sauvegarde;
 
 import metier.objet.Classe;
-import controlleur.Controlleur;
+import controleur.Controleur;
 import vue.BlocClasse;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,9 +21,9 @@ public class GestionSauvegarde
 
     private Map<String, int[]> hashCoordonnees;
     private String cheminDossier;
-    private Controlleur ctrl;
+    private Controleur ctrl;
 
-    public GestionSauvegarde(Controlleur ctrl) 
+    public GestionSauvegarde(Controleur ctrl) 
     {
         this.ctrl            = ctrl;
         this.hashCoordonnees = new HashMap<String, int[]>();

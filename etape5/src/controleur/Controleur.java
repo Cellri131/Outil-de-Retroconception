@@ -1,6 +1,5 @@
-package controlleur;
+package controleur;
 
-import java.io.File;
 import java.util.*;
 import metier.lecture.*;
 import metier.objet.*;
@@ -14,7 +13,7 @@ import vue.LiaisonVue;
 * A accès à la fenêtre principale de la vue, et à la classe de lecture
 * @author Jules, Thibault, Hugo
 */
-public class Controlleur 
+public class Controleur 
 {
     //--------------------------//
     //        ATTRIBUTS         //
@@ -32,10 +31,10 @@ public class Controlleur
     //-------------------------//
 
     /**
-    * Constructeur du controlleur
+    * Constructeur du controleur
     * @param classe La classe sur laquelle se base le BlocClasse 
     */
-    public Controlleur(FenetrePrincipale fenetrePrincipale) 
+    public Controleur(FenetrePrincipale fenetrePrincipale) 
     {
         this.fenetrePrincipale  = fenetrePrincipale;
         this.lstLiaisons        = new ArrayList<>();
@@ -284,6 +283,10 @@ public class Controlleur
         gestionSauvegarde.sauvegarderClasses(blocClasses, cheminProjet);
     }
 
+    public static boolean verifierFichiersProjets(String cheminProjet)
+    {
+        return Lecture.verifierFichiersProjet(cheminProjet);
+    }
     //-----------//
     //  GETTERS  //
     //-----------//
