@@ -4,8 +4,6 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.nio.file.Path;
-import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -17,7 +15,6 @@ public class PanneauProjets extends JPanel {
 
     private FenetrePrincipale fenetrePrincipale;
     private String cheminDossiers;
-
 
     //-------------------------//
     //      CONSTRUCTEUR       //
@@ -89,11 +86,7 @@ public class PanneauProjets extends JPanel {
 
             while ((ligne = reader.readLine()) != null) 
             {
-                //Decoupe la ligne sauvegarder dans Projet.xml pour garder seulement le 
-                //chemin ou est sauvegarder le projet
-                String[] tabLigne = ligne.split("\t");
-
-                ligne = tabLigne[0].trim();
+                ligne = ligne.trim();
 
                 if (!ligne.isEmpty()) 
                 {
@@ -109,18 +102,8 @@ public class PanneauProjets extends JPanel {
                             panelProjets.add(Box.createVerticalStrut(5));
                             vide = false;
                         }
-                       
-                        if (!projet.getName().endsWith(".java"))
-                        {
-                            formatValide = false;
-                        }
                     }
                 }
-            }
-
-            if (formatValide == false)
-            {
-                 JOptionPane.showMessageDialog(this,messageInvalide,"Format invalide",JOptionPane.WARNING_MESSAGE);
             }
 
             if (vide) 
