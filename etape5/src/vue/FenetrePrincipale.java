@@ -1,5 +1,6 @@
 package vue;
 
+import metier.util.TestStructureProjet.VerificationStructureProjet;
 import controleur.Controleur;
 import java.awt.BorderLayout;
 import java.awt.Dimension; 
@@ -149,6 +150,10 @@ public class FenetrePrincipale extends JFrame
 
     public static void main(String[] args) 
     {
+         // Vérification de la structure du projet
+        VerificationStructureProjet verification = new VerificationStructureProjet();
+        verification.verifierStructure();
+
         SwingUtilities.invokeLater(() -> {
             FenetrePrincipale fenetre = new FenetrePrincipale();
             fenetre.setVisible(true);
