@@ -67,7 +67,6 @@ public class PanneauProjets extends JPanel {
     {
 
         File fichier = new File(cheminDossiers);
-        ArrayList<File> dossier = new ArrayList<File>();
 
         if (!fichier.exists())
         {
