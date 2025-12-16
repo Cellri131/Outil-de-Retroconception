@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -151,11 +152,6 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.actionSauvegarder();
     }
 
-    public boolean verifierProjet(String cheminProjet)
-    {
-        return this.controleur.verifierFichiersProjets(cheminProjet);
-    }
-
     /**
     * Méthodes passerelle au controleur
     */
@@ -164,11 +160,18 @@ public class FenetrePrincipale extends JFrame
         return controleur.chargerProjetEnBlocsClasses(cheminProjet);
     }
 
-    public List<LiaisonVue> getLiaisons() {
+    public List<LiaisonVue> getLiaisons()
+    {
         return controleur.getLiaisons();
     }
 
-    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
+    public ArrayList<String> getLstFichiersInvalides(String cheminProjet)
+    {
+        return this.controleur.getLstFichiersInvalides(cheminProjet);
+    }
+
+    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet)
+    {
         controleur.sauvegarderClasses(blocClasses, cheminProjet);
     }
 }

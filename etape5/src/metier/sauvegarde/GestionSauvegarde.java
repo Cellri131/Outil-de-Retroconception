@@ -1,5 +1,6 @@
 package metier.sauvegarde;
 
+import metier.util.*;
 import metier.objet.Classe;
 import controleur.Controleur;
 import vue.BlocClasse;
@@ -10,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,25 +21,39 @@ import java.util.List;
 public class GestionSauvegarde 
 {
 
-    private Map<String, int[]> hashCoordonnees;
+    //------------------------//
+    //       ATTRIBUTS        //
+    //------------------------//
+
     private String cheminDossier;
     private Controleur ctrl;
 
+
+    //-------------------------//
+    //      CONSTRUCTEUR       //
+    //-------------------------//
+    
     public GestionSauvegarde(Controleur ctrl) 
     {
         this.ctrl            = ctrl;
-        this.hashCoordonnees = new HashMap<String, int[]>();
     }
 
-    // dossierFichSelec cette variable prend le dossier selctioner et le fichier
-    // corespondant au fichier enregister pour ces coordoner sauvegarder avant de
-    // fermer le programe
-    public void lecture(String dossierFichSelec) 
+    //----------------------//
+    //      METHODES        //
+    //----------------------//
+
+    /**
+    * Récupère une map de coordonnées 
+    * @param dossierFichSelec L'intitulé du projet sur lequel baser les coordonées
+    * @return Une {@link Map<String, int[]>} des noms des Classes et leurs coordonées (x et y)
+    */
+    public Map<String, int[]> lireCoordoneesXml(String dossierFichSelec) 
     {
-        // Ces ligne permet de s'adapter a n'importe quelle environement a partir du
-        // chemin absolue
-        String basePath = System.getProperty("user.dir");
-        String cheminDossier = basePath + "/donnees/sauvegardes/" + dossierFichSelec;
+        //Récupére depuis util le chemin pour sauvegarde/dossier
+        String cheminDossier = Path.of(ConstantesChemins.SAUVEGARDES , dossierFichSelec).toString();
+
+
+        Map<String, int[]> hashCoordonnees = new HashMap<String, int[]>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(cheminDossier))) 
         {
@@ -65,7 +81,7 @@ public class GestionSauvegarde
                     int    x           = Integer.parseInt(xStr);
                     int    y           = Integer.parseInt(yStr);
 
-                    this.hashCoordonnees.put(nomClass, new int[] { x, y });
+                    hashCoordonnees.put(nomClass, new int[] { x, y });
                 }
             }
 
@@ -74,25 +90,23 @@ public class GestionSauvegarde
         {
             e.printStackTrace();
         }
+
+        return hashCoordonnees;
     }
 
-    public Map<String, int[]> gethashCoordonnees() 
-    {
-        return this.hashCoordonnees;
-    }
-
-    public String getCheminDossier() 
-    {
-        return this.cheminDossier;
-    }
-
-    
-
+    /**
+    * Récupère une map de coordonnées 
+    * @param dossierFichSelec L'intitulé du projet sur lequel baser les coordonées
+    * @return Une {@link Map<String, int[]>} des noms des Classes et leurs coordonées (x et y)
+    */
     public void sauvegarderClasses(List<BlocClasse> listBlocClasses, String cheminProjet) 
     {
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/";
-        String   fichierLectureEcriture = cheminPath + "projets.xml";
+        /*String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "data/donnees/";
+        String   fichierLectureEcriture = cheminPath + "projets.xml";*/
+
+        String fichierLectureEcriture = Path.of(ConstantesChemins.DONNEES, "projets.xml").toString();
+
 
         int      indiceslash            = cheminProjet.lastIndexOf("/");
         String   nomProjetASauv         = cheminProjet.substring(indiceslash + 1).trim();
@@ -121,13 +135,16 @@ public class GestionSauvegarde
         }
     }
 
-
-
+    /**
+    * Sauvegarde les coordonées des {@link BlocClasse}s donnés en paramètres pour écrire sur le .xml correspondant (en fonction de l'intitulé projet récupéré) 
+    * @param listBlocClasses Une {@link List} de {@link BlocClasse}s du projet
+    * @param nomProjet Le nom du projet à 
+    */
     public void sauvegarderCoordProjet(List<BlocClasse> listBlocClasses, String nomProjet, String cheminProjet)
     {
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/sauvegardes/";
-        File file                       = new File(cheminPath + nomProjet + ".xml");
+        
+        Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
+        File file = new File(cheminPath.toString());
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))) 
         {
@@ -150,9 +167,12 @@ public class GestionSauvegarde
         }
     }
 
-    public boolean fichierDeSauvegardeExiste(String nomIntitule) {
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/sauvegardes/" ;
+    public boolean fichierDeSauvegardeExiste(String nomIntitule) 
+    {
+        /*String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "data/donnees/sauvegardes/" ;*/
+
+        String cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, "projets.xml").toString();
 
         File file = new File(cheminPath + nomIntitule + ".xml");
 
@@ -163,14 +183,17 @@ public class GestionSauvegarde
     {
         HashMap<String, BlocClasse> mapNouvBlocClasse = new HashMap<>();
 
-        String   basePath               = System.getProperty("user.dir");
+        /*String   basePath               = System.getProperty("user.dir");
 
         //System.out.println(basePath);
-        String   cheminPath             = basePath + "/donnees/sauvegardes/";
+        String   cheminPath             = basePath + "data/donnees/sauvegardes/";
 
         //System.out.println(cheminPath);
 
-        File file = new File(cheminPath + nomFichier + ".xml");
+        File file = new File(cheminPath + nomFichier + ".xml");*/
+
+        Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomFichier + ".xml");
+        File file = new File(cheminPath.toString());
 
         //System.out.println("nomfich :" + nomFichier);
 
@@ -208,10 +231,12 @@ public class GestionSauvegarde
     
     public String getIntituleFromLien(String paraCheminDossier) {
 
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/projets.xml";
+        /*String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "data/donnees/projets.xml";*/
 
-        try(Scanner scan = new Scanner(new File(cheminPath))) 
+        String fichierPath = Path.of(ConstantesChemins.DONNEES, "projets.xml").toString();
+
+        try(Scanner scan = new Scanner(new File(fichierPath))) 
         {
             while(scan.hasNextLine())
             {
@@ -237,10 +262,12 @@ public class GestionSauvegarde
 
     public boolean projetEstSauvegarde(String nomIntituleSauvegarde) {
 
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/projets.xml";
+        /*String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "data/donnees/projets.xml";*/
 
-        try(Scanner scan = new Scanner(new File(cheminPath))) 
+        String fichierPath = Path.of(ConstantesChemins.DONNEES, "projets.xml").toString();
+        
+        try(Scanner scan = new Scanner(new File(fichierPath))) 
         {
             while(scan.hasNextLine())
             {
@@ -273,23 +300,22 @@ public class GestionSauvegarde
         if (!projetEstSauvegarde(nomProjet))
         {
             // Ajouter le projet à projets.xml
-            String basePath = System.getProperty("user.dir");
-            String fichierPath = basePath + "/donnees/projets.xml";
+            /*String basePath = System.getProperty("user.dir");
+            String fichierPath = basePath + "data/donnees/projets.xml";*/
+
+            String fichierPath = Path.of(ConstantesChemins.DONNEES, "projets.xml").toString();
+
             File fichier = new File(fichierPath);
             
             try
             {
-                // Création du dossier parent si nécessaire
-                if (!fichier.getParentFile().exists())
-                {
-                    fichier.getParentFile().mkdirs();
-                }
+
                 
-                // Création du fichier s'il n'existe pas
+                /*// Création du fichier s'il n'existe pas
                 if (!fichier.exists())
                 {
                     fichier.createNewFile();
-                }
+                }*/
                 
                 // Ajouter la ligne au fichier
                 try (FileWriter writer = new FileWriter(fichier, true))
@@ -302,5 +328,15 @@ public class GestionSauvegarde
                 e.printStackTrace();
             }
         }
+    }
+
+
+    //-----------//
+    //  GETTERS  //
+    //-----------//
+
+    public String getCheminDossier() 
+    {
+        return this.cheminDossier;
     }
 }

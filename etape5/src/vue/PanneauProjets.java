@@ -23,7 +23,7 @@ public class PanneauProjets extends JPanel {
     public PanneauProjets(FenetrePrincipale fenetrePrincipale) {
         this.fenetrePrincipale = fenetrePrincipale;
         
-        this.cheminDossiers = "donnees/projets.xml";
+        this.cheminDossiers = "data/donnees/projets.xml";
         //this.cheminDossiers = "sauvegardes/dossiers";
 
         setLayout(new BorderLayout());

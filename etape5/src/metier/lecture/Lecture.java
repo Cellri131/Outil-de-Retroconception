@@ -19,10 +19,10 @@ public class Lecture
 
 	public Lecture(String cheminFichier)
 	{
-		this.hashMapClasses  = new HashMap  <String, Classe>();
-		this.lstHeritage     = new ArrayList<Heritage      >();
-		this.lstAssociations = new ArrayList<Association   >();
-		this.lstInterface    = new ArrayList<Interface     >();
+		this.hashMapClasses       = new HashMap  <String, Classe>();
+		this.lstHeritage          = new ArrayList<Heritage      >();
+		this.lstAssociations      = new ArrayList<Association   >();
+		this.lstInterface         = new ArrayList<Interface     >();
 
 		analyserFichier (cheminFichier);
 
@@ -115,29 +115,6 @@ public class Lecture
 		}
 	}
 
-	public static boolean verifierFichiersProjet(String cheminDossiers)
-    {
-        File projet = new File(cheminDossiers);
-
-        //String messageInvalide = "Attention : Fichiers non valides detectés.";
-        //String messageErreur = "\n( ";
-
-        if (projet.isDirectory())
-        {
-            File[] tabFichiers = projet.listFiles();
-
-            for (File file : tabFichiers)
-            {
-                if (file.isFile() && !file.getName().endsWith(".java"))
-                {
-                    // += file.getName() + ", ";
-                    return false;
-                }
-            }
-        }
-		return true;
-    }
-
 	/**
 	 * Récupère une classe par son nom.
 	 * @param nomFichier Nom du fichier (classe)
@@ -153,11 +130,33 @@ public class Lecture
 		return null;
 	}
 
-
 	// ========== Getters ==========
 
-	public HashMap  <String, Classe> getHashMapClasses	()	{ return this.hashMapClasses ; }
-	public ArrayList<Association>    getLstAssociation	()	{ return this.lstAssociations; }
-	public ArrayList<Heritage>       getLstHeritage   	()	{ return this.lstHeritage    ; }
-	public ArrayList<Interface>      getLstInterface 	()	{ return this.lstInterface   ; }
+	public HashMap  <String, Classe> getHashMapClasses	()	   { return this.hashMapClasses ; }
+	public ArrayList<Association>    getLstAssociation	()	   { return this.lstAssociations; }
+	public ArrayList<Heritage>       getLstHeritage   	()	   { return this.lstHeritage    ; }
+	public ArrayList<Interface>      getLstInterface 	()	   { return this.lstInterface   ; }
+
+	public static ArrayList<String> getFichiersInvalides(String cheminDossiers)
+    {
+		ArrayList<String> lstFichiersInvalides = new ArrayList<>();
+        File projet = new File(cheminDossiers);
+        //String messageInvalide = "Attention : Fichiers non valides detectés.";
+        //String messageErreur = "\n( ";
+
+        if (projet.isDirectory())
+        {
+            File[] tabFichiers = projet.listFiles();
+
+            for (File file : tabFichiers)
+            {
+                if (file.isFile() && !file.getName().endsWith(".java"))
+                {
+                    lstFichiersInvalides.add(file.getName());
+                }
+            }
+        }
+
+		return lstFichiersInvalides;
+	}
 }

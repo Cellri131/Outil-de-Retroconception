@@ -17,7 +17,7 @@ public class LectureCoordTest {
         // Lecture du fichier animalerie
         lecture.lecture("animalerie.xml");
 
-        Map<String, int[]> coords = lecture.gethashCoordonnees();
+        Map<String, int[]> coords = lecture.lireCoordoneesXml(lecture.getIntituleFromLien(lecture) + ".xml");
 
         // === AFFICHAGE POUR DEBUG ===
         System.out.println("=== Affichage de la map dans le test ===");

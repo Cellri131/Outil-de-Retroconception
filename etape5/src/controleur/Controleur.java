@@ -83,11 +83,11 @@ public class Controleur
             }
         }
 
+        // Test si le projet est déjàa présent dans les sauvegardes .xml
         if (gestionSauvegarde.projetEstSauvegarde(gestionSauvegarde.getIntituleFromLien(cheminProjet))) 
         {
             System.out.println("Le projet est sauvegardé. Chargement des coordonées depuis le .xml");
-            gestionSauvegarde.lecture(gestionSauvegarde.getIntituleFromLien(cheminProjet) + ".xml");
-            Map<String, int[]> coordonneesBlocs = gestionSauvegarde.gethashCoordonnees();
+            Map<String, int[]> coordonneesBlocs = gestionSauvegarde.lireCoordoneesXml(gestionSauvegarde.getIntituleFromLien(cheminProjet) + ".xml");
             
             for (BlocClasse bloc : lstBlocs) {
                 int[] coordonnees = coordonneesBlocs.get(bloc.getNom());
@@ -245,48 +245,16 @@ public class Controleur
         this.gestionSauvegarde.sauvegardeProjetXml(cheminFichier);
     }
 
-    /*public String getLienFromIntitule(String intituleFichier) {
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/sauvegardes/";
-
-        File dossier = new File(cheminPath);
-
-        if (!dossier.exists() || !dossier.isDirectory()) 
-        {
-            System.out.println("Dossier de sauvegardes introuvable");
-            return "";
-        }
-
-        File[] fichiers = dossier.listFiles();
-
-        if (fichiers == null) 
-        {
-            System.out.println("Aucun fichier dans le dossier");
-            return "";
-        }
-
-        for (File f : fichiers) 
-        {
-            if (f.isFile()) 
-            {
-                System.out.println("Fichier trouvé : " + f.getName());
-
-                if (f.getName().equals(nomFichierCoord.trim())) 
-                {
-                    return f.getName();
-                }
-            }
-        }
-    }*/
 
     public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
         gestionSauvegarde.sauvegarderClasses(blocClasses, cheminProjet);
     }
 
-    public static boolean verifierFichiersProjets(String cheminProjet)
+    public void ajouterBlockList(BlocClasse block)
     {
-        return Lecture.verifierFichiersProjet(cheminProjet);
+        this.lstBlocs.add(block);
     }
+
     //-----------//
     //  GETTERS  //
     //-----------//
@@ -296,10 +264,8 @@ public class Controleur
         return lstLiaisons;
     }
 
-    public void ajouterBlockList(BlocClasse block)
+    public ArrayList<String> getLstFichiersInvalides(String cheminDossier)
     {
-        this.lstBlocs.add(block);
+        return Lecture.getFichiersInvalides(cheminDossier);
     }
-
-    
 }
