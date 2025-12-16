@@ -42,6 +42,7 @@ public class PanneauDiagramme extends JPanel
     private int                 panOffsetX = 0;
     private int                 panOffsetY = 0;
     private boolean             isPanning = false;
+    private BlocClasse          blocPleinEcranTemporaire = null;
 
 
     //-------------------------//
@@ -123,9 +124,10 @@ public class PanneauDiagramme extends JPanel
                         }
                     }
                     
-                    // Si on clique sur un bloc, basculer son affichage plein écran
+                    // Si on clique sur un bloc, activer l'affichage plein écran temporairement
                     if (blocClique != null) {
-                        blocClique.setAffichagePleinEcran(!blocClique.isAffichagePleinEcran());
+                        blocPleinEcranTemporaire = blocClique;
+                        blocClique.setAffichagePleinEcran(true);
                         repaint();
                         return;
                     }
@@ -174,6 +176,13 @@ public class PanneauDiagramme extends JPanel
                     isPanning = false;
                     repaint();
                     return;
+                }
+                
+                // Désactiver l'affichage plein écran temporaire
+                if (blocPleinEcranTemporaire != null) {
+                    blocPleinEcranTemporaire.setAffichagePleinEcran(false);
+                    blocPleinEcranTemporaire = null;
+                    repaint();
                 }
                 
                 if (blocEnDeplacement != null) {

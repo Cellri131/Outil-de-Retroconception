@@ -177,7 +177,22 @@ public class Controleur
 
             String nomMet = met.getNomMethode();
             String retour = met.getRetour();
-            methodesStr.add(visibilite + " " + nomMet + "() : " + retour);
+            
+            // Construire les paramètres
+            StringBuilder parametres = new StringBuilder("(");
+            List<Parametre> lstParam = met.getLstParametre();
+            if (lstParam != null && !lstParam.isEmpty()) {
+                for (int i = 0; i < lstParam.size(); i++) {
+                    Parametre param = lstParam.get(i);
+                    parametres.append(param.getNomPara()).append(": ").append(param.getTypePara());
+                    if (i < lstParam.size() - 1) {
+                        parametres.append(", ");
+                    }
+                }
+            }
+            parametres.append(")");
+            
+            methodesStr.add(visibilite + " " + nomMet + parametres.toString() + " : " + retour);
         }
 
         bloc.setAttributsAffichage(attributsStr);
