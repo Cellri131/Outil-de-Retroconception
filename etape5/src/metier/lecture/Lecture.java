@@ -81,7 +81,7 @@ public class Lecture
 
 	public void creerLstInterface()
 	{
-		System.out.println("--- Création des interfaces ---");
+		//System.out.println("--- Création des interfaces ---");
 		for (Classe classe : hashMapClasses.values())
 		{
 			String nomInterfacesStr = classe.getNomInterface();
@@ -101,7 +101,7 @@ public class Lecture
 					if (interfaceClasse != null)
 					{
 						Interface inter = new Interface(interfaceClasse, classe);
-						System.out.println("L'interface a été créér : " + inter);
+						//System.out.println("L'interface a été créér : " + inter);
 						lstInterface.add(inter);
 					}
 					else

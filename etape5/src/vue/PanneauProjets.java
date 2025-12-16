@@ -5,9 +5,7 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-
 import javax.swing.*;
-import java.util.ArrayList;
 
 public class PanneauProjets extends JPanel {
 
@@ -89,7 +87,7 @@ public class PanneauProjets extends JPanel {
             {
                 ligne = ligne.trim();
 
-        String ligneChemin = ligne.substring(0, ligne.indexOf("\t") );
+                String ligneChemin = ligne.substring(0, ligne.indexOf("\t") );
 
                 if (!ligneChemin.isEmpty()) 
                 {

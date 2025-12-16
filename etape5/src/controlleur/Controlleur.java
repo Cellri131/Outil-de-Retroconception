@@ -84,22 +84,31 @@ public class Controlleur
             }
         }
 
-        String nomIntituleSauvegarde = getIntituleFromLien(cheminProjet);
-    
-        System.out.println("Nom de l'intitulé : " + getIntituleFromLien(cheminProjet) );
-        if(!nomIntituleSauvegarde.equals(""))
+        if (gestionSauvegarde.projetEstSauvegarde(gestionSauvegarde.getIntituleFromLien(cheminProjet))) 
         {
-            mapBlocsParNom = gestionSauvegarde.chargerSauvegardeCoord(nomIntituleSauvegarde, mapBlocsParNom);   
-        }
-        
+            System.out.println("Le projet est sauvegardé. Chargement des coordonées depuis le .xml");
+            gestionSauvegarde.lecture(gestionSauvegarde.getIntituleFromLien(cheminProjet) + ".xml");
+            Map<String, int[]> coordonneesBlocs = gestionSauvegarde.gethashCoordonnees();
+            
+            for (BlocClasse bloc : lstBlocs) {
+                int[] coordonnees = coordonneesBlocs.get(bloc.getNom());
+                if (coordonnees != null) {
+                    bloc.setX(coordonnees[0]);
+                    bloc.setY(coordonnees[1]);
+                }
+            }
 
+        } else {
+            System.out.println("Le projet n'est pas sauvegardé. On garde les coordonées par défaut");
+        }
+            
         // Créer les lstLiaisons depuis associations, heritages, et interfaces
         creerLiaisonsDepuisAssoc        (lecture.getLstAssociation(), mapBlocsParNom);
 
         creerLiaisonsDepuisHerit        (lecture.getLstHeritage(), mapBlocsParNom);
-        creerLiaisonsDepuisInterface(lecture.getLstInterface(), mapBlocsParNom);
+        creerLiaisonsDepuisInterface    (lecture.getLstInterface(), mapBlocsParNom);
 
-        creerLiaisonsDepuisInterface  (lecture.getLstInterface(), mapBlocsParNom);
+        creerLiaisonsDepuisInterface    (lecture.getLstInterface(), mapBlocsParNom);
 
         fenetrePrincipale.optimiserPositionsClasses();
 
@@ -232,63 +241,6 @@ public class Controlleur
         }
     }
 
-    public String getIntituleFromLien(String paraCheminDossier) {
-
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/projets.xml";
-
-        try(Scanner scan = new Scanner(new File(cheminPath))) 
-        {
-            while(scan.hasNextLine())
-            {
-                String ligne = scan.nextLine();
-                
-                String[] tabLigne = ligne.split("\t");
-
-                System.out.println(tabLigne);
-                if(tabLigne[0].equals(paraCheminDossier.trim()))
-                {
-                    return tabLigne[1].trim();
-                }
-            }
-            
-        } 
-        catch (Exception e) 
-        {
-            e.getMessage();
-        }
-
-        return "";
-    }
-
-    public boolean projetEstSauvegarde(String nomIntituleSauvegarde) {
-
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/projets.xml";
-
-        try(Scanner scan = new Scanner(new File(cheminPath))) 
-        {
-            while(scan.hasNextLine())
-            {
-                String ligne = scan.nextLine();
-                
-                String[] tabLigne = ligne.split("\t");
-
-                System.out.println(tabLigne);
-                if(tabLigne[1].equals(nomIntituleSauvegarde.trim()))
-                {
-                    return true;
-                }
-            }
-            
-        } 
-        catch (Exception e) 
-        {
-            e.getMessage();
-        }
-
-        return false;
-    }
 
     public void sauvegardeProjetXml(String cheminFichier){
         this.gestionSauvegarde.sauvegardeProjetXml(cheminFichier);
