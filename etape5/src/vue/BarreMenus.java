@@ -16,7 +16,6 @@ import javax.swing.JOptionPane;
 */
 public class BarreMenus extends JMenuBar 
 {
-
     //-------------------------//
     //       ATTRIBUTS        //
     //------------------------//
@@ -26,19 +25,18 @@ public class BarreMenus extends JMenuBar
     private JCheckBoxMenuItem afficherAttributsItem;
     private JCheckBoxMenuItem afficherMethodesItem;
     
-
     //-------------------------//
     //      CONSTRUCTEUR       //
     //-------------------------//
     
     public BarreMenus(FenetrePrincipale fenetrePrincipale) 
     {
-        add(creerMenuFichier());
+        add(creerMenuFichier  ());
         //add(creerMenuEdition());
         add(creerMenuAffichage());
-        add(creerMenuAide());
+        add(creerMenuAide     ());
 
-        this.fenetrePrincipale  = fenetrePrincipale;
+        this.fenetrePrincipale = fenetrePrincipale;
     }
 
     //----------------------//
@@ -49,16 +47,16 @@ public class BarreMenus extends JMenuBar
     {
         JMenu menu = new JMenu("Fichier");
 
-        JMenuItem ouvrirItem        = new JMenuItem("Ouvrir projet...");
+        JMenuItem ouvrirItem      = new JMenuItem("Ouvrir projet...");
         ouvrirItem.     addActionListener(e -> actionOuvrirProjet());
 
-        JMenuItem exporterItem      = new JMenuItem("Exporter en image");
+        JMenuItem exporterItem    = new JMenuItem("Exporter en image");
         exporterItem.   addActionListener(e -> fenetrePrincipale.sauvegarderDiagramme());
 
-        JMenuItem sauvegarderItem   = new JMenuItem("Sauvegarder");
+        JMenuItem sauvegarderItem = new JMenuItem("Sauvegarder");
         sauvegarderItem.addActionListener(e -> actionSauvegarder());
 
-        JMenuItem quitterItem       = new JMenuItem("Quitter");
+        JMenuItem quitterItem     = new JMenuItem("Quitter");
         quitterItem.    addActionListener(e -> System.exit(0));
 
         menu.add(ouvrirItem);
@@ -108,7 +106,7 @@ public class BarreMenus extends JMenuBar
         
     private void actionOuvrirProjet() 
     {
-        JFileChooser chooser    = new JFileChooser();
+        JFileChooser chooser = new JFileChooser();
 
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
@@ -119,11 +117,11 @@ public class BarreMenus extends JMenuBar
         if (resultat == JFileChooser.APPROVE_OPTION) 
         {
             File fichierSelectionne = chooser.getSelectedFile();
-            String cheminAbsolu = fichierSelectionne.getAbsolutePath();
+            String cheminAbsolu     = fichierSelectionne.getAbsolutePath();
 
             verifierFichiersProjet(cheminAbsolu);
             
-            SauvegardeProjetXml(cheminAbsolu);
+            sauvegardeProjetXml(cheminAbsolu);
         } 
         else 
         {
@@ -134,12 +132,9 @@ public class BarreMenus extends JMenuBar
     private void verifierFichiersProjet(String cheminDossiers)
     {
         File projet = new File(cheminDossiers);
-<<<<<<< HEAD
-        String messageInvalide = "Attention le projet a un ou des fichiers non valides : ";
+
+        String messageInvalide = "Attention : Fichiers non valides detectés.";
         String messageErreur = "\n( ";
-=======
-        String messageInvalide = "Attention : Fichiers non valides detectés. Uniquement les classes java ont été prises en compte.";
->>>>>>> 011232b2b9773c6b35d8a42894f6127753fec984
 
         if (projet.isDirectory())
         {
@@ -163,40 +158,9 @@ public class BarreMenus extends JMenuBar
         }
     }
 
-    private void SauvegardeProjetXml(String cheminFichier) 
+    private void sauvegardeProjetXml(String cheminFichier) 
     {
-        try 
-        {
-            // Emplacement
-            File fichier = new File("donnees/projets.xml");
-
-            // Création du dossier parent si nécessaire
-            if (!fichier.getParentFile().exists()) {
-                fichier.getParentFile().mkdirs();
-            }
-
-            // Création du fichier s'il n'existe pas
-            if (!fichier.exists()) {
-                fichier.createNewFile();
-            }
-
-            // FileWriter avec "true" pour ajouter à la fin
-            FileWriter writer = new FileWriter(fichier, true);
-
-            //Extrai le nom du dossier pour le mettre en bout de ligne
-            //String nomDossier = cheminFichier.substring(cheminFichier.lastIndexOf("/") + 1);
-
-            // Écrire la chaîne avec un retour à la ligne
-            writer.write(cheminFichier + System.lineSeparator());
-
-            // Fermer le writer
-            writer.close();
-
-            System.out.println("Ajout effectué dans : " + fichier.getAbsolutePath());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        fenetrePrincipale.sauvegardeProjetXml(cheminFichier);
     }
 
     private void actionAffichageAttributs() 
@@ -216,7 +180,7 @@ public class BarreMenus extends JMenuBar
 
     private void actionOptimiser() 
     {
-        fenetrePrincipale.optimiserPositionsClasses();
+        fenetrePrincipale.optimiserPositionsClasses ();
         fenetrePrincipale.optimiserPositionsLiaisons();
     }
 
@@ -232,11 +196,10 @@ public class BarreMenus extends JMenuBar
 
     private void actionAPropos() 
     {
-        JOptionPane.showMessageDialog(null,
-            "Modélisation UML - Générateur de Diagrammes\n" +
-            "par Romain BARUCHELLO,\n" + "Jules BOUQUET,\n" + "Pierre COIGNARD,\n" + "Paul NOEL,\n" + "Thibault PADOIS,\n" + "Hugo VARAO GOMES DA SILVA",
-            "À propos",
-            JOptionPane.INFORMATION_MESSAGE);
-    }
+        String messageDeb = "Modélisation UML - Générateur de Diagrammes\n";
+        String messageRes = "par Romain BARUCHELLO,\nJules BOUQUET,\nPierre COIGNARD,\nPaul NOEL,\n";
+        String messageFin = messageDeb + messageRes + "Thibault PADOIS,\nHugo VARAO GOMES DA SILVA";
 
+        JOptionPane.showMessageDialog(null, messageFin, "À propos", JOptionPane.INFORMATION_MESSAGE);
+    }
 }

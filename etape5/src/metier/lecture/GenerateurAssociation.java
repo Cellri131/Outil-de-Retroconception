@@ -15,7 +15,7 @@ public class GenerateurAssociation
 
 	public GenerateurAssociation(HashMap<String, Classe> hashMapClasses)
 	{
-		this.hashMapClasses  = hashMapClasses;
+		this.hashMapClasses  = hashMapClasses              ;
 		this.lstAssociations = new ArrayList<Association>();
 	}
 
@@ -25,7 +25,7 @@ public class GenerateurAssociation
 	 */
 	public ArrayList<Association> generer()
 	{
-		ArrayList<Attribut> attributsARetirer = new ArrayList<>();
+		ArrayList<Attribut> attributsARetirer = new ArrayList<Attribut>();
 
 		for (String nomFichier : hashMapClasses.keySet())
 		{
@@ -45,7 +45,7 @@ public class GenerateurAssociation
 				if (UtilitaireType.estMultiInstance(typeOriginal))
 				{
 					listeMultiInstance.add(typeNettoye);
-					attributsARetirer.add(attr);
+					attributsARetirer .add(attr       );
 				}
 				else // Simple instance
 				{
@@ -95,9 +95,7 @@ public class GenerateurAssociation
 				for (Parametre param : methode.getLstParametre())
 				{
 					if (UtilitaireType.nettoyerType(param.getTypePara()).equals(typeDest))
-					{
 						multDest = new Multiplicite(1, "*");
-					}
 				}
 			}
 
@@ -115,7 +113,7 @@ public class GenerateurAssociation
 	{
 		for (Map.Entry<String, Integer> entry : compteur.entrySet())
 		{
-			String typeDest = entry.getKey();
+			String typeDest = entry.getKey  ();
 			int    max      = entry.getValue();
 
 			// Vérifier que la classe existe
@@ -124,7 +122,7 @@ public class GenerateurAssociation
 
 			Classe classeDest = hashMapClasses.get(typeDest + ".java");
 
-			Multiplicite multOrig = new Multiplicite(1, 1);
+			Multiplicite multOrig = new Multiplicite(1, 1  );
 			Multiplicite multDest = new Multiplicite(1, max);
 
 			// Vérifier si bidirectionnel
@@ -151,10 +149,13 @@ public class GenerateurAssociation
 
 		// Vérifier dans les paramètres des méthodes
 		for (Methode methodeDest : classeDest.getLstMethode())
+		{
 			for (Parametre paramDest : methodeDest.getLstParametre())
+			{
 				if (UtilitaireType.nettoyerType(paramDest.getTypePara()).equals(classeOrig.getNom()))
 					return true;
-
+			}
+		}
 		return false;
 	}
 
@@ -191,7 +192,7 @@ public class GenerateurAssociation
 		}
 
 		// Remplacer la liste par la liste unique
-		lstAssociations = new ArrayList<>(uniques.values());
+		lstAssociations = new ArrayList<Association>(uniques.values());
 	}
 
 	public ArrayList<Association> getLstAssociations()

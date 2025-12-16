@@ -20,12 +20,12 @@ public class Controlleur
     //        ATTRIBUTS         //
     //--------------------------//
 
-    private Lecture             lecture;
-    private List<LiaisonVue>    lstLiaisons;
+    private Lecture             lecture          ;
     private FenetrePrincipale   fenetrePrincipale;
     private GestionSauvegarde   gestionSauvegarde;
 
-    private List<BlocClasse>    lstBlocs;
+    private List<LiaisonVue> lstLiaisons;
+    private List<BlocClasse> lstBlocs   ;
 
     //-------------------------//
     //      CONSTRUCTEUR       //
@@ -56,19 +56,14 @@ public class Controlleur
     public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) 
     {
         lecture = new Lecture(cheminProjet);
-        lstBlocs.clear();
+        lstBlocs.   clear();
         lstLiaisons.clear();
-        lstBlocs.clear();
+        lstBlocs.   clear();
 
         // hasmap pour associer les noms de classes aux blocs
         HashMap<String, BlocClasse> mapBlocsParNom  = new HashMap<>();
         HashMap<String, Classe>     hashMapclasses  = lecture.getHashMapClasses();
 
-        String nomDeSauvegardeProjet = estSauvegarde(cheminProjet, null);
-        
-        System.out.println(nomDeSauvegardeProjet);
-
-        
         int posX    = 50;
         int posY    = 50;
 
@@ -88,11 +83,13 @@ public class Controlleur
                 }
             }
         }
-    
 
-        if(!nomDeSauvegardeProjet.equals(""))
+        String nomIntituleSauvegarde = getIntituleFromLien(cheminProjet);
+    
+        System.out.println("Nom de l'intitulé : " + getIntituleFromLien(cheminProjet) );
+        if(!nomIntituleSauvegarde.equals(""))
         {
-            mapBlocsParNom = gestionSauvegarde.chargerSauvegardeCoord(nomDeSauvegardeProjet, mapBlocsParNom);   
+            mapBlocsParNom = gestionSauvegarde.chargerSauvegardeCoord(nomIntituleSauvegarde, mapBlocsParNom);   
         }
         
 
@@ -235,78 +232,101 @@ public class Controlleur
         }
     }
 
+    public String getIntituleFromLien(String paraCheminDossier) {
 
-    /**
-     * Verifie s'il existe une sauvegarde d'un projet deja existant
-     * @param paraCheminDossier
-     * @return 
-     */
-    public String estSauvegarde(String paraCheminDossier, String nomFichierCoord)
-    {
+        String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "/donnees/projets.xml";
 
-        if(paraCheminDossier!= null)
+        try(Scanner scan = new Scanner(new File(cheminPath))) 
         {
-            String   basePath               = System.getProperty("user.dir");
-            String   cheminPath             = basePath + "/donnees/projets.xml";
-
-            try(Scanner scan = new Scanner(new File(cheminPath))) 
+            while(scan.hasNextLine())
             {
-                while(scan.hasNextLine())
-                {
-                    String ligne = scan.nextLine();
-                    
-                    String[] tabCheminProjet = ligne.split("\t");
-
-                    if(tabCheminProjet[0].equals(paraCheminDossier.trim()))
-                    {
-                        return tabCheminProjet[1].trim();
-                    }
-                }
+                String ligne = scan.nextLine();
                 
-            } 
-            catch (Exception e) 
-            {
-                e.getMessage();
-            }
+                String[] tabLigne = ligne.split("\t");
 
-        }
-        else
-        {
-            String   basePath               = System.getProperty("user.dir");
-            String   cheminPath             = basePath + "/donnees/sauvegardes/";
-
-            File dossier = new File(cheminPath);
-
-            if (!dossier.exists() || !dossier.isDirectory()) 
-            {
-                System.out.println("Dossier de sauvegardes introuvable");
-                return "";
-            }
-
-            File[] fichiers = dossier.listFiles();
-
-            if (fichiers == null) 
-            {
-                System.out.println("Aucun fichier dans le dossier");
-                return "";
-            }
-
-            for (File f : fichiers) 
-            {
-                if (f.isFile()) 
+                System.out.println(tabLigne);
+                if(tabLigne[0].equals(paraCheminDossier.trim()))
                 {
-                    System.out.println("Fichier trouvé : " + f.getName());
-
-                    if (f.getName().equals(nomFichierCoord.trim())) 
-                    {
-                        return f.getName();
-                    }
+                    return tabLigne[1].trim();
                 }
             }
+            
+        } 
+        catch (Exception e) 
+        {
+            e.getMessage();
         }
-        
+
         return "";
     }
+
+    public boolean projetEstSauvegarde(String nomIntituleSauvegarde) {
+
+        String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "/donnees/projets.xml";
+
+        try(Scanner scan = new Scanner(new File(cheminPath))) 
+        {
+            while(scan.hasNextLine())
+            {
+                String ligne = scan.nextLine();
+                
+                String[] tabLigne = ligne.split("\t");
+
+                System.out.println(tabLigne);
+                if(tabLigne[1].equals(nomIntituleSauvegarde.trim()))
+                {
+                    return true;
+                }
+            }
+            
+        } 
+        catch (Exception e) 
+        {
+            e.getMessage();
+        }
+
+        return false;
+    }
+
+    public void sauvegardeProjetXml(String cheminFichier){
+        this.gestionSauvegarde.sauvegardeProjetXml(cheminFichier);
+    }
+
+    /*public String getLienFromIntitule(String intituleFichier) {
+        String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "/donnees/sauvegardes/";
+
+        File dossier = new File(cheminPath);
+
+        if (!dossier.exists() || !dossier.isDirectory()) 
+        {
+            System.out.println("Dossier de sauvegardes introuvable");
+            return "";
+        }
+
+        File[] fichiers = dossier.listFiles();
+
+        if (fichiers == null) 
+        {
+            System.out.println("Aucun fichier dans le dossier");
+            return "";
+        }
+
+        for (File f : fichiers) 
+        {
+            if (f.isFile()) 
+            {
+                System.out.println("Fichier trouvé : " + f.getName());
+
+                if (f.getName().equals(nomFichierCoord.trim())) 
+                {
+                    return f.getName();
+                }
+            }
+        }
+    }*/
 
     public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
         gestionSauvegarde.sauvegarderClasses(blocClasses, cheminProjet);

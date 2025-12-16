@@ -12,12 +12,12 @@ import metier.objet.*;
 public class ParseurJava
 {
 	private ArrayList<Attribut> lstAttribut;
-	private ArrayList<Methode>  lstMethode;
+	private ArrayList<Methode>  lstMethode ;
 
 	public ParseurJava()
 	{
-		this.lstAttribut = new ArrayList<>();
-		this.lstMethode  = new ArrayList<>();
+		this.lstAttribut = new ArrayList<Attribut>();
+		this.lstMethode  = new ArrayList<Methode>();
 	}
 
 	/**
@@ -29,8 +29,8 @@ public class ParseurJava
 	public Classe parser(Scanner scFic, String nomFichierAvExt)
 	{
 		// Réinitialiser les listes pour chaque nouveau fichier
-		this.lstAttribut = new ArrayList<>();
-		this.lstMethode  = new ArrayList<>();
+		this.lstAttribut = new ArrayList<Attribut>();
+		this.lstMethode  = new ArrayList<Methode >();
 
 		// Variables pour stocker les informations de la classe
 		String  nomFichier    = nomFichierAvExt.replace(".java", "");
@@ -42,7 +42,7 @@ public class ParseurJava
 		// Variables pour le parsing des méthodes
 		String          nomMethode      = "";
 		String          nomConstructeur = "";
-		List<Parametre> lstParametres   = new ArrayList<>();
+		List<Parametre> lstParametres   = new ArrayList<Parametre>();
 
 		while (scFic.hasNextLine())
 		{
@@ -57,8 +57,10 @@ public class ParseurJava
 				String  classeOrigine = ligne.substring(ligne.indexOf("extends") + 7).trim();
 				Scanner scParent      = new Scanner(classeOrigine);
 				scParent.useDelimiter("\\s+");
+
 				if (scParent.hasNext())
 					classeParente = scParent.next();
+
 				scParent.close();
 			}
 
@@ -72,27 +74,26 @@ public class ParseurJava
 			}
 
 			// Détecter le type de classe
-			if (ligne.contains("abstract") && ligne.contains("class")) {typeClasse += "abstract ";}
+			if (ligne.contains("abstract") && ligne.contains("class")) typeClasse += "abstract ";
 
-			if (ligne.contains("interface")) {typeClasse += "interface ";}
+			if (ligne.contains("interface")) typeClasse += "interface ";
 
 		// Support des conventions K&R et Allman pour les enums
-		if (ligne.contains("enum")) {typeClasse += "enum ";}
+			if (ligne.contains("enum")) typeClasse += "enum ";
 
 			// Traiter les enums
 			if (typeClasse.contains("enum") && !ligne.isEmpty() && !ligne.contains("enum") && 
 			    !ligne.equals("{") && !ligne.equals("}"))
 			{
 				String ligneTrimmed = ligne.trim();
-				if (!ligneTrimmed.startsWith("//") && !ligneTrimmed.startsWith("/*") && 
-					!ligneTrimmed.startsWith("*") && !ligneTrimmed.startsWith("public") && 
+				if (!ligneTrimmed.startsWith("//") && !ligneTrimmed.startsWith("/*")             && 
+					!ligneTrimmed.startsWith("*") && !ligneTrimmed.startsWith("public")          &&
 					!ligneTrimmed.startsWith("private") && !ligneTrimmed.startsWith("protected") &&
 					!ligneTrimmed.contains("(") && ligneTrimmed.matches("^[A-Z].*[,;]?$"))
 				{
 					String valeur = ligneTrimmed.replaceAll("[,;]\\s*$", "").trim();
 					if (!valeur.isEmpty())
 						lstAttribut.add(new Attribut(valeur, "", "public", "classe", true));
-					
 				}
 			}
 
@@ -100,7 +101,7 @@ public class ParseurJava
 			if (ligne.contains("record") && ligne.contains("("))
 			{
 				typeClasse += "record ";
-				traiterRecord(ligne);
+				traiterRecord(ligne)   ;
 			}
 
 			// Parser les membres (attributs et méthodes)
@@ -108,10 +109,10 @@ public class ParseurJava
 			                                       ligne.startsWith("protected") || 
 			                                        ligne.startsWith("public");
 													
-			boolean estMethodeInterface = typeClasse.contains("interface") && 
-										  			   ligne.contains("(") && 
-			                              			   ligne.contains(")") && 
-										               ligne.endsWith(";") && 
+			boolean estMethodeInterface = typeClasse.contains("interface")  && 
+										  			   ligne.contains("(")  && 
+			                              			   ligne.contains(")")  && 
+										               ligne.endsWith(";")  && 
 										               !ligne.contains("{");
 
 			if (ligneCommenceParModificateur || estMethodeInterface)
@@ -123,8 +124,8 @@ public class ParseurJava
 				}
 
 				// Parser méthode
-				boolean estAppelMethode = ligne.trim().startsWith("super(") || 
-				                          ligne.trim().startsWith("this(") || 
+				boolean estAppelMethode = ligne.trim().startsWith("super(")  || 
+				                          ligne.trim().startsWith("this(")   || 
 				                          ligne.trim().startsWith("return ");
 				
 				if (ligne.contains("(") && ligne.contains(")") && !estAppelMethode &&
@@ -133,8 +134,8 @@ public class ParseurJava
 				{
 					nomMethode = "";
 					nomConstructeur = "";
-					lstParametres = new ArrayList<>();
-					
+					lstParametres = new ArrayList<Parametre>();
+
 					parserMethode(ligne, nomFichier, typeClasse, ligneCommenceParModificateur, 
 					              estMethodeInterface, nomMethode, nomConstructeur, lstParametres);
 				}
@@ -152,12 +153,12 @@ public class ParseurJava
 	private void traiterRecord(String ligne)
 	{
 		int debutParam = ligne.indexOf("(");
-		int finParam = ligne.indexOf(")");
-		
+		int finParam   = ligne.indexOf(")");
+
 		if (debutParam != -1 && finParam != -1 && finParam > debutParam)
 		{
 			String params = ligne.substring(debutParam + 1, finParam).trim();
-			List<Parametre> parametresConstructeur = new ArrayList<>();
+			List<Parametre> parametresConstructeur = new ArrayList<Parametre>();
 			
 			if (!params.isEmpty())
 			{
@@ -168,12 +169,12 @@ public class ParseurJava
 					if (pTokens.length >= 2)
 					{
 						String typeParam = pTokens[0];
-						String nomParam = pTokens[1];
+						String nomParam  = pTokens[1];
 						lstAttribut.add(new Attribut(nomParam, typeParam, 
 						                             "private", "instance", false));
 						parametresConstructeur.add(new Parametre(nomParam, typeParam));
 						lstMethode.add(new Methode(nomParam, typeParam, "public", 
-						                           false, new ArrayList<>()));
+						                           false, new ArrayList<Parametre>()));
 					}
 				}
 				
@@ -183,10 +184,12 @@ public class ParseurJava
 			
 			lstMethode.add(new Methode("equals", "boolean", "public", false, 
 			              List.of(new Parametre("obj", "Object"))));
+
 			lstMethode.add(new Methode("hashCode", "int", "public", 
-			                           false, new ArrayList<>()));
+			                           false, new ArrayList<Parametre>()));
+
 			lstMethode.add(new Methode("toString", "String", "public", 
-			                           false, new ArrayList<>()));
+			                           false, new ArrayList<Parametre>()));
 		}
 	}
 
@@ -198,16 +201,16 @@ public class ParseurJava
 		Scanner scAttribut = new Scanner(ligne);
 		String visibiliteAtribut = scAttribut.next();
 
-		boolean isFinal = false;
+		boolean isFinal  = false;
 		boolean isStatic = false;
 		String motSuivant = scAttribut.next();
 		
 		// Détecter final et/ou static
 		while (motSuivant.equals("final") || motSuivant.equals("static"))
 		{
-			if (motSuivant.equals("final")) {isFinal = true;}
-			if (motSuivant.equals("static")) {isStatic = true;}
-			if (scAttribut.hasNext()) {motSuivant = scAttribut.next();} 
+			if (motSuivant.equals("final"))  { isFinal  = true; }
+			if (motSuivant.equals("static")) { isStatic = true; }
+			if (scAttribut.hasNext()) { motSuivant = scAttribut.next(); } 
 			else 
 			{
 				break;
@@ -225,7 +228,7 @@ public class ParseurJava
 		
 		String nom = scAttribut.next().replace(";", "");
 		// Extraire juste le nom sans l'initialisation
-		if (nom.contains("=")) {nom = nom.substring(0, nom.indexOf("=")).trim();}
+		if (nom.contains("=")) { nom = nom.substring(0, nom.indexOf("=")).trim(); }
 		
 		scAttribut.close();
 
@@ -251,7 +254,7 @@ public class ParseurJava
 		if (estMethodeInterface && !ligneCommenceParModificateur) 
 		{
 			visibilite = "public";
-		} 
+		}
 		
 		else 
 		{
@@ -434,4 +437,3 @@ public class ParseurJava
 		return lstParametres;
 	}
 }
-

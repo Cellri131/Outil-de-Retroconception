@@ -149,6 +149,11 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.actionSauvegarder();
     }
 
+    public void sauvegardeProjetXml(String cheminProjet)
+    {
+        controlleur.sauvegardeProjetXml(cheminProjet);
+    }
+
 
     /**
     * Méthodes passerelle au controlleur

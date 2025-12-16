@@ -16,12 +16,13 @@ public class UtilitaireType
 		type = type.trim();
 		if (type.endsWith("[]")) return type.substring(0, type.length() - 2);
 		if (type.startsWith("List<") && type.endsWith(">")) return type.substring(5, type.length() - 1);
-		if (type.startsWith("Set<") && type.endsWith(">")) return type.substring(4, type.length() - 1);
-		if (type.startsWith("Map<") && type.endsWith(">")) 
+		if (type.startsWith("Set<")  && type.endsWith(">")) return type.substring(4, type.length() - 1);
+		if (type.startsWith("Map<")  && type.endsWith(">")) 
 		{
 			// Pour les Map, extraire le type de la valeur
 			String contenu = type.substring(4, type.length() - 1);
 			int virgule = contenu.lastIndexOf(',');
+
 			if (virgule != -1) 
 			{
 				return contenu.substring(virgule + 1).trim();

@@ -1,3 +1,4 @@
+
 package vue;
 
 import java.awt.*;
@@ -67,7 +68,6 @@ public class PanneauProjets extends JPanel {
     {
 
         File fichier = new File(cheminDossiers);
-        ArrayList<File> dossier = new ArrayList<File>();
 
         if (!fichier.exists())
         {
@@ -88,9 +88,11 @@ public class PanneauProjets extends JPanel {
             {
                 ligne = ligne.trim();
 
-                if (!ligne.isEmpty()) 
+        String ligneChemin = ligne.substring(0, ligne.indexOf("\t") );
+
+                if (!ligneChemin.isEmpty()) 
                 {
-                    File projet          = new File(ligne);
+                    File projet          = new File(ligneChemin);
 
                     if (projet.exists())
                     {

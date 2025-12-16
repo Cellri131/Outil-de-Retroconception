@@ -99,8 +99,10 @@ public class GestionSauvegarde
 
         String   fichierLectureEcriture = cheminPath + "projets.xml";
         int      nbrDossierMemeNom      = 0;
-  
-        /*try (BufferedReader br = new BufferedReader(new FileReader(fichierLectureEcriture))) 
+
+
+        //Cette partie incrémente le conteur nbrDossierMemeNom dans projet.xml
+        try (BufferedReader br = new BufferedReader(new FileReader(fichierLectureEcriture))) 
         {
             String ligne;
 
@@ -113,17 +115,20 @@ public class GestionSauvegarde
                 String nomDossierDejaSauv;
 
                 if(indiceTab != -1)
-                {
+                {                  
                     nomDossierDejaSauv = ligne.substring(indicePremierSlash +1, indiceTab);
+                     System.out.println("indiceTab != -1 :" + nomDossierDejaSauv);  
                 }
                 else
                 {
                     nomDossierDejaSauv = ligne.substring(indicePremierSlash +1).trim();
+                    System.out.println("indiceTab = -1 : " + nomDossierDejaSauv);
                 }
                 
                 if(nomDossierDejaSauv.equals(nomProjetASauv))
                 {
                     nbrDossierMemeNom ++;
+                    System.out.println("nomDossierDejaSauv.equals(nomProjetASauv) :" + nbrDossierMemeNom);
                 }
 
             }
@@ -136,14 +141,14 @@ public class GestionSauvegarde
         catch (IOException e) 
         {
             e.printStackTrace();
-        }*/
-
+        }
+    
 
         //Utlise la méthode estSauvegarde dans Controlleur pour regarder si le nom dans 
         //Projet.xml est le meme dans donnees/sauvegardes
-        if(this.ctrl.estSauvegarde(null, nomProjetASauv).equals(nomProjetASauv))
+        if(this.ctrl.projetEstSauvegarde(nomProjetASauv))
         {
-
+            System.out.println("Est rentré dans sauvegarderClasses puis dans la conditioon estSauvegarde() !!!!!!!!!!!!!!!!!!");
             File fichier = new File(cheminProjet);
 
             if (fichier.exists()) 
@@ -163,6 +168,7 @@ public class GestionSauvegarde
         }
         else
         {
+             System.out.println("Est rentré dans sauvegarderClasses puis dans la conditioon else de estSauvegarde() !!!!!!!!!!!!!!!!!!");
             try(BufferedWriter bw = new BufferedWriter(new FileWriter(fichierLectureEcriture, true))) 
             {
                 String ligneAAjouter = cheminProjet + "\t" + nomProjetASauv;
@@ -177,12 +183,15 @@ public class GestionSauvegarde
 
                 sauvegarderCoordProjet(listBlocClasses, nomProjet, cheminProjet);
 
-            } catch (Exception e) 
+            } 
+            catch (Exception e) 
             {
                 e.printStackTrace();
             }
         }
     }
+
+
 
     private void sauvegarderCoordProjet(List<BlocClasse> listBlocClasses, String nomProjet, String cheminProjet)
     {
@@ -259,5 +268,40 @@ public class GestionSauvegarde
         }
 
         return mapNouvBlocClasse;
+    }
+
+    public void sauvegardeProjetXml(String cheminFichier)
+    {
+        try 
+        {
+            // Emplacement
+            File fichier = new File("donnees/projets.xml");
+
+            // Création du dossier parent si nécessaire
+            if (!fichier.getParentFile().exists())
+            {
+                fichier.getParentFile().mkdirs();
+            }
+
+            // Création du fichier s'il n'existe pas
+            if (!fichier.exists()) fichier.createNewFile();
+
+            // FileWriter avec "true" pour ajouter à la fin
+            FileWriter writer = new FileWriter(fichier, true);
+
+            //Extrai le nom du dossier pour le mettre en bout de ligne
+            //String nomDossier = cheminFichier.substring(cheminFichier.lastIndexOf("/") + 1);
+
+            // Écrire la chaîne avec un retour à la ligne
+            writer.write(cheminFichier + "\t" + "test" + System.lineSeparator());
+
+            // Fermer le writer
+            writer.close();
+
+            System.out.println("ICI ICI LA LA LA LA 67 Ajout effectué dans : " + fichier.getAbsolutePath());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
