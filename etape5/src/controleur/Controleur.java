@@ -1,6 +1,5 @@
-package controlleur;
+package controleur;
 
-import java.io.File;
 import java.util.*;
 import metier.lecture.*;
 import metier.objet.*;
@@ -14,28 +13,28 @@ import vue.LiaisonVue;
 * A accès à la fenêtre principale de la vue, et à la classe de lecture
 * @author Jules, Thibault, Hugo
 */
-public class Controlleur 
+public class Controleur 
 {
     //--------------------------//
     //        ATTRIBUTS         //
     //--------------------------//
 
-    private Lecture             lecture;
-    private List<LiaisonVue>    lstLiaisons;
+    private Lecture             lecture          ;
     private FenetrePrincipale   fenetrePrincipale;
     private GestionSauvegarde   gestionSauvegarde;
 
-    private List<BlocClasse>    lstBlocs;
+    private List<LiaisonVue> lstLiaisons;
+    private List<BlocClasse> lstBlocs   ;
 
     //-------------------------//
     //      CONSTRUCTEUR       //
     //-------------------------//
 
     /**
-    * Constructeur du controlleur
+    * Constructeur du controleur
     * @param classe La classe sur laquelle se base le BlocClasse 
     */
-    public Controlleur(FenetrePrincipale fenetrePrincipale) 
+    public Controleur(FenetrePrincipale fenetrePrincipale) 
     {
         this.fenetrePrincipale  = fenetrePrincipale;
         this.lstLiaisons        = new ArrayList<>();
@@ -56,19 +55,14 @@ public class Controlleur
     public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) 
     {
         lecture = new Lecture(cheminProjet);
-        lstBlocs.clear();
+        lstBlocs.   clear();
         lstLiaisons.clear();
-        lstBlocs.clear();
+        lstBlocs.   clear();
 
         // hasmap pour associer les noms de classes aux blocs
         HashMap<String, BlocClasse> mapBlocsParNom  = new HashMap<>();
         HashMap<String, Classe>     hashMapclasses  = lecture.getHashMapClasses();
 
-        String nomDeSauvegardeProjet = estSauvegarde(cheminProjet, null);
-        
-        System.out.println(nomDeSauvegardeProjet);
-
-        
         int posX    = 50;
         int posY    = 50;
 
@@ -88,21 +82,32 @@ public class Controlleur
                 }
             }
         }
-    
 
-        if(!nomDeSauvegardeProjet.equals(""))
+        if (gestionSauvegarde.projetEstSauvegarde(gestionSauvegarde.getIntituleFromLien(cheminProjet))) 
         {
-            mapBlocsParNom = gestionSauvegarde.chargerSauvegardeCoord(nomDeSauvegardeProjet, mapBlocsParNom);   
-        }
-        
+            System.out.println("Le projet est sauvegardé. Chargement des coordonées depuis le .xml");
+            gestionSauvegarde.lecture(gestionSauvegarde.getIntituleFromLien(cheminProjet) + ".xml");
+            Map<String, int[]> coordonneesBlocs = gestionSauvegarde.gethashCoordonnees();
+            
+            for (BlocClasse bloc : lstBlocs) {
+                int[] coordonnees = coordonneesBlocs.get(bloc.getNom());
+                if (coordonnees != null) {
+                    bloc.setX(coordonnees[0]);
+                    bloc.setY(coordonnees[1]);
+                }
+            }
 
+        } else {
+            System.out.println("Le projet n'est pas sauvegardé. On garde les coordonées par défaut");
+        }
+            
         // Créer les lstLiaisons depuis associations, heritages, et interfaces
         creerLiaisonsDepuisAssoc        (lecture.getLstAssociation(), mapBlocsParNom);
 
         creerLiaisonsDepuisHerit        (lecture.getLstHeritage(), mapBlocsParNom);
-        creerLiaisonsDepuisInterface(lecture.getLstInterface(), mapBlocsParNom);
+        creerLiaisonsDepuisInterface    (lecture.getLstInterface(), mapBlocsParNom);
 
-        creerLiaisonsDepuisInterface  (lecture.getLstInterface(), mapBlocsParNom);
+        creerLiaisonsDepuisInterface    (lecture.getLstInterface(), mapBlocsParNom);
 
         fenetrePrincipale.optimiserPositionsClasses();
 
@@ -236,82 +241,52 @@ public class Controlleur
     }
 
 
-    /**
-     * Verifie s'il existe une sauvegarde d'un projet deja existant
-     * @param paraCheminDossier
-     * @return 
-     */
-    public String estSauvegarde(String paraCheminDossier, String nomFichierCoord)
-    {
-
-        if(paraCheminDossier!= null)
-        {
-            String   basePath               = System.getProperty("user.dir");
-            String   cheminPath             = basePath + "/donnees/projets.xml";
-
-            try(Scanner scan = new Scanner(new File(cheminPath))) 
-            {
-                while(scan.hasNextLine())
-                {
-                    String ligne = scan.nextLine();
-                    
-                    String[] tabCheminProjet = ligne.split("\t");
-
-                    if(tabCheminProjet[0].equals(paraCheminDossier.trim()))
-                    {
-                        return tabCheminProjet[1].trim();
-                    }
-                }
-                
-            } 
-            catch (Exception e) 
-            {
-                e.getMessage();
-            }
-
-        }
-        else
-        {
-            String   basePath               = System.getProperty("user.dir");
-            String   cheminPath             = basePath + "/donnees/sauvegardes/";
-
-            File dossier = new File(cheminPath);
-
-            if (!dossier.exists() || !dossier.isDirectory()) 
-            {
-                System.out.println("Dossier de sauvegardes introuvable");
-                return "";
-            }
-
-            File[] fichiers = dossier.listFiles();
-
-            if (fichiers == null) 
-            {
-                System.out.println("Aucun fichier dans le dossier");
-                return "";
-            }
-
-            for (File f : fichiers) 
-            {
-                if (f.isFile()) 
-                {
-                    System.out.println("Fichier trouvé : " + f.getName());
-
-                    if (f.getName().equals(nomFichierCoord.trim())) 
-                    {
-                        return f.getName();
-                    }
-                }
-            }
-        }
-        
-        return "";
+    public void sauvegardeProjetXml(String cheminFichier){
+        this.gestionSauvegarde.sauvegardeProjetXml(cheminFichier);
     }
+
+    /*public String getLienFromIntitule(String intituleFichier) {
+        String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "/donnees/sauvegardes/";
+
+        File dossier = new File(cheminPath);
+
+        if (!dossier.exists() || !dossier.isDirectory()) 
+        {
+            System.out.println("Dossier de sauvegardes introuvable");
+            return "";
+        }
+
+        File[] fichiers = dossier.listFiles();
+
+        if (fichiers == null) 
+        {
+            System.out.println("Aucun fichier dans le dossier");
+            return "";
+        }
+
+        for (File f : fichiers) 
+        {
+            if (f.isFile()) 
+            {
+                System.out.println("Fichier trouvé : " + f.getName());
+
+                if (f.getName().equals(nomFichierCoord.trim())) 
+                {
+                    return f.getName();
+                }
+            }
+        }
+    }*/
 
     public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
         gestionSauvegarde.sauvegarderClasses(blocClasses, cheminProjet);
     }
 
+    public static boolean verifierFichiersProjets(String cheminProjet)
+    {
+        return Lecture.verifierFichiersProjet(cheminProjet);
+    }
     //-----------//
     //  GETTERS  //
     //-----------//

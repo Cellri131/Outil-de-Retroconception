@@ -1,7 +1,7 @@
 package metier.sauvegarde;
 
 import metier.objet.Classe;
-import controlleur.Controlleur;
+import controleur.Controleur;
 import vue.BlocClasse;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,9 +21,9 @@ public class GestionSauvegarde
 
     private Map<String, int[]> hashCoordonnees;
     private String cheminDossier;
-    private Controlleur ctrl;
+    private Controleur ctrl;
 
-    public GestionSauvegarde(Controlleur ctrl) 
+    public GestionSauvegarde(Controleur ctrl) 
     {
         this.ctrl            = ctrl;
         this.hashCoordonnees = new HashMap<String, int[]>();
@@ -37,7 +37,7 @@ public class GestionSauvegarde
         // Ces ligne permet de s'adapter a n'importe quelle environement a partir du
         // chemin absolue
         String basePath = System.getProperty("user.dir");
-        String cheminDossier = basePath + "/etape5/donnees/sauvegardes/" + dossierFichSelec;
+        String cheminDossier = basePath + "/donnees/sauvegardes/" + dossierFichSelec;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(cheminDossier))) 
         {
@@ -60,7 +60,7 @@ public class GestionSauvegarde
                     String nomClass    = ligne.substring(0, premierEspace);
                     String xStr        = ligne.substring(premierEspace + 1, deuxiemeEspace).trim();
                     String yStr        = ligne.substring(deuxiemeEspace + 1).trim();
-                    System.out.println(nomClass + " " + xStr + " " + yStr);
+                    //System.out.println(nomClass + " " + xStr + " " + yStr);
 
                     int    x           = Integer.parseInt(xStr);
                     int    y           = Integer.parseInt(yStr);
@@ -74,7 +74,6 @@ public class GestionSauvegarde
         {
             e.printStackTrace();
         }
-
     }
 
     public Map<String, int[]> gethashCoordonnees() 
@@ -87,132 +86,78 @@ public class GestionSauvegarde
         return this.cheminDossier;
     }
 
+    
+
     public void sauvegarderClasses(List<BlocClasse> listBlocClasses, String cheminProjet) 
     {
         String   basePath               = System.getProperty("user.dir");
         String   cheminPath             = basePath + "/donnees/";
+        String   fichierLectureEcriture = cheminPath + "projets.xml";
 
         int      indiceslash            = cheminProjet.lastIndexOf("/");
-        String   nomProjetASauv         = cheminProjet.substring(indiceslash +1 ).trim();
+        String   nomProjetASauv         = cheminProjet.substring(indiceslash + 1).trim();
 
-        System.out.println("nomProjetASauv !!!!!!!!!!!!!!!!!!!!!! = " + nomProjetASauv );
-
-        String   fichierLectureEcriture = cheminPath + "projets.xml";
-        int      nbrDossierMemeNom      = 0;
-  
-        /*try (BufferedReader br = new BufferedReader(new FileReader(fichierLectureEcriture))) 
+        // Vérifier si le projet est déjà sauvegardé
+        if (this.projetEstSauvegarde(nomProjetASauv)) 
         {
-            String ligne;
-
-            while ((ligne = br.readLine()) != null) 
-            {
-
-                int    indicePremierSlash = ligne.lastIndexOf("/");
-                int    indiceTab          = ligne.indexOf("\t", indicePremierSlash);
-
-                String nomDossierDejaSauv;
-
-                if(indiceTab != -1)
-                {
-                    nomDossierDejaSauv = ligne.substring(indicePremierSlash +1, indiceTab);
-                }
-                else
-                {
-                    nomDossierDejaSauv = ligne.substring(indicePremierSlash +1).trim();
-                }
-                
-                if(nomDossierDejaSauv.equals(nomProjetASauv))
-                {
-                    nbrDossierMemeNom ++;
-                }
-
-            }
-
+            // Le projet existe : modifier uniquement le fichier de coordonnées
+            sauvegarderCoordProjet(listBlocClasses, nomProjetASauv, cheminProjet);
         } 
-        catch (FileNotFoundException e) 
+        else 
         {
-            // Si le fichier n'existe pas encore, on peut l'ignorer
-        } 
-        catch (IOException e) 
-        {
-            e.printStackTrace();
-        }*/
-
-
-        //Utlise la méthode estSauvegarde dans Controlleur pour regarder si le nom dans 
-        //Projet.xml est le meme dans donnees/sauvegardes
-        if(this.ctrl.estSauvegarde(null, nomProjetASauv).equals(nomProjetASauv))
-        {
-
-            File fichier = new File(cheminProjet);
-
-            if (fichier.exists()) 
-            {
-                boolean supprime = fichier.delete();
-                if (supprime) 
-                {
-                    System.out.println("Fichier supprimé avec succès : " + fichier.getName());
-                    sauvegarderCoordProjet(listBlocClasses, nomProjetASauv, cheminProjet);
-                } 
-                else 
-                {
-                    System.out.println("Impossible de supprimer le fichier : " + fichier.getName());
-                }
-            }
-
-        }
-        else
-        {
-            try(BufferedWriter bw = new BufferedWriter(new FileWriter(fichierLectureEcriture, true))) 
+            // Le projet n'existe pas : ajouter une nouvelle ligne à projets.xml
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(fichierLectureEcriture, true))) 
             {
                 String ligneAAjouter = cheminProjet + "\t" + nomProjetASauv;
-                String nomProjet     = nomProjetASauv;
-
-                if(nbrDossierMemeNom > 0)
-                {
-                    ligneAAjouter +=  "_" + (nbrDossierMemeNom + 1);
-                    nomProjet     +=  "_" + (nbrDossierMemeNom + 1);
-                }
                 bw.write(ligneAAjouter + "\n");
-
-                sauvegarderCoordProjet(listBlocClasses, nomProjet, cheminProjet);
-
-            } catch (Exception e) 
+                
+                // Créer le fichier de coordonnées pour la première fois
+                sauvegarderCoordProjet(listBlocClasses, nomProjetASauv, cheminProjet);
+            } 
+            catch (Exception e) 
             {
                 e.printStackTrace();
             }
         }
     }
 
-    private void sauvegarderCoordProjet(List<BlocClasse> listBlocClasses, String nomProjet, String cheminProjet)
+
+
+    public void sauvegarderCoordProjet(List<BlocClasse> listBlocClasses, String nomProjet, String cheminProjet)
     {
         String   basePath               = System.getProperty("user.dir");
         String   cheminPath             = basePath + "/donnees/sauvegardes/";
+        File file                       = new File(cheminPath + nomProjet + ".xml");
 
-        File file = new File(cheminPath + nomProjet + ".xml");
-
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter(file))) 
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))) 
         {
-
+            // Écrire l'en-tête avec le chemin du projet
             bw.write(cheminProjet);
             bw.newLine();
 
-            for(BlocClasse blocClasse: listBlocClasses )
+            // Écrire les coordonnées de tous les blocs
+            for (BlocClasse blocClasse : listBlocClasses) 
             {
-                bw.write(   blocClasse.getNom().trim() + " " + 
-                            blocClasse.getX()          + " " + 
-                            blocClasse.getY())  ;
-
+                bw.write(blocClasse.getNom().trim() + " " + 
+                         blocClasse.getX() + " " + 
+                         blocClasse.getY());
                 bw.newLine();
             }
-            
-
-        } catch (Exception e) 
+        } 
+        catch (Exception e) 
         {
             e.printStackTrace();
         }
     }
 
+    public boolean fichierDeSauvegardeExiste(String nomIntitule) {
+        String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "/donnees/sauvegardes/" ;
+
+        File file = new File(cheminPath + nomIntitule + ".xml");
+
+        return file.exists();
+    }
 
     public HashMap<String, BlocClasse> chargerSauvegardeCoord(String nomFichier,  HashMap<String, BlocClasse> mapBlocClasse)
     {
@@ -220,21 +165,21 @@ public class GestionSauvegarde
 
         String   basePath               = System.getProperty("user.dir");
 
-        System.out.println(basePath);
+        //System.out.println(basePath);
         String   cheminPath             = basePath + "/donnees/sauvegardes/";
 
-        System.out.println(cheminPath);
+        //System.out.println(cheminPath);
 
         File file = new File(cheminPath + nomFichier + ".xml");
 
-        System.out.println("nomfich :" + nomFichier);
+        //System.out.println("nomfich :" + nomFichier);
 
         try (Scanner scanner = new Scanner(file)) 
         {
             while (scanner.hasNextLine()) 
             {
                 String ligne = scanner.nextLine();
-                System.out.println(ligne);
+                //System.out.println(ligne);
 
                 if(!ligne.contains("/"))
                 {
@@ -259,5 +204,103 @@ public class GestionSauvegarde
         }
 
         return mapNouvBlocClasse;
+    }
+    
+    public String getIntituleFromLien(String paraCheminDossier) {
+
+        String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "/donnees/projets.xml";
+
+        try(Scanner scan = new Scanner(new File(cheminPath))) 
+        {
+            while(scan.hasNextLine())
+            {
+                String ligne = scan.nextLine();
+                
+                String[] tabLigne = ligne.split("\t");
+
+                System.out.println(tabLigne);
+                if(tabLigne[0].equals(paraCheminDossier.trim()))
+                {
+                    return tabLigne[1].trim();
+                }
+            }
+            
+        } 
+        catch (Exception e) 
+        {
+            e.getMessage();
+        }
+
+        return "";
+    }
+
+    public boolean projetEstSauvegarde(String nomIntituleSauvegarde) {
+
+        String   basePath               = System.getProperty("user.dir");
+        String   cheminPath             = basePath + "/donnees/projets.xml";
+
+        try(Scanner scan = new Scanner(new File(cheminPath))) 
+        {
+            while(scan.hasNextLine())
+            {
+                String ligne = scan.nextLine();
+                
+                String[] tabLigne = ligne.split("\t");
+
+                System.out.println(tabLigne);
+                if(tabLigne[1].equals(nomIntituleSauvegarde.trim()))
+                {
+                    return true;
+                }
+            }
+            
+        } 
+        catch (Exception e) 
+        {
+            e.getMessage();
+        }
+
+        return false;
+    }
+
+    public void sauvegardeProjetXml(String cheminFichier)
+    {
+        int indiceslash = cheminFichier.lastIndexOf("/");
+        String nomProjet = cheminFichier.substring(indiceslash + 1).trim();
+        
+        // Vérifier si le projet est déjà enregistré
+        if (!projetEstSauvegarde(nomProjet))
+        {
+            // Ajouter le projet à projets.xml
+            String basePath = System.getProperty("user.dir");
+            String fichierPath = basePath + "/donnees/projets.xml";
+            File fichier = new File(fichierPath);
+            
+            try
+            {
+                // Création du dossier parent si nécessaire
+                if (!fichier.getParentFile().exists())
+                {
+                    fichier.getParentFile().mkdirs();
+                }
+                
+                // Création du fichier s'il n'existe pas
+                if (!fichier.exists())
+                {
+                    fichier.createNewFile();
+                }
+                
+                // Ajouter la ligne au fichier
+                try (FileWriter writer = new FileWriter(fichier, true))
+                {
+                    writer.write(cheminFichier + "\t" + nomProjet + System.lineSeparator());
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }

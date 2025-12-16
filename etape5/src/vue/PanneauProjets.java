@@ -1,10 +1,10 @@
+
 package vue;
 
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-
 import javax.swing.*;
 
 public class PanneauProjets extends JPanel {
@@ -87,9 +87,11 @@ public class PanneauProjets extends JPanel {
             {
                 ligne = ligne.trim();
 
-                if (!ligne.isEmpty()) 
+                String ligneChemin = ligne.substring(0, ligne.indexOf("\t") );
+
+                if (!ligneChemin.isEmpty()) 
                 {
-                    File projet          = new File(ligne);
+                    File projet          = new File(ligneChemin);
 
                     if (projet.exists())
                     {

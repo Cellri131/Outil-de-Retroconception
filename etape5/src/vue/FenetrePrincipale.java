@@ -1,6 +1,6 @@
 package vue;
 
-import controlleur.Controlleur;
+import controleur.Controleur;
 import java.awt.BorderLayout;
 import java.awt.Dimension; 
 import java.awt.image.BufferedImage;
@@ -15,7 +15,7 @@ import javax.swing.SwingUtilities;
 
 /**
 * Fenêtre principale de l'IHM du générateur de diagramme UML.
-* Gère également la liasion avec le controlleur.
+* Gère également la liasion avec le controleur.
 * @author Jules
 */
 public class FenetrePrincipale extends JFrame 
@@ -27,7 +27,7 @@ public class FenetrePrincipale extends JFrame
 
     private PanneauProjets      panneauProjets;
     private PanneauDiagramme    panneauDiagramme;
-    private Controlleur         controlleur;
+    private Controleur         controleur;
 
     //-------------------------//
     //      CONSTRUCTEUR       //
@@ -44,7 +44,7 @@ public class FenetrePrincipale extends JFrame
 
         panneauProjets   = new PanneauProjets(this);
         panneauDiagramme = new PanneauDiagramme(this);
-        this.controlleur = new Controlleur(this);
+        this.controleur = new Controleur(this);
 
         setLayout(new BorderLayout());
         
@@ -70,6 +70,8 @@ public class FenetrePrincipale extends JFrame
     public void chargerProjet(String cheminProjet) 
     {
         panneauDiagramme.chargerProjet(cheminProjet);
+        // Enregistrer le projet au premier chargement
+        controleur.sauvegardeProjetXml(cheminProjet);
     }
 
     public void sauvegarderDiagramme() 
@@ -149,20 +151,24 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.actionSauvegarder();
     }
 
+    public boolean verifierProjet(String cheminProjet)
+    {
+        return this.controleur.verifierFichiersProjets(cheminProjet);
+    }
 
     /**
-    * Méthodes passerelle au controlleur
+    * Méthodes passerelle au controleur
     */
     public List<BlocClasse> chargerProjetEnBlocsClasses(String cheminProjet) 
     {
-        return controlleur.chargerProjetEnBlocsClasses(cheminProjet);
+        return controleur.chargerProjetEnBlocsClasses(cheminProjet);
     }
 
     public List<LiaisonVue> getLiaisons() {
-        return controlleur.getLiaisons();
+        return controleur.getLiaisons();
     }
 
     public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
-        controlleur.sauvegarderClasses(blocClasses, cheminProjet);
+        controleur.sauvegarderClasses(blocClasses, cheminProjet);
     }
 }

@@ -1,4 +1,4 @@
-src/controlleur/Controlleur.java
+src/controleur/Controleur.java
 
 src/metier/lecture/Lecture.java
 src/metier/lecture/AnalyseurFichier.java

@@ -41,8 +41,9 @@ public class AnalyseurFichier
 	public HashMap<String, Classe> analyser(String cheminFichier)
 	{
 		Scanner scFic;
-		File         f = new File(cheminFichier);
-		List<String> lstCheminFich = new ArrayList<>();
+
+		File         f             = new File(cheminFichier);
+		List<String> lstCheminFich = new ArrayList<String>();
 
 		// ----- Si c'est un répertoire -----
 		if (f.isDirectory())

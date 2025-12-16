@@ -1,5 +1,7 @@
 package metier.lecture;
 
+import java.io.File;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import metier.objet.*;
@@ -11,19 +13,20 @@ import metier.objet.*;
 public class Lecture
 {
 	private HashMap  <String, Classe> hashMapClasses ;
-	private ArrayList<Heritage>       lstHeritage    ;
-	private ArrayList<Association>    lstAssociations;
-	private ArrayList<Interface>      lstInterface   ;
+	private ArrayList<Heritage      > lstHeritage    ;
+	private ArrayList<Association   > lstAssociations;
+	private ArrayList<Interface     > lstInterface   ;
 
 	public Lecture(String cheminFichier)
 	{
-		this.hashMapClasses  = new HashMap  <>();
-		this.lstHeritage     = new ArrayList<>();
-		this.lstAssociations = new ArrayList<>();
-		this.lstInterface    = new ArrayList<>();
+		this.hashMapClasses  = new HashMap  <String, Classe>();
+		this.lstHeritage     = new ArrayList<Heritage      >();
+		this.lstAssociations = new ArrayList<Association   >();
+		this.lstInterface    = new ArrayList<Interface     >();
 
-		analyserFichier(cheminFichier);
-		afficherHeritage();
+		analyserFichier (cheminFichier);
+
+		afficherHeritage ();
 		creerLstInterface();
 	}
 
@@ -47,9 +50,10 @@ public class Lecture
 	 */
 	public void afficherHeritage()
 	{
+		String nomParent = "";
 		for (Classe classe : hashMapClasses.values())
 		{
-			String nomParent = classe.getClasseParente();
+			nomParent = classe.getClasseParente();
 
 			if (nomParent != null && !nomParent.isEmpty())
 			{
@@ -72,16 +76,14 @@ public class Lecture
 	public void afficherLstInterface()
 	{
 		System.out.println("--- Affichage des interfaces ---");
-		for (Interface inter : lstInterface)
-		{
-			System.out.println(inter);
-		}
-	}
 
+		for (Interface inter : lstInterface)
+			System.out.println(inter);
+	}
 
 	public void creerLstInterface()
 	{
-		System.out.println("--- Création des interfaces ---");
+		//System.out.println("--- Création des interfaces ---");
 		for (Classe classe : hashMapClasses.values())
 		{
 			String nomInterfacesStr = classe.getNomInterface();
@@ -101,7 +103,7 @@ public class Lecture
 					if (interfaceClasse != null)
 					{
 						Interface inter = new Interface(interfaceClasse, classe);
-						System.out.println("L'interface a été créér : " + inter);
+						//System.out.println("L'interface a été créér : " + inter);
 						lstInterface.add(inter);
 					}
 					else
@@ -113,6 +115,28 @@ public class Lecture
 		}
 	}
 
+	public static boolean verifierFichiersProjet(String cheminDossiers)
+    {
+        File projet = new File(cheminDossiers);
+
+        //String messageInvalide = "Attention : Fichiers non valides detectés.";
+        //String messageErreur = "\n( ";
+
+        if (projet.isDirectory())
+        {
+            File[] tabFichiers = projet.listFiles();
+
+            for (File file : tabFichiers)
+            {
+                if (file.isFile() && !file.getName().endsWith(".java"))
+                {
+                    // += file.getName() + ", ";
+                    return false;
+                }
+            }
+        }
+		return true;
+    }
 
 	/**
 	 * Récupère une classe par son nom.
@@ -129,12 +153,11 @@ public class Lecture
 		return null;
 	}
 
-	
 
 	// ========== Getters ==========
 
-	public HashMap  <String, Classe> getHashMapClasses	()	{return this.hashMapClasses;}
-	public ArrayList<Association>    getLstAssociation	()	{return this.lstAssociations;}
-	public ArrayList<Heritage>       getLstHeritage   	()	{return this.lstHeritage;}
-	public ArrayList<Interface>      getLstInterface 	()	{return this.lstInterface;}
+	public HashMap  <String, Classe> getHashMapClasses	()	{ return this.hashMapClasses ; }
+	public ArrayList<Association>    getLstAssociation	()	{ return this.lstAssociations; }
+	public ArrayList<Heritage>       getLstHeritage   	()	{ return this.lstHeritage    ; }
+	public ArrayList<Interface>      getLstInterface 	()	{ return this.lstInterface   ; }
 }
