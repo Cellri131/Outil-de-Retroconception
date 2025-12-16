@@ -1,9 +1,10 @@
-package vue;
+package vue.liaison;
 
-import vue.liaison.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import vue.BlocClasse;
 
 /**
  * Classe qui gère l'affichage visuel des liens entre 2 {@link BlocClasse}s

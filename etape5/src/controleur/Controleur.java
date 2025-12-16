@@ -6,7 +6,7 @@ import metier.objet.*;
 import metier.sauvegarde.*;
 import vue.BlocClasse;
 import vue.FenetrePrincipale;
-import vue.LiaisonVue;
+import vue.liaison.LiaisonVue;
 
 /**
 * Contrôleur qui met en relation le métier et la vue IHM.

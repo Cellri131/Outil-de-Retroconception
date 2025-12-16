@@ -5,13 +5,14 @@ import java.awt.BorderLayout;
 import java.awt.Dimension; 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import vue.liaison.LiaisonVue;
 
 
 /**

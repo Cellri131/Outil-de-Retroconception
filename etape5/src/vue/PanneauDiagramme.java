@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
+import vue.liaison.LiaisonVue;
+
 public class PanneauDiagramme extends JPanel
 {
     //--------------------------//
