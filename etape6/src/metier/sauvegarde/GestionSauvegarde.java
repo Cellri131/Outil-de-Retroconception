@@ -449,7 +449,7 @@ public class GestionSauvegarde
             //
             bw.write("---- Liaisons ----");
             bw.newLine();
-            bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tmultiOrig\tblocDest\tcoteDest\tposRelDest\tmultiDest");
+            bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tblocDest\tcoteDest\tposRelDest\tmultiOrig\tmultiDest");
             bw.newLine();
 
 
@@ -462,10 +462,10 @@ public class GestionSauvegarde
                          liaisonVue.getBlocOrigine().getNom() + "\t" + 
                          liaisonVue.getSideOrig() + "\t" + 
                          liaisonVue.getNivOrig() + "\t" + 
-                         liaisonVue.getMultOrig() + "\t" + 
                          liaisonVue.getBlocDestination().getNom() + "\t" + 
                          liaisonVue.getSideDest() + "\t" + 
                          liaisonVue.getNivDest() + "\t" +
+						 liaisonVue.getMultOrig() + "\t" + 
                          liaisonVue.getMultDest() );
                 bw.newLine();
                 id++;
