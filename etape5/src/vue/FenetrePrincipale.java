@@ -3,7 +3,8 @@ package vue;
 import metier.util.test_structure_projet.VerificationStructureProjet;
 import controleur.Controleur;
 import java.awt.BorderLayout;
-import java.awt.Dimension; 
+import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -45,7 +46,19 @@ public class FenetrePrincipale extends JFrame
         setLocationRelativeTo(null);
         setResizable(true);
 
+<<<<<<< HEAD
         panneauProjets   = new PanneauProjets  (this);
+=======
+        // Charger et définir l'icône de la fenêtre
+        try {
+            Image icon = ImageIO.read(new File("src/res/uml_icon.png"));
+            setIconImage(icon);
+        } catch (Exception e) {
+            System.err.println("Impossible de charger l'icône: " + e.getMessage());
+        }
+
+        panneauProjets   = new PanneauProjets(this);
+>>>>>>> a79a3de4bff3d21d9e9825965e05b85ad2c0f00b
         panneauDiagramme = new PanneauDiagramme(this);
         this.controleur  = new Controleur      (this);
 
