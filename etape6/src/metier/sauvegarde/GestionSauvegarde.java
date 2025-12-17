@@ -144,7 +144,7 @@ public class GestionSauvegarde
 	* @param ligneDepartLecture l'indice de la ligne à partir de laquelle commencer la lecture des liaisons
 	* @return une liste de {@link LiaisonVue} correspondant aux liaisons lues
 	*/
-	public List<LiaisonVue> lectureLiaison(String dossierFichSelec, Map<String, BlocClasse> hashMapBlocClass, int ligneDepartLecture)
+	public List<LiaisonVue> lectureLiaison(String dossierFichSelec, Map<String, BlocClasse> hashMapBlocClass)
 	{
 		List<LiaisonVue> lstLiaisons = new ArrayList<>();
 
@@ -153,19 +153,13 @@ public class GestionSauvegarde
 		try (BufferedReader br = new BufferedReader(new FileReader(chemin))) 
 		{
 			String ligne;
-			int index = 0;
-
-			//  On avance jusqu'à la ligne donnée par ligneDepartLecture
-			while (index < ligneDepartLecture && br.readLine() != null) 
-			{
-				index++;
-			}
 
 			// on commence a lire :D
 			while ((ligne = br.readLine()) != null) 
 			{
 
 				ligne = ligne.trim();
+				if(!ligne.equals(""))
 				if (ligne.isEmpty()) continue;
 				if (ligne.startsWith("#")) continue;
 
