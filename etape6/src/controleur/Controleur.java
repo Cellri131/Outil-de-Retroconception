@@ -57,7 +57,7 @@ public class Controleur
         lecture = new Lecture(cheminProjet);
         lstBlocs.   clear();
         lstLiaisons.clear();
-        lstBlocs.   clear();
+        lstBlocs.   clear(); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         // hasmap pour associer les noms de classes aux blocs
         HashMap<String, BlocClasse> mapBlocsParNom  = new HashMap<>();
@@ -72,7 +72,7 @@ public class Controleur
             Map<String, BlocClasse> blocsCharges = gestionSauvegarde.chargerBlocsClasses(intituleProjet);
             
             // Utiliser les blocs chargés du XML
-            this.lstBlocs.clear();
+            this.lstBlocs.clear(); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             this.lstBlocs.addAll(blocsCharges.values());
             
             // Mettre à jour la map avec les blocs chargés
@@ -125,6 +125,7 @@ public class Controleur
         return this.lstBlocs;
     }
 
+
     /**
     * Crée un BlocClasse à partir d'une Classe
     * @param classe La classe sur laquelle se base le BlocClasse 
@@ -141,32 +142,32 @@ public class Controleur
 
         // Traitement de la liste des attributs
         List<String> attributsStr = new ArrayList<>();
-        for (Attribut att : classe.getLstAttribut()) {
+        for (Attribut att : classe.getLstAttribut()) 
+        {
             String sRet;
 
             String visibilite = att.getVisibilite();
 
-            switch (visibilite) {
-                case "public" -> visibilite = "+";
-                case "private" -> visibilite = "-";
-                case "package" -> visibilite = "#";
+            switch (visibilite) 
+            {
+                case "public"    -> visibilite = "+";
+                case "private"   -> visibilite = "-";
+                case "package"   -> visibilite = "#";
                 case "protected" -> visibilite = "~";
             }
 
-            sRet = visibilite + " ";
+            sRet = visibilite    + " ";
             
             sRet += att.getNom() + " : ";
             
             sRet += att.getType();
 
-            if (att.isConstant()) {
+            if (att.isConstant()) 
                 sRet += " {frozen}";
-            }
 
-            if (att.getPortee().equals("classe")) {
-                // Pour souligner
+            // Pour souligner
+            if (att.getPortee().equals("classe")) 
                 sRet = "\u001B[4m" + sRet + "\u001B[0m";
-            }
 
             attributsStr.add(sRet);
         }
@@ -177,24 +178,28 @@ public class Controleur
         {
             String visibilite = met.getVisibilite();
 
-            switch (visibilite) {
-                case "public" -> visibilite = "+";
-                case "private" -> visibilite = "-";
-                case "package" -> visibilite = "#";
+            switch (visibilite) 
+            {
+                case "public"    -> visibilite = "+";
+                case "private"   -> visibilite = "-";
+                case "package"   -> visibilite = "#";
                 case "protected" -> visibilite = "~";
             }
 
             String nomMet = met.getNomMethode();
             String retour = met.getRetour();
             
-            // Construire les paramètres
+            // Construie les paramètres
             StringBuilder parametres = new StringBuilder("(");
             List<Parametre> lstParam = met.getLstParametre();
-            if (lstParam != null && !lstParam.isEmpty()) {
-                for (int i = 0; i < lstParam.size(); i++) {
+            if (lstParam != null && !lstParam.isEmpty()) 
+            {
+                for (int i = 0; i < lstParam.size(); i++) 
+                {
                     Parametre param = lstParam.get(i);
                     parametres.append(param.getNomPara()).append(": ").append(param.getTypePara());
-                    if (i < lstParam.size() - 1) {
+                    if (i < lstParam.size() - 1) 
+                    {
                         parametres.append(", ");
                     }
                 }
@@ -219,13 +224,14 @@ public class Controleur
     {
         for (Association assoc : lstAssoc) 
         {
-            String multOrig = (assoc.getMultOrig() != null) ? assoc.getMultOrig().toString() : "";
-            String multDest = (assoc.getMultDest() != null) ? assoc.getMultDest().toString() : "";
-            BlocClasse blocOrigine = mapBlocsParNom.get(assoc.getClasseOrig().getNom());
+            String     multOrig        = (assoc.getMultOrig() != null) ? assoc.getMultOrig().toString() : "";
+            String     multDest        = (assoc.getMultDest() != null) ? assoc.getMultDest().toString() : "";
+
+            BlocClasse blocOrigine     = mapBlocsParNom.get(assoc.getClasseOrig().getNom());
             BlocClasse blocDestination = mapBlocsParNom.get(assoc.getClasseDest().getNom());
 
-            LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "association", assoc.isUnidirectionnel(),
-                    multOrig, multDest);
+            LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "association", 
+                                                assoc.isUnidirectionnel()   , multOrig, multDest );
 
             lstLiaisons.add(liaison);
         }
@@ -238,11 +244,12 @@ public class Controleur
     * @param lstAssoc La list d'{@link Heritage}s sur laquelle baser les lstLiaisons
     * @param mapBlocsParNom {@link HashMap<String, BlocClasse>} de String, BlocClasse avec le nom de chaque bloc et chaque bloc
     */
-    private List<LiaisonVue>  creerLiaisonsDepuisHerit(List<Heritage> lstHerit, HashMap<String, BlocClasse> mapBlocsParNom, List<LiaisonVue> lstLiaisons) {
+    private List<LiaisonVue>  creerLiaisonsDepuisHerit(List<Heritage> lstHerit, HashMap<String, BlocClasse> mapBlocsParNom, List<LiaisonVue> lstLiaisons) 
+    {
 
         for (Heritage herit : lstHerit) 
         {
-            BlocClasse blocOrigine = mapBlocsParNom.get(herit.getClasseOrig().getNom());
+            BlocClasse blocOrigine     = mapBlocsParNom.get(herit.getClasseOrig().getNom());
             BlocClasse blocDestination = mapBlocsParNom.get(herit.getClasseDest().getNom());
 
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "heritage");
@@ -262,7 +269,7 @@ public class Controleur
 
         for (Interface inter : lstInter) 
         {
-            BlocClasse blocOrigine = mapBlocsParNom.get(inter.getClasseOrig().getNom());
+            BlocClasse blocOrigine    = mapBlocsParNom.get(inter.getClasseOrig().getNom());
             BlocClasse blocDestination = mapBlocsParNom.get(inter.getClasseDest().getNom());
 
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "interface");
@@ -274,12 +281,13 @@ public class Controleur
     }
 
 
-    public void sauvegardeProjetXml(String cheminFichier){
+    public void sauvegardeProjetXml(String cheminFichier)
+    {
         this.gestionSauvegarde.sauvegardeProjetXml(cheminFichier);
     }
 
-
-    public void sauvegarderClasses(List<BlocClasse> listBlocClasses, List <LiaisonVue> listLiaison, String cheminProjet) {
+    public void sauvegarderClasses(List<BlocClasse> listBlocClasses, List <LiaisonVue> listLiaison, String cheminProjet) 
+    {
         gestionSauvegarde.sauvegarderClasses(listBlocClasses, listLiaison, cheminProjet);
     }
 
@@ -288,6 +296,7 @@ public class Controleur
         this.lstBlocs.add(block);
     }
 
+    
     //-----------//
     //  GETTERS  //
     //-----------//

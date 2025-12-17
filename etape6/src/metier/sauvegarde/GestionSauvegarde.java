@@ -15,8 +15,6 @@ import metier.util.*;
 import vue.BlocClasse;
 import vue.liaison.LiaisonVue;
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 
 public class GestionSauvegarde 
@@ -25,10 +23,14 @@ public class GestionSauvegarde
 	//------------------------//
 	//       ATTRIBUTS        //
 	//------------------------//
+	private  final String SECTION_CLASSES  = "---- Classes ----";
+	private  final String SECTION_LIAISONS = "---- Liaisons ----";
+	private  final String COMMENTAIRE      = "#";
+	private  final String SEPARATEUR       = "\t";
 
-	private String cheminDossier;
-	private Controleur ctrl;
-	private final String S_LIAISON = "---- Liaisons ----";
+	private String      cheminDossier;
+	private Controleur  ctrl;
+	//private final String S_LIAISON = "---- Liaisons ----";
 
 
 	//-------------------------//
@@ -44,12 +46,19 @@ public class GestionSauvegarde
 	//      METHODES        //
 	//----------------------//
 
+	private boolean ligneIgnorable(String ligne) 
+	{
+		return ligne == null       ||
+			ligne.trim().isEmpty() ||
+			ligne.trim().startsWith(this.COMMENTAIRE);
+	}
+
 	/**
 	* Récupère une map de coordonnées 
 	* @param dossierFichSelec L'intitulé du projet sur lequel baser les coordonées
 	* @return Une {@link Map<String, int[]>} des noms des Classes et leurs coordonées (x et y)
 	*/
-	public Map<String, int[]> lireCoordoneesXml(String dossierFichSelec) 
+	public Map<String, int[]> lireCoordoneesXml(String dossierFichSelec) //!!!!!!!!!!!!!!!!!!!!!! a modifier le nom et la javaDoc
 	{
 		//Récupére depuis util le chemin pour sauvegarde/dossier
 		String cheminDossier = Path.of(ConstantesChemins.SAUVEGARDES , dossierFichSelec).toString();
@@ -65,11 +74,8 @@ public class GestionSauvegarde
 
 			while ((ligne = reader.readLine()) != null) 
 			{
-				// Ignorer les lignes vides
-				if (ligne.trim().isEmpty())
-				{
-					continue;
-				}
+
+				if (ligneIgnorable(ligne)) continue;
 
 				// Enregistrer le chemin du projet
 				if (ligne.contains("/") || ligne.contains("\\")) 
@@ -79,39 +85,34 @@ public class GestionSauvegarde
 				}
 
 				// Détecter le début de la section Classes
-				if (ligne.startsWith("---- Classes ----"))
+				if (ligne.startsWith(this.SECTION_CLASSES))
 				{
 					lectureClasses = true;
 					continue;
 				}
 
 				// Détecter le début de la section Liaisons (fin de Classes)
-				if (ligne.startsWith("---- Liaisons ----"))
+				if (ligne.startsWith(this.SECTION_LIAISONS))
 				{
 					lectureClasses = false;
 					break;
 				}
 
-				// Ignorer les en-têtes commentées (commençant par #)
-				if (ligne.startsWith("#"))
-				{
-					continue;
-				}
 
 				if (lectureClasses)
 				{
 					// Vérifier si c'est une ligne de bloc classe (contient des tabs et au moins 5 colonnes)
-					if (ligne.contains("\t") && !ligne.startsWith("-") && !ligne.startsWith("+") && !ligne.startsWith("#"))
+					if (ligne.contains(this.SEPARATEUR) && !ligne.startsWith("-") && !ligne.startsWith("+") && !ligne.startsWith(this.COMMENTAIRE))
 					{
-						String[] parts = ligne.split("\t");
+						String[] parts = ligne.split(this.SEPARATEUR);
 						
 						if (parts.length >= 3)
 						{
 							try
 							{
 								String nomClass = parts[0].trim();
-								int x = Integer.parseInt(parts[1].trim());
-								int y = Integer.parseInt(parts[2].trim());
+								int    x        = Integer.parseInt(parts[1].trim());
+								int    y        = Integer.parseInt(parts[2].trim());
 
 								hashCoordonnees.put(nomClass, new int[] { x, y });
 							}
@@ -142,7 +143,7 @@ public class GestionSauvegarde
 	* pour créer un objet {@link LiaisonVue}.
 	*
 	* @param dossierFichSelec le nom du fichier.xml contenant les liaisons, situé dans le dossier de sauvegarde
-	* @param ligneDepartLecture l'indice de la ligne à partir de laquelle commencer la lecture des liaisons
+	* @param hashMapBlocClass hashMap contenant les nom des class et leur bloc class associé
 	* @return une liste de {@link LiaisonVue} correspondant aux liaisons lues
 	*/
 	public List<LiaisonVue> lectureLiaison(String dossierFichSelec, Map<String, BlocClasse> hashMapBlocClass)
@@ -154,7 +155,7 @@ public class GestionSauvegarde
 
 		try (BufferedReader br = new BufferedReader(new FileReader(chemin))) 
 		{
-			String ligne;
+			String  ligne;
 			boolean lectureLiaisons = false;
 
 
@@ -164,11 +165,10 @@ public class GestionSauvegarde
 
 				ligne = ligne.trim();
 				
-				if (ligne.isEmpty())       continue;
-				if (ligne.startsWith("#")) continue;
+				if (ligneIgnorable(ligne)) continue;
 
 				// Détection du début des liaisons
-				if (ligne.equals(S_LIAISON)) 
+				if (ligne.equals(this.SECTION_LIAISONS)) 
 				{
 					lectureLiaisons = true;
 					continue;
@@ -177,7 +177,8 @@ public class GestionSauvegarde
 				// Tant qu’on n’est pas dans la section liaisons, on ignore
 				if (!lectureLiaisons) continue;
 
-				String[] tabLigne = ligne.split("\t");
+				String[] tabLigne = ligne.split(this.SEPARATEUR);
+
 				if (tabLigne.length < 8) continue;
 
 				String     typeLiaison   = tabLigne[0].trim();
@@ -251,8 +252,12 @@ public class GestionSauvegarde
 			default       -> -1;
 		};
     };
+
+
 	/**
-	* Charge les blocs de classe depuis un fichier de sauvegarde au nouveau format
+	* Charge les blocs classe depuis le fichier de sauvegarde portant le nom du projet
+	* Tous les information essentiel a la création des block class sont lue =>charger dans
+	* cette methode
 	* @param nomProjet Le nom du projet à charger
 	* @return Une {@link Map<String, BlocClasse>} contenant tous les blocs chargés
 	*/
@@ -261,13 +266,13 @@ public class GestionSauvegarde
 		Map<String, BlocClasse> mapBlocClasses = new HashMap<>();
 		
 		Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
-		File file = new File(cheminPath.toString());
+		File file       = new File(cheminPath.toString());
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(file)))
 		{
-			String ligne;
-			boolean lectureClasses = false;
-			BlocClasse blocCourant = null;
+			String     ligne;
+			boolean    lectureClasses = false;
+			BlocClasse blocCourant    = null;
 
 			while ((ligne = reader.readLine()) != null)
 			{
@@ -285,20 +290,14 @@ public class GestionSauvegarde
 				}
 
 				// Détecter le début de la section Classes
-				if (ligne.startsWith("---- Classes ----"))
+				if (ligne.startsWith(this.SECTION_CLASSES))
 				{
 					lectureClasses = true;
 					continue;
 				}
 
-				// Ignorer les en-têtes commentées (commençant par #)
-				if (ligne.startsWith("#"))
-				{
-					continue;
-				}
-
 				// Détecter le début de la section Liaisons
-				if (ligne.startsWith("---- Liaisons ----"))
+				if (ligne.startsWith(this.SECTION_LIAISONS))
 				{
 					lectureClasses = false;
 					continue;
@@ -307,18 +306,21 @@ public class GestionSauvegarde
 				if (lectureClasses)
 				{
 					// Vérifier si c'est une ligne de bloc classe (contient des tabs et au moins 5 colonnes)
-					if (ligne.contains("\t") && !ligne.startsWith("-") && !ligne.startsWith("+") && !ligne.startsWith("#"))
+					if (ligne.contains(this.SEPARATEUR)     && 
+						!ligne.startsWith("-")       && 
+						!ligne.startsWith("+")       &&
+						!ligne.startsWith(this.COMMENTAIRE))
 					{
-						String[] parts = ligne.split("\t");
+						String[] parts = ligne.split(this.SEPARATEUR);
 						
 						if (parts.length >= 6)
 						{
 							// C'est une ligne de définition de bloc
-							String nomBloc = parts[0].trim();
-							int x = Integer.parseInt(parts[1].trim());
-							int y = Integer.parseInt(parts[2].trim());
-							int largeur = Integer.parseInt(parts[3].trim());
-							int hauteur = Integer.parseInt(parts[4].trim());
+							String  nomBloc      = parts[0].trim();
+							int     x            = Integer.parseInt(parts[1].trim());
+							int     y            = Integer.parseInt(parts[2].trim());
+							int     largeur      = Integer.parseInt(parts[3].trim());
+							int     hauteur      = Integer.parseInt(parts[4].trim());
 							boolean estInterface = Boolean.parseBoolean(parts[5].trim());
 
 							// Créer le bloc
@@ -328,7 +330,11 @@ public class GestionSauvegarde
 							mapBlocClasses.put(nomBloc, blocCourant);
 						}
 					}
-					else if ((ligne.startsWith("-") || ligne.startsWith("+") || ligne.startsWith("#") || ligne.startsWith("~")) && blocCourant != null)
+					else if ((  ligne.startsWith(this.COMMENTAIRE)  ||
+								ligne.startsWith("-")       || 
+							    ligne.startsWith("+")       ||  
+								ligne.startsWith("~"))      && 
+								blocCourant != null)
 					{
 						// C'est un attribut ou une méthode
 						if (ligne.contains("(") && ligne.contains(")"))
@@ -363,7 +369,8 @@ public class GestionSauvegarde
 	public void sauvegarderClasses(List<BlocClasse> listBlocClasses, List <LiaisonVue> listLiaison, String cheminProjet)
 	{
 		// Vérifier que cheminProjet n'est pas null
-		if (cheminProjet == null || cheminProjet.isEmpty()) {
+		if (cheminProjet == null || cheminProjet.isEmpty()) 
+		{
 			System.out.println("Erreur: cheminProjet est null ou vide dans sauvegarderClasses");
 			return;
 		}
@@ -384,7 +391,7 @@ public class GestionSauvegarde
 			// Le projet n'existe pas : ajouter une nouvelle ligne à projets.xml
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(fichierLectureEcriture, true))) 
 			{
-				String ligneAAjouter = cheminProjet + "\t" + nomProjetASauv;
+				String ligneAAjouter = cheminProjet + this.SEPARATEUR + nomProjetASauv;
 				bw.write(ligneAAjouter + "\n");
 				
 				// Créer le fichier de coordonnées pour la première fois
@@ -420,7 +427,7 @@ public class GestionSauvegarde
 			// Écrire l'en-tête avec le chemin du projet
 			bw.write(cheminProjet);
 			bw.newLine();
-			bw.write("---- Classes ----");
+			bw.write(this.SECTION_CLASSES);
 			bw.newLine();
 			bw.write("#nomBloc\tx\ty\tlargeur\thauteur\testInterface");
 			bw.newLine();
@@ -429,11 +436,11 @@ public class GestionSauvegarde
 			for (BlocClasse blocClasse : listBlocClasses) 
 			{
 				// Écrire la ligne d'en-tête du bloc
-				bw.write(blocClasse.getNom().trim() + "\t" + 
-						blocClasse.getX() + "\t" + 
-						blocClasse.getY() + "\t" +
-						blocClasse.getLargeur() + "\t" +
-						blocClasse.getHauteur() + "\t" +
+				bw.write(blocClasse.getNom().trim() + this.SEPARATEUR + 
+						blocClasse.getX()           + this.SEPARATEUR + 
+						blocClasse.getY()           + this.SEPARATEUR +
+						blocClasse.getLargeur()     + this.SEPARATEUR +
+						blocClasse.getHauteur()     + this.SEPARATEUR +
 						blocClasse.estInterface());
 				bw.newLine();
 
@@ -474,12 +481,11 @@ public class GestionSauvegarde
 	public void sauvegarderLiaison(List<LiaisonVue> listLiaison, String nomProjet)
 	{
 		Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
-		File file = new File(cheminPath.toString());
+		File file       = new File(cheminPath.toString());
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) 
         {
-            //
-            bw.write("---- Liaisons ----");
+            bw.write(this.SECTION_LIAISONS);
             bw.newLine();
             bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tblocDest\tcoteDest\tposRelDest\tmultiOrig\tmultiDest");
             bw.newLine();
@@ -490,21 +496,27 @@ public class GestionSauvegarde
             for (LiaisonVue liaisonVue : listLiaison) 
             {	
 				String type = liaisonVue.getType();
-				if(type.equals("association")){
-					if(liaisonVue.isUnidirectionnel()){
+				if(type.equals("association"))
+				{
+					if(liaisonVue.isUnidirectionnel())
+					{
 						type = type + "_uni";
-					} else {type = type + "_bi";}
+					} 
+					else 
+					{
+						type = type + "_bi";
+					}
 				}
 				
-                bw.write(type + "\t" + 
-                         id + "\t" + 
-                         liaisonVue.getBlocOrigine().getNom() + "\t" + 
-                         liaisonVue.getSideOrig() + "\t" + 
-                         liaisonVue.getNivOrig() + "\t" + 
-                         liaisonVue.getBlocDestination().getNom() + "\t" + 
-                         liaisonVue.getSideDest() + "\t" + 
-                         liaisonVue.getNivDest() + "\t" +
-						 liaisonVue.getMultOrig() + "\t" + 
+                bw.write(type                                     + this.SEPARATEUR + 
+                         id                                       + this.SEPARATEUR + 
+                         liaisonVue.getBlocOrigine().getNom()     + this.SEPARATEUR + 
+                         liaisonVue.getSideOrig()                 + this.SEPARATEUR + 
+                         liaisonVue.getNivOrig()                  + this.SEPARATEUR + 
+                         liaisonVue.getBlocDestination().getNom() + this.SEPARATEUR + 
+                         liaisonVue.getSideDest()                 + this.SEPARATEUR + 
+                         liaisonVue.getNivDest()                  + this.SEPARATEUR +
+						 liaisonVue.getMultOrig()                 + this.SEPARATEUR + 
                          liaisonVue.getMultDest() );
                 bw.newLine();
                 id++;
@@ -519,7 +531,7 @@ public class GestionSauvegarde
 	public boolean fichierDeSauvegardeExiste(String nomIntitule) 
 	{
 		String cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomIntitule + ".xml").toString();
-		File file = new File(cheminPath);
+		File   file       = new File(cheminPath);
 		return file.exists();
 	}
 	
@@ -534,14 +546,15 @@ public class GestionSauvegarde
 			{
 				String ligne = scan.nextLine();
 				
-				String[] tabLigne = ligne.split("\t");
+				String[] tabLigne = ligne.split(this.SEPARATEUR);
 
 				if(tabLigne[0].equals(paraCheminDossier.trim()))
 				{
 					String intitule = tabLigne[1].trim();
 					// Extraire juste le nom du projet si c'est un chemin complet
 					int indiceslash = Math.max(intitule.lastIndexOf("/"), intitule.lastIndexOf("\\"));
-					if (indiceslash >= 0) {
+					if (indiceslash >= 0) 
+					{
 						intitule = intitule.substring(indiceslash + 1);
 					}
 					return intitule;
@@ -568,7 +581,7 @@ public class GestionSauvegarde
 			{
 				String ligne = scan.nextLine();
 				
-				String[] tabLigne = ligne.split("\t");
+				String[] tabLigne = ligne.split(this.SEPARATEUR);
 
 				if(tabLigne.length >= 2 && tabLigne[1].trim().equals(intituleProjet.trim()))
 				{
@@ -596,7 +609,7 @@ public class GestionSauvegarde
 			{
 				String ligne = scan.nextLine();
 				
-				String[] tabLigne = ligne.split("\t");
+				String[] tabLigne = ligne.split(this.SEPARATEUR);
 
 				// Vérifier si le chemin du projet correspond
 				if(tabLigne.length >= 1 && tabLigne[0].equals(cheminProjet.trim()))
@@ -646,7 +659,7 @@ public class GestionSauvegarde
 				// Ajouter la ligne au fichier
 				try (FileWriter writer = new FileWriter(fichier, true))
 				{
-					writer.write(cheminFichier + "\t" + nomProjet + System.lineSeparator());
+					writer.write(cheminFichier + this.SEPARATEUR + nomProjet + System.lineSeparator());
 				}
 			}
 			catch (Exception e)
