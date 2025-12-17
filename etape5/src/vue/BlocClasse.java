@@ -33,7 +33,7 @@ public class BlocClasse
     private static final int HAUTEUR_ENTETE    = 30;
     private static final int HAUTEUR_LIGNE     = 20;
     private static final int MAX_ATTRIBUTS     = 3;
-    private static final int MAX_METHODES      = 3;
+    private static final int MAX_METHODES      = 2;
     private static final int MAX_PARAMETRES    = 2;
     private static final Color COULEUR_FOND    = new Color(230, 240, 250);
     private static final Color COULEUR_BORDURE = new Color(0, 0, 0);
@@ -63,47 +63,106 @@ public class BlocClasse
     //----------------------//
 
     /**
-     * Formate le texte d'une méthode en limitant les paramètres affichés
+     * Formate le texte d'une méthode en wrappant sur plusieurs lignes si nécessaire
      * @param methodeStr Chaîne de méthode au format: "visibilite nomMethode(param1, param2, ...) : typeRetour"
-     * @return Chaîne formatée avec max 2 paramètres
+     * @param maxWidth Largeur maximale disponible en pixels
+     * @param g2d Graphics2D pour mesurer la largeur du texte
+     * @return Chaîne formatée avec retours à la ligne si dépasse maxWidth
      */
-    private String formatMethode(String methodeStr) 
+    private String formatMethodeAvecLargeur(String methodeStr, int maxWidth, Graphics2D g2d) 
     {
-        // Extraire les paramètres entre parenthèses
-        int startParen = methodeStr.indexOf("(");
-        int endParen = methodeStr.indexOf(")");
+        FontMetrics fm = g2d.getFontMetrics();
         
-        if (startParen == -1 || endParen == -1) {
+        // Si rentre sur une ligne, retourner tel quel
+        if (fm.stringWidth(methodeStr) <= maxWidth) {
             return methodeStr;
         }
         
-        String avant = methodeStr.substring(0, startParen + 1);
-        String apres = methodeStr.substring(endParen);
-        String parametres = methodeStr.substring(startParen + 1, endParen);
-        
-        // Diviser les paramètres par virgule
-        String[] params = parametres.split(",");
-        
-        StringBuilder result = new StringBuilder(avant);
-        
-        if (params.length > 0 && !parametres.trim().isEmpty()) {
-            // Ajouter les deux premiers paramètres
-            int limite = Math.min(MAX_PARAMETRES, params.length);
-            for (int i = 0; i < limite; i++) {
-                result.append(params[i].trim());
-                if (i < limite - 1) {
-                    result.append(", ");
-                }
+        // Si on est en mode plein écran, afficher tous les paramètres avec wrapping
+        if (affichagePleinEcran) {
+            int closeParen = methodeStr.indexOf(")");
+            if (closeParen > 0) {
+                String firstPart = methodeStr.substring(0, closeParen + 1);
+                String secondPart = methodeStr.substring(closeParen + 1);
+                return firstPart + "\n" + secondPart;
             }
-            
-            // Ajouter les points de suspension s'il y a plus de paramètres
-            if (params.length > MAX_PARAMETRES) {
-                result.append(", ...");
+            return methodeStr;
+        }
+        
+        // En mode condensé, limiter aussi les paramètres lors du wrapping
+        int closeParen = methodeStr.indexOf(")");
+        if (closeParen <= 0) {
+            return methodeStr;
+        }
+        
+        String firstPart = methodeStr.substring(0, closeParen + 1);
+        String secondPart = methodeStr.substring(closeParen + 1);
+        
+        // Vérifier que les deux parties rentrent dans la largeur
+        // Si la première partie est trop longue, on coupe aussi les paramètres
+        if (fm.stringWidth(firstPart) > maxWidth) {
+            // Tronquer les paramètres
+            int openParen = methodeStr.indexOf("(");
+            if (openParen > 0) {
+                String signature = methodeStr.substring(0, openParen + 1);
+                String params = methodeStr.substring(openParen + 1, closeParen);
+                String[] paramList = params.split(",");
+                
+                // Garder seulement les 2 premiers paramètres
+                if (paramList.length > 2) {
+                    StringBuilder truncated = new StringBuilder(signature);
+                    for (int i = 0; i < 2; i++) {
+                        truncated.append(paramList[i].trim());
+                        if (i < 1) truncated.append(", ");
+                    }
+                    truncated.append(", ...");
+                    truncated.append(")");
+                    truncated.append(secondPart);
+                    firstPart = truncated.toString();
+                }
             }
         }
         
-        result.append(apres);
-        return result.toString();
+        return firstPart + "\n" + secondPart;
+    }
+
+    /**
+     * Formate le texte d'une méthode en limitant les paramètres en mode condensé
+     * @param methodeStr Chaîne de méthode au format: "visibilite nomMethode(param1, param2, ...) : typeRetour"
+     * @return Chaîne formatée avec max 2 paramètres si mode condensé
+     */
+    private String formatMethode(String methodeStr) 
+    {
+        // En mode condensé, limiter les paramètres à 2
+        if (!affichagePleinEcran) {
+            int startParen = methodeStr.indexOf("(");
+            int endParen = methodeStr.indexOf(")");
+            
+            if (startParen > 0 && endParen > startParen) {
+                String avant = methodeStr.substring(0, startParen + 1);
+                String apres = methodeStr.substring(endParen);
+                String parametres = methodeStr.substring(startParen + 1, endParen);
+                
+                if (!parametres.trim().isEmpty()) {
+                    String[] params = parametres.split(",");
+                    
+                    if (params.length > MAX_PARAMETRES) {
+                        StringBuilder result = new StringBuilder(avant);
+                        for (int i = 0; i < MAX_PARAMETRES; i++) {
+                            result.append(params[i].trim());
+                            if (i < MAX_PARAMETRES - 1) {
+                                result.append(", ");
+                            }
+                        }
+                        result.append(", ...");
+                        result.append(apres);
+                        return result.toString();
+                    }
+                }
+            }
+        }
+        
+        return methodeStr;
     }
 
     /**
@@ -248,13 +307,20 @@ public class BlocClasse
         {
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.PLAIN, 9));
+            Graphics2D g2d = (Graphics2D) g;
 
             if (afficherMethodes)
             {
+                int maxMethodeWidth = largeur - 2 * PADDING;
                 for (String met : methodesAffichage) 
                 {
-                    g.drawString(met, x + PADDING, yActuel);
-                    yActuel += HAUTEUR_LIGNE;
+                    // Afficher sur plusieurs lignes si la méthode contient des retours à la ligne
+                    String[] lines = met.split("\n");
+                    for (String line : lines) {
+                        String methodeFormatee = formatMethodeAvecLargeur(line, maxMethodeWidth, g2d);
+                        g.drawString(methodeFormatee, x + PADDING, yActuel);
+                        yActuel += HAUTEUR_LIGNE;
+                    }
                 }
             }
             else 
@@ -284,7 +350,17 @@ public class BlocClasse
             h += 10;
         }
 
-        h += methodesAffichage.size() * HAUTEUR_LIGNE;
+        // Calculer la hauteur des méthodes en tenant compte des retours à la ligne
+        for (String methode : methodesAffichage) {
+            int nbLignes = 1;
+            for (char c : methode.toCharArray()) {
+                if (c == '\n') {
+                    nbLignes++;
+                }
+            }
+            h += nbLignes * HAUTEUR_LIGNE;
+        }
+        
         h += PADDING;
 
         return Math.max(h, 80);
@@ -299,21 +375,6 @@ public class BlocClasse
                px <= x + largeur          &&
                py >= y                    &&
                py <= y + hauteurCalculee;
-    }
-    
-    // Vérifie si le point donné est dans le bloc (avec pan offset)
-    public boolean contient(int px, int py, int panOffsetX, int panOffsetY) 
-    {
-        int hauteurCalculee = calculerHauteur();
-        
-        // Appliquer le pan offset inverse pour ramener le point dans le repère du bloc
-        int adjustedX = px - panOffsetX;
-        int adjustedY = py - panOffsetY;
-
-        return adjustedX >= x                    &&
-               adjustedX <= x + largeur          &&
-               adjustedY >= y                    &&
-               adjustedY <= y + hauteurCalculee;
     }
 
     // Vérifie si un rectangle de texte chevauchent le bloc

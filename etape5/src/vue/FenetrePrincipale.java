@@ -1,16 +1,19 @@
 package vue;
 
+import metier.util.TestStructureProjet.VerificationStructureProjet;
 import controleur.Controleur;
 import java.awt.BorderLayout;
 import java.awt.Dimension; 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import vue.liaison.LiaisonVue;
 
 
 /**
@@ -69,9 +72,36 @@ public class FenetrePrincipale extends JFrame
 
     public void chargerProjet(String cheminProjet) 
     {
-        panneauDiagramme.chargerProjet(cheminProjet);
-        // Enregistrer le projet au premier chargement
-        controleur.sauvegardeProjetXml(cheminProjet);
+        try 
+        {
+            panneauDiagramme.chargerProjet(cheminProjet);
+            // Enregistrer le projet au premier chargement
+            controleur.sauvegardeProjetXml(cheminProjet);
+            // Actualiser la liste des projets
+            panneauProjets.actualiser();
+        }
+        catch (Exception e)
+        {
+            String message = "Erreur lors du chargement du projet :\n";
+            
+            if (e instanceof java.io.FileNotFoundException)
+            {
+                message += "Fichier ou dossier introuvable ou accès refusé.\n";
+                message += "Vérifiez que vous avez les permissions nécessaires.";
+            }
+            else
+            {
+                message += e.getMessage();
+            }
+            
+            javax.swing.JOptionPane.showMessageDialog(
+                this, 
+                message, 
+                "Erreur de chargement", 
+                javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+            e.printStackTrace();
+        }
     }
 
     public void sauvegarderDiagramme() 
@@ -120,6 +150,10 @@ public class FenetrePrincipale extends JFrame
 
     public static void main(String[] args) 
     {
+         // Vérification de la structure du projet
+        VerificationStructureProjet verification = new VerificationStructureProjet();
+        verification.verifierStructure();
+
         SwingUtilities.invokeLater(() -> {
             FenetrePrincipale fenetre = new FenetrePrincipale();
             fenetre.setVisible(true);
@@ -151,11 +185,6 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.actionSauvegarder();
     }
 
-    public boolean verifierProjet(String cheminProjet)
-    {
-        return this.controleur.verifierFichiersProjets(cheminProjet);
-    }
-
     /**
     * Méthodes passerelle au controleur
     */
@@ -164,11 +193,18 @@ public class FenetrePrincipale extends JFrame
         return controleur.chargerProjetEnBlocsClasses(cheminProjet);
     }
 
-    public List<LiaisonVue> getLiaisons() {
+    public List<LiaisonVue> getLiaisons()
+    {
         return controleur.getLiaisons();
     }
 
-    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
+    public ArrayList<String> getLstFichiersInvalides(String cheminProjet)
+    {
+        return this.controleur.getLstFichiersInvalides(cheminProjet);
+    }
+
+    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet)
+    {
         controleur.sauvegarderClasses(blocClasses, cheminProjet);
     }
 }

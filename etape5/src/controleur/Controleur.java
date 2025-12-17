@@ -6,7 +6,7 @@ import metier.objet.*;
 import metier.sauvegarde.*;
 import vue.BlocClasse;
 import vue.FenetrePrincipale;
-import vue.LiaisonVue;
+import vue.liaison.LiaisonVue;
 
 /**
 * Contrôleur qui met en relation le métier et la vue IHM.
@@ -83,11 +83,13 @@ public class Controleur
             }
         }
 
-        if (gestionSauvegarde.projetEstSauvegarde(gestionSauvegarde.getIntituleFromLien(cheminProjet))) 
+        // Test si le projet est déjàa présent dans les sauvegardes .xml
+        String intituleProjet = gestionSauvegarde.getIntituleFromLien(cheminProjet);
+        if (gestionSauvegarde.projetEstSauvegarde(cheminProjet) && 
+            gestionSauvegarde.fichierDeSauvegardeExiste(intituleProjet)) 
         {
             System.out.println("Le projet est sauvegardé. Chargement des coordonées depuis le .xml");
-            gestionSauvegarde.lecture(gestionSauvegarde.getIntituleFromLien(cheminProjet) + ".xml");
-            Map<String, int[]> coordonneesBlocs = gestionSauvegarde.gethashCoordonnees();
+            Map<String, int[]> coordonneesBlocs = gestionSauvegarde.lireCoordoneesXml(intituleProjet + ".xml");
             
             for (BlocClasse bloc : lstBlocs) {
                 int[] coordonnees = coordonneesBlocs.get(bloc.getNom());
@@ -175,7 +177,22 @@ public class Controleur
 
             String nomMet = met.getNomMethode();
             String retour = met.getRetour();
-            methodesStr.add(visibilite + " " + nomMet + "() : " + retour);
+            
+            // Construire les paramètres
+            StringBuilder parametres = new StringBuilder("(");
+            List<Parametre> lstParam = met.getLstParametre();
+            if (lstParam != null && !lstParam.isEmpty()) {
+                for (int i = 0; i < lstParam.size(); i++) {
+                    Parametre param = lstParam.get(i);
+                    parametres.append(param.getNomPara()).append(": ").append(param.getTypePara());
+                    if (i < lstParam.size() - 1) {
+                        parametres.append(", ");
+                    }
+                }
+            }
+            parametres.append(")");
+            
+            methodesStr.add(visibilite + " " + nomMet + parametres.toString() + " : " + retour);
         }
 
         bloc.setAttributsAffichage(attributsStr);
@@ -245,48 +262,16 @@ public class Controleur
         this.gestionSauvegarde.sauvegardeProjetXml(cheminFichier);
     }
 
-    /*public String getLienFromIntitule(String intituleFichier) {
-        String   basePath               = System.getProperty("user.dir");
-        String   cheminPath             = basePath + "/donnees/sauvegardes/";
-
-        File dossier = new File(cheminPath);
-
-        if (!dossier.exists() || !dossier.isDirectory()) 
-        {
-            System.out.println("Dossier de sauvegardes introuvable");
-            return "";
-        }
-
-        File[] fichiers = dossier.listFiles();
-
-        if (fichiers == null) 
-        {
-            System.out.println("Aucun fichier dans le dossier");
-            return "";
-        }
-
-        for (File f : fichiers) 
-        {
-            if (f.isFile()) 
-            {
-                System.out.println("Fichier trouvé : " + f.getName());
-
-                if (f.getName().equals(nomFichierCoord.trim())) 
-                {
-                    return f.getName();
-                }
-            }
-        }
-    }*/
 
     public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet) {
         gestionSauvegarde.sauvegarderClasses(blocClasses, cheminProjet);
     }
 
-    public static boolean verifierFichiersProjets(String cheminProjet)
+    public void ajouterBlockList(BlocClasse block)
     {
-        return Lecture.verifierFichiersProjet(cheminProjet);
+        this.lstBlocs.add(block);
     }
+
     //-----------//
     //  GETTERS  //
     //-----------//
@@ -296,10 +281,8 @@ public class Controleur
         return lstLiaisons;
     }
 
-    public void ajouterBlockList(BlocClasse block)
+    public ArrayList<String> getLstFichiersInvalides(String cheminDossier)
     {
-        this.lstBlocs.add(block);
+        return Lecture.getFichiersInvalides(cheminDossier);
     }
-
-    
 }

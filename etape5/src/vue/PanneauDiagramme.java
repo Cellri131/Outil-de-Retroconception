@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
+import vue.liaison.LiaisonVue;
+
 public class PanneauDiagramme extends JPanel
 {
     //--------------------------//
@@ -40,6 +42,7 @@ public class PanneauDiagramme extends JPanel
     private int                 panOffsetX = 0;
     private int                 panOffsetY = 0;
     private boolean             isPanning = false;
+    private BlocClasse          blocPleinEcranTemporaire = null;
 
 
     //-------------------------//
@@ -70,7 +73,7 @@ public class PanneauDiagramme extends JPanel
     //      METHODES        //
     //----------------------//
 
-    public void chargerProjet(String cheminProjet) 
+    public void chargerProjet(String cheminProjet) throws Exception
     {
         this.cheminProjetCourant = cheminProjet;
         this.blocsClasses.clear();
@@ -121,9 +124,10 @@ public class PanneauDiagramme extends JPanel
                         }
                     }
                     
-                    // Si on clique sur un bloc, basculer son affichage plein écran
+                    // Si on clique sur un bloc, activer l'affichage plein écran temporairement
                     if (blocClique != null) {
-                        blocClique.setAffichagePleinEcran(!blocClique.isAffichagePleinEcran());
+                        blocPleinEcranTemporaire = blocClique;
+                        blocClique.setAffichagePleinEcran(true);
                         repaint();
                         return;
                     }
@@ -172,6 +176,13 @@ public class PanneauDiagramme extends JPanel
                     isPanning = false;
                     repaint();
                     return;
+                }
+                
+                // Désactiver l'affichage plein écran temporaire
+                if (blocPleinEcranTemporaire != null) {
+                    blocPleinEcranTemporaire.setAffichagePleinEcran(false);
+                    blocPleinEcranTemporaire = null;
+                    repaint();
                 }
                 
                 if (blocEnDeplacement != null) {
@@ -396,6 +407,11 @@ public class PanneauDiagramme extends JPanel
         g2d.scale(zoomLevel, zoomLevel);
         g2d.translate(-getWidth() / (2 * zoomLevel), -getHeight() / (2 * zoomLevel));
 
+        // Mettre à jour la liste de toutes les liaisons pour détecter les intersections
+        for (LiaisonVue liaison : liaisons) {
+            liaison.setToutesLesLiaisons(liaisons);
+        }
+        
         // Dessiner les liaisons
         dessinerLiaisons(g2d);
 
@@ -436,7 +452,6 @@ public class PanneauDiagramme extends JPanel
         for (LiaisonVue liaison : liaisons) {
             liaison.dessiner(g2d);
         }
-        repaint();
     }
 
     public List<BlocClasse> getBlocsClasses() {
