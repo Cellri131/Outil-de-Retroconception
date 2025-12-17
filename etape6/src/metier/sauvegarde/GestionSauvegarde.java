@@ -324,6 +324,11 @@ public class GestionSauvegarde
 	*/
 	public void sauvegarderClasses(List<BlocClasse> listBlocClasses, List <LiaisonVue> listLiaison, String cheminProjet)
 	{
+		// Vérifier que cheminProjet n'est pas null
+		if (cheminProjet == null || cheminProjet.isEmpty()) {
+			System.out.println("Erreur: cheminProjet est null ou vide dans sauvegarderClasses");
+			return;
+		}
 
 		String fichierLectureEcriture = Path.of(ConstantesChemins.DONNEES, "projets.xml").toString();
 
@@ -334,6 +339,7 @@ public class GestionSauvegarde
 		{
 			// Le projet existe : modifier uniquement le fichier de coordonnées
 			sauvegarderCoordProjet(listBlocClasses, nomProjetASauv, cheminProjet);
+			sauvegarderLiaison(listLiaison, nomProjetASauv);
 		} 
 		else 
 		{
@@ -362,6 +368,11 @@ public class GestionSauvegarde
 	*/
 	public void sauvegarderCoordProjet(List<BlocClasse> listBlocClasses, String nomProjet, String cheminProjet)
 	{
+		// Vérifier que les paramètres ne sont pas null
+		if (listBlocClasses == null || nomProjet == null || nomProjet.isEmpty() || cheminProjet == null || cheminProjet.isEmpty()) {
+			System.out.println("Erreur: paramètres invalides dans sauvegarderCoordProjet");
+			return;
+		}
 		
 		Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
 		File file = new File(cheminPath.toString());
@@ -424,7 +435,6 @@ public class GestionSauvegarde
 	*/
 	public void sauvegarderLiaison(List<LiaisonVue> listLiaison, String nomProjet)
 	{
-		
 		Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
 		File file = new File(cheminPath.toString());
 
@@ -433,7 +443,7 @@ public class GestionSauvegarde
             //
             bw.write("---- Liaisons ----");
             bw.newLine();
-            bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tmultiOrig\tblocDest\tcoteDest\tposRelDest\tmultiDest");
+            bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tblocDest\tcoteDest\tposRelDest\tmultiOrig\tmultiDest");
             bw.newLine();
 
 
@@ -446,10 +456,10 @@ public class GestionSauvegarde
                          liaisonVue.getBlocOrigine().getNom() + "\t" + 
                          liaisonVue.getSideOrig() + "\t" + 
                          liaisonVue.getNivOrig() + "\t" + 
-                         liaisonVue.getMultOrig() + "\t" + 
                          liaisonVue.getBlocDestination().getNom() + "\t" + 
                          liaisonVue.getSideDest() + "\t" + 
                          liaisonVue.getNivDest() + "\t" +
+						 liaisonVue.getMultOrig() + "\t" + 
                          liaisonVue.getMultDest() );
                 bw.newLine();
                 id++;
