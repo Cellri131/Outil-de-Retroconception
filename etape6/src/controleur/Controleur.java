@@ -97,7 +97,8 @@ public class Controleur
             
             // Mettre à jour la map avec les blocs chargés
             mapBlocsParNom.clear();
-            for (BlocClasse bloc : blocsCharges.values()) {
+            for (BlocClasse bloc : blocsCharges.values()) 
+            {
                 mapBlocsParNom.put(bloc.getNom(), bloc);
             }
 
