@@ -328,7 +328,7 @@ public class GestionSauvegarde
 	* @param dossierFichSelec L'intitulé du projet sur lequel baser les coordonées
 	* @return Une {@link Map<String, int[]>} des noms des Classes et leurs coordonées (x et y)
 	*/
-	public void sauvegarderClasses(List<BlocClasse> listBlocClasses, String cheminProjet)
+	public void sauvegarderClasses(List<BlocClasse> listBlocClasses, List <LiaisonVue> listLiaison, String cheminProjet)
 	{
 
 		String fichierLectureEcriture = Path.of(ConstantesChemins.DONNEES, "projets.xml").toString();
@@ -351,6 +351,7 @@ public class GestionSauvegarde
 				
 				// Créer le fichier de coordonnées pour la première fois
 				sauvegarderCoordProjet(listBlocClasses, nomProjetASauv, cheminProjet);
+				sauvegarderLiaison(listLiaison, nomProjetASauv);
 			} 
 			catch (Exception e) 
 			{
@@ -433,25 +434,38 @@ public class GestionSauvegarde
 		Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
 		File file = new File(cheminPath.toString());
 
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) 
-		{
-			//
-			bw.write("---- Liaisons ----");
-			bw.newLine();
-			bw.write("#id\tblocOrig\tcoteOrig\tposRelOrig\tblocDest\tcoteDest\tposRelDest\ttypeLiaison");
-			bw.newLine();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) 
+        {
+            //
+            bw.write("---- Liaisons ----");
+            bw.newLine();
+            bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tmultiOrig\tblocDest\tcoteDest\tposRelDest\tmultiDest");
+            bw.newLine();
 
-			// Écrire les informations de toutes les liaisons
-			for (LiaisonVue liaisonVue : listLiaison) 
-			{
-				// À implémenter selon la structure de LiaisonVue
-			}
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-	}
+
+            int id = 0;
+            // Écrire les informations de toutes les liaisons
+            for (LiaisonVue liaisonVue : listLiaison) 
+            {
+                bw.write(liaisonVue.getType() + "\t" + 
+                         id + "\t" + 
+                         liaisonVue.getBlocOrigine().getNom() + "\t" + 
+                         liaisonVue.getSideOrig() + "\t" + 
+                         liaisonVue.getNivOrig() + "\t" + 
+                         liaisonVue.getMultOrig() + "\t" + 
+                         liaisonVue.getBlocDestination().getNom() + "\t" + 
+                         liaisonVue.getSideDest() + "\t" + 
+                         liaisonVue.getNivDest() + "\t" +
+                         liaisonVue.getMultDest() );
+                bw.newLine();
+                id++;
+            }
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+    }
 
 	public boolean fichierDeSauvegardeExiste(String nomIntitule) 
 	{

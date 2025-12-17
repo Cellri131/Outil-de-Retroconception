@@ -24,6 +24,7 @@ public class BarreMenus extends JMenuBar
 
     private JCheckBoxMenuItem afficherAttributsItem;
     private JCheckBoxMenuItem afficherMethodesItem;
+    private JCheckBoxMenuItem sauvegardeAutoItem;
     
     //-------------------------//
     //      CONSTRUCTEUR       //
@@ -55,6 +56,9 @@ public class BarreMenus extends JMenuBar
 
         JMenuItem sauvegarderItem = new JMenuItem("Sauvegarder");
         sauvegarderItem.addActionListener(e -> actionSauvegarder());
+        
+        sauvegardeAutoItem        = new JCheckBoxMenuItem("Sauvegarde automatique", false);
+        sauvegardeAutoItem.  addActionListener(e -> actionSauvegardeAuto());
 
         JMenuItem quitterItem     = new JMenuItem("Quitter");
         quitterItem.    addActionListener(e -> System.exit(0));
@@ -63,6 +67,7 @@ public class BarreMenus extends JMenuBar
         menu.addSeparator();
         menu.add(exporterItem);
         menu.add(sauvegarderItem);
+        menu.add(sauvegardeAutoItem);
         menu.addSeparator();
         menu.add(quitterItem);
 
@@ -174,6 +179,11 @@ public class BarreMenus extends JMenuBar
     private void actionAffichageMethodes() 
     {
         fenetrePrincipale.affichageMethodes(afficherMethodesItem.getState());
+    }
+
+    private void actionSauvegardeAuto() 
+    {
+        fenetrePrincipale.setSauvegardeAuto(sauvegardeAutoItem.getState());
     }
 
     private void actionAligner()

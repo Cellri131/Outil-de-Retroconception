@@ -180,6 +180,11 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.optimiserPositionsLiaisons();
     }
 
+    public void setSauvegardeAuto(boolean b)
+    {
+        panneauDiagramme.setSauvegardeAuto(b);
+    }
+
     public void actionSauvegarder()
     {
         panneauDiagramme.actionSauvegarder();
@@ -203,8 +208,8 @@ public class FenetrePrincipale extends JFrame
         return this.controleur.getLstFichiersInvalides(cheminProjet);
     }
 
-    public void sauvegarderClasses(List<BlocClasse> blocClasses, String cheminProjet)
+    public void sauvegarderClasses(List<BlocClasse> blocClasses, List<LiaisonVue> liaisonVues, String cheminProjet)
     {
-        controleur.sauvegarderClasses(blocClasses, cheminProjet);
+        controleur.sauvegarderClasses(blocClasses, liaisonVues, cheminProjet);
     }
 }
