@@ -180,6 +180,11 @@ public class FenetrePrincipale extends JFrame
         panneauDiagramme.optimiserPositionsLiaisons();
     }
 
+    public void setSauvegardeAuto(boolean b)
+    {
+        panneauDiagramme.setSauvegardeAuto(b);
+    }
+
     public void actionSauvegarder()
     {
         panneauDiagramme.actionSauvegarder();

@@ -25,6 +25,7 @@ public class PanneauDiagramme extends JPanel
 
     private boolean             afficherAttributs = true;
     private boolean             afficherMethodes = true;
+    private boolean             sauvegardeAuto = false;
 
     // Pour le drag des points d'ancrage de liaisons
     private LiaisonVue          liaisonEnDeplacement;
@@ -421,6 +422,7 @@ public class PanneauDiagramme extends JPanel
         }
 
         // Afficher le pourcentage de zoom
+            this.actionSauvegarder();
         afficherZoomPercentage(g2d);
     }
 
@@ -492,5 +494,17 @@ public class PanneauDiagramme extends JPanel
 
     public void actionSauvegarder() {
         this.fenetrePrincipale.sauvegarderClasses(this.blocsClasses, this.liaisons, cheminProjetCourant);
+    }
+
+    public void setSauvegardeAuto(boolean b) {
+        this.sauvegardeAuto = b;
+    }
+
+    public void actionEffectuee() {
+        System.out.println("Action effectuée.");
+        if (this.sauvegardeAuto) {
+            this.actionSauvegarder();
+            System.out.println("Sauvegarde auto effectuée !");
+        }
     }
 }
