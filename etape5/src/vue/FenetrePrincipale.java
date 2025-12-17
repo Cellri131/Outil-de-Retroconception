@@ -46,9 +46,6 @@ public class FenetrePrincipale extends JFrame
         setLocationRelativeTo(null);
         setResizable(true);
 
-<<<<<<< HEAD
-        panneauProjets   = new PanneauProjets  (this);
-=======
         // Charger et définir l'icône de la fenêtre
         try {
             Image icon = ImageIO.read(new File("src/res/uml_icon.png"));
@@ -58,7 +55,6 @@ public class FenetrePrincipale extends JFrame
         }
 
         panneauProjets   = new PanneauProjets(this);
->>>>>>> a79a3de4bff3d21d9e9825965e05b85ad2c0f00b
         panneauDiagramme = new PanneauDiagramme(this);
         this.controleur  = new Controleur      (this);
 
