@@ -1,4 +1,4 @@
-package metier.util.TestStructureProjet;
+package metier.util.test_structure_projet;
 
 /**
  * Représente le type d'un élément de la structure du projet.
