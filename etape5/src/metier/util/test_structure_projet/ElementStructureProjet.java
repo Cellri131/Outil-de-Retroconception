@@ -1,4 +1,4 @@
-package metier.util.TestStructureProjet;
+package metier.util.test_structure_projet;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -97,14 +97,26 @@ public enum ElementStructureProjet
      */
     public String getMessageErreur()
     {
-        if (this.type == TypeElement.DOSSIER)
-        {
-            return "Dossier manquant : " + this.chemin;
-        }
-        else
-        {
-            return "Fichier manquant : " + this.chemin;
-        }
+		if (this.type == TypeElement.DOSSIER)
+		{
+			return String.format("%-22s %s", "Dossier manquant :", this.chemin);
+		}
+		else
+		{
+			return String.format("%-22s %s", "Fichier manquant :", this.chemin);
+		}
+
     }
+
+
+	public String getChemin()
+	{
+		return this.chemin;
+	}
+
+	public TypeElement getType()
+	{
+		return this.type;
+	}
 }
 
