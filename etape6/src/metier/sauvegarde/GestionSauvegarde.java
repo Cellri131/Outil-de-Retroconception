@@ -345,6 +345,7 @@ public class GestionSauvegarde
 		{
 			// Le projet existe : modifier uniquement le fichier de coordonnées
 			sauvegarderCoordProjet(listBlocClasses, nomProjetASauv, cheminProjet);
+			sauvegarderLiaison(listLiaison, nomProjetASauv);
 		} 
 		else 
 		{
@@ -440,7 +441,6 @@ public class GestionSauvegarde
 	*/
 	public void sauvegarderLiaison(List<LiaisonVue> listLiaison, String nomProjet)
 	{
-		
 		Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
 		File file = new File(cheminPath.toString());
 
@@ -455,7 +455,7 @@ public class GestionSauvegarde
 
             int id = 0;
             // Écrire les informations de toutes les liaisons
-            /*for (LiaisonVue liaisonVue : listLiaison) 
+            for (LiaisonVue liaisonVue : listLiaison) 
             {
                 bw.write(liaisonVue.getType() + "\t" + 
                          id + "\t" + 
@@ -469,7 +469,7 @@ public class GestionSauvegarde
                          liaisonVue.getMultDest() );
                 bw.newLine();
                 id++;
-            }*/
+            }
         } 
         catch (Exception e) 
         {
