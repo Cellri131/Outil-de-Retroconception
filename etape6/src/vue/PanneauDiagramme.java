@@ -456,18 +456,19 @@ public class PanneauDiagramme extends JPanel
         }
     }
 
-    public void modifiMultiplicite(String multiModifie, UUID idLiaisonVue)
+    public void modifiMultiplicite(String multiModifie, boolean estOrigine, UUID idLiaison)
     {
         for (LiaisonVue liaisonVue : this.lstLiaisons) 
         {
-            if(liaisonVue.getId().equals(idLiaisonVue))
+            if(liaisonVue.getId().equals(idLiaisonVueOrigine))
             {
-                liaisonVue.setMultOrig(multiModifie);
+                if(estOrigine)
+                    liaisonVue.setMultOrig(multiModifie);
+                else
+                    liaisonVue.setMultDest(multiModifie);
             }
         }
     }
-
-
 
     public List<BlocClasse> getBlocsClasses() {
         return lstBlocsClasses;
