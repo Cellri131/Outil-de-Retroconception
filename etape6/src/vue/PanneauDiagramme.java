@@ -460,7 +460,7 @@ public class PanneauDiagramme extends JPanel
     {
         for (LiaisonVue liaisonVue : this.lstLiaisons) 
         {
-            if(liaisonVue.getId().equals(idLiaisonVueOrigine))
+            if(liaisonVue.getId().equals(idLiaison))
             {
                 if(estOrigine)
                     liaisonVue.setMultOrig(multiModifie);
