@@ -24,7 +24,7 @@ public class FenetreModifRole extends JFrame
         int hauteur = tailleEcran.height;
 
         this.setTitle("Modifier Rôle");
-        this.setSize(350, 120);
+        this.setSize(350, 200);
         this.setLocation(largeur/2, hauteur/2);
 
 

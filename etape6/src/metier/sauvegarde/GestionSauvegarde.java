@@ -27,6 +27,7 @@ public class GestionSauvegarde
 	private  final String SECTION_LIAISONS = "---- Liaisons ----";
 	private  final String COMMENTAIRE      = "#";
 	private  final String SEPARATEUR       = "\t";
+	private  final String VALEUR_VIDE      = "?"; 
 
 	private String      cheminDossier;
 	private Controleur  ctrl;
@@ -102,6 +103,19 @@ public class GestionSauvegarde
 
 				//System.out.println("Ligne analysée : " + typeLiaison + ", orig : " + blocOrig.getNom() + ", dest : " + blocDest.getNom());
 
+				// Récupérer les rôles en convertissant "?" ou espaces en ""
+				String roleOrig = tabLigne[8].trim();
+				if (roleOrig.isEmpty() || roleOrig.equals("?") || roleOrig.isBlank())
+					roleOrig = "";
+
+				String roleDest = tabLigne[9].trim();
+				if (roleDest.isEmpty() || roleDest.equals("?") || roleDest.isBlank())
+					roleDest = "";
+
+				// Multiplicité
+				String multiOrig = tabLigne[10].trim();
+				String multiDest = tabLigne[11].trim();
+				
 				LiaisonVue liaisonVue;
 
 				if(typeLiaison.equals("association_uni") || 
@@ -111,16 +125,16 @@ public class GestionSauvegarde
 					{
 						 liaisonVue = new LiaisonVue(blocOrig, blocDest, "association",
 																	true,
-																	tabLigne[8].trim(),
-																	tabLigne[9].trim()
+																	multiOrig,
+																	multiDest
 																	);
 					}
 					else
 					{
 						 liaisonVue = new LiaisonVue(blocOrig, blocDest, "association",
 																	false,
-																	tabLigne[8].trim(),
-																	tabLigne[9].trim()
+																	multiOrig,
+																	multiDest
 																	);
 	
 					}
@@ -138,6 +152,9 @@ public class GestionSauvegarde
 
 					int numPositionPointOrig = convertirPosition(tabLigne[3].trim());
 					int numPositionPointDest = convertirPosition(tabLigne[6].trim());
+
+					liaisonVue.setRoleOrig(roleOrig.trim());
+					liaisonVue.setRoleDest(roleDest.trim());
 
 					liaisonVue.setSideOrigine(numPositionPointOrig);
 					liaisonVue.setSideDestination(numPositionPointDest);
@@ -394,50 +411,53 @@ public class GestionSauvegarde
 		Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
 		File file       = new File(cheminPath.toString());
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) 
-        {
-            bw.write(this.SECTION_LIAISONS);
-            bw.newLine();
-            bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tblocDest\tcoteDest\tposRelDest\tmultiOrig\tmultiDest");
-            bw.newLine();
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) 
+		{
+			bw.write(this.SECTION_LIAISONS);
+			bw.newLine();
+			bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tblocDest\tcoteDest\tposRelDest\troleOrig\troleDest\tmultiOrig\tmultiDest");
+			bw.newLine();
 
+			int id = 0;
 
-            int id = 0;
-            // Écrire les informations de toutes les liaisons
-            for (LiaisonVue liaisonVue : listLiaison) 
-            {	
+			for (LiaisonVue liaisonVue : listLiaison) 
+			{	
 				String type = liaisonVue.getType();
-				if(type.equals("association"))
+				if (type.equals("association")) 
 				{
-					if(liaisonVue.isUnidirectionnel())
-					{
-						type = type + "_uni";
-					} 
-					else 
-					{
-						type = type + "_bi";
-					}
+					type = liaisonVue.isUnidirectionnel() ? type + "_uni" : type + "_bi";
 				}
-				
-                bw.write(type                                     + this.SEPARATEUR + 
-                         id                                       + this.SEPARATEUR + 
-                         liaisonVue.getBlocOrigine().getNom()     + this.SEPARATEUR + 
-                         liaisonVue.getSideOrig()                 + this.SEPARATEUR + 
-                         liaisonVue.getNivOrig()                  + this.SEPARATEUR + 
-                         liaisonVue.getBlocDestination().getNom() + this.SEPARATEUR + 
-                         liaisonVue.getSideDest()                 + this.SEPARATEUR + 
-                         liaisonVue.getNivDest()                  + this.SEPARATEUR +
-						 liaisonVue.getMultOrig()                 + this.SEPARATEUR + 
-                         liaisonVue.getMultDest() );
-                bw.newLine();
-                id++;
-            }
-        } 
-        catch (Exception e) 
-        {
-            e.printStackTrace();
-        }
-    }
+
+				// Rôles et multiplicité avec trim + valeur par défaut
+				String roleOrig  = (liaisonVue.getRoleOrig()  == null || liaisonVue.getRoleOrig().trim().isEmpty())  ? VALEUR_VIDE : liaisonVue.getRoleOrig().trim();
+				String roleDest  = (liaisonVue.getRoleDest()  == null || liaisonVue.getRoleDest().trim().isEmpty())  ? VALEUR_VIDE : liaisonVue.getRoleDest().trim();
+				String multOrig  = (liaisonVue.getMultOrig()  == null || liaisonVue.getMultOrig().trim().isEmpty())  ? VALEUR_VIDE : liaisonVue.getMultOrig().trim();
+				String multDest  = (liaisonVue.getMultDest()  == null || liaisonVue.getMultDest().trim().isEmpty())  ? VALEUR_VIDE : liaisonVue.getMultDest().trim();
+
+				// Écriture dans le fichier
+				bw.write(
+					type                                     + this.SEPARATEUR +
+					id                                       + this.SEPARATEUR +
+					liaisonVue.getBlocOrigine().getNom()     + this.SEPARATEUR +
+					liaisonVue.getSideOrig()                 + this.SEPARATEUR +
+					liaisonVue.getNivOrig()                  + this.SEPARATEUR +
+					liaisonVue.getBlocDestination().getNom() + this.SEPARATEUR +
+					liaisonVue.getSideDest()                 + this.SEPARATEUR +
+					liaisonVue.getNivDest()                  + this.SEPARATEUR +
+					roleOrig                                 + this.SEPARATEUR +
+					roleDest                                 + this.SEPARATEUR +
+					multOrig                                 + this.SEPARATEUR +
+					multDest
+				);
+				bw.newLine();
+				id++;
+			}
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+	}
 
 	public boolean fichierDeSauvegardeExiste(String nomIntitule) 
 	{

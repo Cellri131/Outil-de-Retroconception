@@ -141,7 +141,7 @@ public class PanneauDiagramme extends JPanel
         for (LiaisonVue liaison : lstLiaisons)
             liaison.setTousLesBlocs(lstBlocsClasses);
 
-        repaint();
+        rafraichirDiagramme();
     }
 
     private void ajouterListenersInteraction()
@@ -174,11 +174,8 @@ public class PanneauDiagramme extends JPanel
                 // Clic-droit : affichage plein écran d'une classe ou pan
                 if (e.getButton() == MouseEvent.BUTTON3 )
                 {
-                   // System.out.println("Le clic droit a été cliqué");
-                    // Chercher si on clique sur un bloc
                    PanneauDiagramme.this.blocClique = null;
                    boolean blocValide = false;
-
 
                     for (BlocClasse bloc : lstBlocsClasses) 
                     {
@@ -186,7 +183,6 @@ public class PanneauDiagramme extends JPanel
                         {
                             PanneauDiagramme.this.blocClique = bloc;
                             blocValide = true;
-                            //System.out.println("Bloc cliqué : " + bloc.getNom());
                             break;
                         }
 
@@ -375,7 +371,7 @@ public class PanneauDiagramme extends JPanel
         organiserEnGrille();
 
         // Étape 4 : Redessiner
-        repaint();
+        rafraichirDiagramme();
 
         //System.out.println("Opti pos réalisée");
     }
@@ -394,7 +390,7 @@ public class PanneauDiagramme extends JPanel
             liaison.recalculerAncrages();
 
         // Redessiner
-        repaint();
+        rafraichirDiagramme();
     }
 
     /**
@@ -595,8 +591,23 @@ public class PanneauDiagramme extends JPanel
 		}
 	}
 
+    /**
+     * Force un rafraîchissement complet du diagramme.
+     * À appeler après toute modification du modèle.
+     */
+    public void rafraichirDiagramme()
+    {
+        revalidate();
+        repaint();
+        requestFocusInWindow();
+    }
+
     public UUID getIdLiaison(){
         return idLiaison;
+    }
+
+    public List<LiaisonVue> getLstLiaisons() {
+        return lstLiaisons;
     }
 
     public boolean isOrigineLiaison(){
@@ -605,6 +616,11 @@ public class PanneauDiagramme extends JPanel
 
     public List<BlocClasse> getBlocsClasses() {
         return lstBlocsClasses;
+    }
+
+
+    public BlocClasse getBlocClique() {
+        return blocClique;
     }
 
     public String getCheminProjetCourant() {
