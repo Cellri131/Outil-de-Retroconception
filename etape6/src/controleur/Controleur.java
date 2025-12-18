@@ -47,9 +47,9 @@ public class Controleur
     //----------------------//
 
     /**
-    * Charge un projet de classes .java pour convertir son contenu en liste de BlocClasse.
+    * Charge un projet pour convertir son contenu en liste de BlocClasses, et liste de LiaisonVue qui sont ensuite stockées dans Controleur.
+	* La liste de liaisonVue et BlocClasse peuvent être récupérées avec getLiaisons et getBlocClasses
     * @param cheminProjet Le chemin du projet
-    * @return La liste des BlocClasse generés
     */
     public void chargerProjet(String cheminProjet) 
     {
@@ -64,7 +64,7 @@ public class Controleur
             System.out.println("--- Le projet est sauvegardé. Chargement complet depuis " + intituleProjet + ".xml ---");
             chargerProjetDepuisXml(intituleProjet);
         } 
-        else 
+        else
         {
             System.out.println("--- Le projet n'est pas sauvegardé. On charge depuis ce chemin : " + cheminProjet + " ---");
             chargerProjetDepuisJava(cheminProjet);
@@ -72,6 +72,10 @@ public class Controleur
         }
     }
 
+    /**
+    * Charge un projet .xml pour convertir son contenu en liste de BlocClasses, et liste de LiaisonVue qui sont ensuite stockées dans Controleur.
+    * @param intituleProjet L'intitulé du projet
+    */
     public void chargerProjetDepuisXml(String intituleProjet) 
     {
         String cheminProjet = gestionSauvegarde.getLienFromIntitule(intituleProjet);
@@ -84,9 +88,12 @@ public class Controleur
         this.lstLiaisons = gestionSauvegarde.lectureLiaison(cheminProjet, blocsCharges);
     }
 
+    /**
+    * Charge un projet de classes .java pour convertir son contenu en liste de BlocClasses, et liste de LiaisonVue qui sont ensuite stockées dans Controleur.
+    * @param cheminProjet Le chemin du projet
+    */
     public void chargerProjetDepuisJava(String cheminProjet)
     {
-        System.out.println("CHEMIN PROJET : " + cheminProjet);
         lecture = new Lecture(cheminProjet);
 
         // hasmap pour associer les noms de classes aux blocs
@@ -217,7 +224,7 @@ public class Controleur
     }
 
     /**
-    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Association}s
+    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Association}s, depuis les .java
     * @param lstAssoc La list d'{@link Association}s sur laquelle baser les lstLiaisons
     * @param mapBlocsParNom {@link HashMap<String, BlocClasse>} de String, BlocClasse avec le nom de chaque bloc et chaque bloc
     */
@@ -241,7 +248,7 @@ public class Controleur
     }
 
     /**
-    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Heritage}s
+    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Heritage}s, depuis les .java
     * @param lstAssoc La list d'{@link Heritage}s sur laquelle baser les lstLiaisons
     * @param mapBlocsParNom {@link HashMap<String, BlocClasse>} de String, BlocClasse avec le nom de chaque bloc et chaque bloc
     */
@@ -262,7 +269,7 @@ public class Controleur
     }
 
     /**
-    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Interface}s
+    * Ajoute des liasons à lstLiaisons en se basant sur une liste d'{@link Interface}s, depuis les .java
     * @param lstAssoc La list d'{@link Interface}s sur laquelle baser les lstLiaisons
     * @param mapBlocsParNom {@link HashMap<String, BlocClasse>} de String, BlocClasse avec le nom de chaque bloc et chaque bloc
     */
