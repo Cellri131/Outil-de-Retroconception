@@ -39,7 +39,7 @@ public class GestionSauvegarde
 	
 	public GestionSauvegarde(Controleur ctrl) 
 	{
-		this.ctrl            = ctrl;
+		this.ctrl = ctrl;
 	}
 
 	//----------------------//
@@ -48,9 +48,9 @@ public class GestionSauvegarde
 
 	private boolean ligneIgnorable(String ligne) 
 	{
-		return ligne == null       ||
-			ligne.trim().isEmpty() ||
-			ligne.trim().startsWith(this.COMMENTAIRE);
+		return ligne == null           ||
+			   ligne.trim().isEmpty()  ||
+			   ligne.trim().startsWith(this.COMMENTAIRE);
 	}
 
 	/**
