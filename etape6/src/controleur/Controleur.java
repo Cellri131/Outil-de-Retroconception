@@ -23,8 +23,8 @@ public class Controleur
     private FenetrePrincipale   fenetrePrincipale;
     private GestionSauvegarde   gestionSauvegarde;
 
-    private List<LiaisonVue> lstLiaisons;
-    private List<BlocClasse> lstBlocs   ;
+    private List<LiaisonVue>    lstLiaisons;
+    private List<BlocClasse>    lstBlocs   ;
 
     //-------------------------//
     //      CONSTRUCTEUR       //
@@ -55,7 +55,6 @@ public class Controleur
     {
         lstBlocs.   clear();
         lstLiaisons.clear();
-
         // Test si le projet est déjà présent dans les sauvegardes .xml
         String intituleProjet = gestionSauvegarde.getIntituleFromLien(cheminProjet);
         if (gestionSauvegarde.projetEstSauvegarde(cheminProjet) && 
