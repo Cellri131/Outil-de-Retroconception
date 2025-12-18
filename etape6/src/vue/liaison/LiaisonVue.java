@@ -13,7 +13,8 @@ import vue.BlocClasse;
  * Refactorisée avec délégation aux classes helper
  * @author Jules
  */
-public class LiaisonVue {
+public class LiaisonVue 
+{
 
     //Identifie la liaison vue de maniére unique
     private final UUID id;
