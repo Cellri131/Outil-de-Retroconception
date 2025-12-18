@@ -3,8 +3,10 @@ package vue.liaison;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import vue.BlocClasse;
+
 
 /**
  * Classe qui gère l'affichage visuel des liens entre 2 {@link BlocClasse}s

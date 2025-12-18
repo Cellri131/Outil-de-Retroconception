@@ -1,14 +1,14 @@
 package vue;
 
+import java.util.UUID;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-
 import vue.liaison.LiaisonVue;
 
-public class PanneauDiagramme extends JPanel
+public class PanneauDiagramme extends JPanel 
 {
     //--------------------------//
     //        ATTRIBUTS         //
@@ -46,6 +46,12 @@ public class PanneauDiagramme extends JPanel
     private BlocClasse          blocPleinEcranTemporaire = null;
 
 
+    private JPopupMenu          menuModif; 
+    private JMenuItem menuChangerMultiplicite;
+
+    ;
+
+
     //-------------------------//
     //      CONSTRUCTEUR       //
     //-------------------------//
@@ -57,6 +63,18 @@ public class PanneauDiagramme extends JPanel
         this.cheminProjetCourant    = null             ;
         this.fenetrePrincipale      = fenetrePrincipale;
 
+        this.menuModif                = new JPopupMenu();
+
+        this.menuChangerMultiplicite      = new JMenuItem("Changer la multiplicité");
+
+       
+
+        this.menuChangerMultiplicite.addActionListener(ActionEvent -> {
+            FenetreChangementMultiplicite fenetreChangementMultiplicite = new FenetreChangementMultiplicite();
+            fenetreChangementMultiplicite.setVisible(true);
+        });
+
+        this.menuModif.add(this.menuChangerMultiplicite);
         setLayout(null);
         setBackground(new Color(255, 255, 255));
         setBorder(BorderFactory.createTitledBorder("Diagramme UML"));
@@ -120,8 +138,9 @@ public class PanneauDiagramme extends JPanel
                 double logicalY = (e.getY() - panOffsetY - getHeight() / 2) / zoomLevel + getHeight() / (2 * zoomLevel);
 
                 // Clic-droit : affichage plein écran d'une classe ou pan
-                if (e.getButton() == MouseEvent.BUTTON3)
+                if (e.getButton() == MouseEvent.BUTTON3 )
                 {
+                   // System.out.println("Le clic droit a été cliqué");
                     // Chercher si on clique sur un bloc
                     BlocClasse blocClique = null;
                     for (BlocClasse bloc : blocsClasses)
@@ -129,10 +148,20 @@ public class PanneauDiagramme extends JPanel
                         if (bloc.contient((int) logicalX, (int) logicalY))
                         {
                             blocClique = bloc;
+                            blocValide = true;
+                            System.out.println("Bloc cliqué : " + bloc.getNom());
                             break;
                         }
+
                     }
-                    
+
+
+                if(e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 2)
+                {
+                    if (blocValide)
+                    //System.out.println("Double clique droit effectué");
+                        PanneauDiagramme.this.menuModif.show(e.getComponent(), e.getX(), e.getY());
+                }   
                     // Si on clique sur un bloc, activer l'affichage plein écran temporairement
                     if (blocClique != null)
                     {
@@ -280,6 +309,8 @@ public class PanneauDiagramme extends JPanel
                     repaint();
                 }
             }
+
+            
         });
 
         // Listener pour la molette de souris (zoom)
@@ -458,9 +489,7 @@ public class PanneauDiagramme extends JPanel
         // Dessiner les blocs
         for (BlocClasse bloc : blocsClasses)
             bloc.dessiner(g2d, this.afficherAttributs, this.afficherMethodes);
-
         // Afficher le pourcentage de zoom
-        afficherZoomPercentage(g2d);
     }
 
     private void afficherZoomPercentage(Graphics2D g2d)

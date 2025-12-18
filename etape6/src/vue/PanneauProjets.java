@@ -170,7 +170,7 @@ public class PanneauProjets extends JPanel
         {
             try 
             {
-                fenetrePrincipale.chargerProjet(projet.getAbsolutePath());
+                fenetrePrincipale.ouvrirProjet(projet.getAbsolutePath());
             }
             catch (Exception ex)
             {
