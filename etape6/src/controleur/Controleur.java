@@ -37,10 +37,10 @@ public class Controleur
     public Controleur(FenetrePrincipale fenetrePrincipale) 
     {
         this.fenetrePrincipale  = fenetrePrincipale;
-        this.lstLiaisons        = new ArrayList<>();
+        this.lstLiaisons        = new ArrayList<LiaisonVue>();
         this.gestionSauvegarde  = new GestionSauvegarde(this);
 
-        this.lstBlocs           = new ArrayList<>();
+        this.lstBlocs           = new ArrayList<BlocClasse>();
     }
 
     //----------------------//
@@ -106,8 +106,8 @@ public class Controleur
                     posX += 250;
                     if (posX > 1000) 
                     {
-                        posX    = 50;
-                        posY    += 200;
+                        posX  = 50 ;
+                        posY += 200;
                     }
                 }
             }
@@ -119,7 +119,6 @@ public class Controleur
 
             this.lstLiaisons = creerLiaisonsDepuisInterface    (lecture.getLstInterface(), mapBlocsParNom, this.lstLiaisons);
         }
-            
 
         fenetrePrincipale.optimiserPositionsClasses();
 
@@ -141,13 +140,15 @@ public class Controleur
         bloc.setInterface(classe.isInterface());
 
         // Traitement de la liste des attributs
-        List<String> attributsStr = new ArrayList<>();
-        for (Attribut att : classe.getLstAttribut()) {
+        List<String> attributsStr = new ArrayList<String>();
+        for (Attribut att : classe.getLstAttribut())
+        {
             String sRet;
 
             String visibilite = att.getVisibilite();
 
-            switch (visibilite) {
+            switch (visibilite)
+            {
                 case "public" -> visibilite = "+";
                 case "private" -> visibilite = "-";
                 case "package" -> visibilite = "#";
@@ -160,11 +161,11 @@ public class Controleur
             
             sRet += att.getType();
 
-            if (att.isConstant()) {
+            if (att.isConstant())
                 sRet += " {frozen}";
-            }
 
-            if (att.getPortee().equals("classe")) {
+            if (att.getPortee().equals("classe"))
+            {
                 // Pour souligner
                 sRet = "\u001B[4m" + sRet + "\u001B[0m";
             }
@@ -173,12 +174,13 @@ public class Controleur
         }
 
         // Traitement de la liste des méthodes
-        List<String> methodesStr = new ArrayList<>();
+        List<String> methodesStr = new ArrayList<String>();
         for (Methode met : classe.getLstMethode()) 
         {
             String visibilite = met.getVisibilite();
 
-            switch (visibilite) {
+            switch (visibilite)
+            {
                 case "public" -> visibilite = "+";
                 case "private" -> visibilite = "-";
                 case "package" -> visibilite = "#";
@@ -186,16 +188,20 @@ public class Controleur
             }
 
             String nomMet = met.getNomMethode();
-            String retour = met.getRetour();
+            String retour = met.getRetour    ();
             
             // Construire les paramètres
             StringBuilder parametres = new StringBuilder("(");
             List<Parametre> lstParam = met.getLstParametre();
-            if (lstParam != null && !lstParam.isEmpty()) {
-                for (int i = 0; i < lstParam.size(); i++) {
+            if (lstParam != null && !lstParam.isEmpty())
+            {
+                for (int i = 0; i < lstParam.size(); i++)
+                {
                     Parametre param = lstParam.get(i);
                     parametres.append(param.getNomPara()).append(": ").append(param.getTypePara());
-                    if (i < lstParam.size() - 1) {
+
+                    if (i < lstParam.size() - 1)
+                    {
                         parametres.append(", ");
                     }
                 }
@@ -206,7 +212,7 @@ public class Controleur
         }
 
         bloc.setAttributsAffichage(attributsStr);
-        bloc.setMethodesAffichage(methodesStr);
+        bloc.setMethodesAffichage (methodesStr );
 
         return bloc;
     }
@@ -222,7 +228,8 @@ public class Controleur
         {
             String multOrig = (assoc.getMultOrig() != null) ? assoc.getMultOrig().toString() : "";
             String multDest = (assoc.getMultDest() != null) ? assoc.getMultDest().toString() : "";
-            BlocClasse blocOrigine = mapBlocsParNom.get(assoc.getClasseOrig().getNom());
+
+            BlocClasse blocOrigine     = mapBlocsParNom.get(assoc.getClasseOrig().getNom());
             BlocClasse blocDestination = mapBlocsParNom.get(assoc.getClasseDest().getNom());
 
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "association", assoc.isUnidirectionnel(),
@@ -263,7 +270,7 @@ public class Controleur
 
         for (Interface inter : lstInter) 
         {
-            BlocClasse blocOrigine = mapBlocsParNom.get(inter.getClasseOrig().getNom());
+            BlocClasse blocOrigine     = mapBlocsParNom.get(inter.getClasseOrig().getNom());
             BlocClasse blocDestination = mapBlocsParNom.get(inter.getClasseDest().getNom());
 
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "interface");
@@ -275,12 +282,13 @@ public class Controleur
     }
 
 
-    public void sauvegardeProjetXml(String cheminFichier){
+    public void sauvegardeProjetXml(String cheminFichier)
+    {
         this.gestionSauvegarde.sauvegardeProjetXml(cheminFichier);
     }
 
-
-    public void sauvegarderClasses(List<BlocClasse> listBlocClasses, List <LiaisonVue> listLiaison, String cheminProjet) {
+    public void sauvegarderClasses(List<BlocClasse> listBlocClasses, List <LiaisonVue> listLiaison, String cheminProjet)
+    {
         gestionSauvegarde.sauvegarderClasses(listBlocClasses, listLiaison, cheminProjet);
     }
 
@@ -293,10 +301,7 @@ public class Controleur
     //  GETTERS  //
     //-----------//
 
-    public List<LiaisonVue> getLiaisons() 
-    {
-        return lstLiaisons;
-    }
+    public List<LiaisonVue> getLiaisons() { return lstLiaisons; }
 
     public ArrayList<String> getLstFichiersInvalides(String cheminDossier)
     {

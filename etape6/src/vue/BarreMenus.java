@@ -20,11 +20,11 @@ public class BarreMenus extends JMenuBar
     //       ATTRIBUTS        //
     //------------------------//
 
-    private FenetrePrincipale fenetrePrincipale;
+    private FenetrePrincipale fenetrePrincipale    ;
 
     private JCheckBoxMenuItem afficherAttributsItem;
-    private JCheckBoxMenuItem afficherMethodesItem;
-    private JCheckBoxMenuItem sauvegardeAutoItem;
+    private JCheckBoxMenuItem afficherMethodesItem ;
+    private JCheckBoxMenuItem sauvegardeAutoItem   ;
     
     //-------------------------//
     //      CONSTRUCTEUR       //
@@ -83,10 +83,10 @@ public class BarreMenus extends JMenuBar
         JMenuItem optimiserItem         = new JMenuItem("Optimiser les positions");
         JMenuItem optimiserLiaisonsItem = new JMenuItem("Optimiser les liaisons uniquement");
 
-        afficherAttributsItem.  addActionListener(e -> actionAffichageAttributs());
-        afficherMethodesItem.   addActionListener(e -> actionAffichageMethodes());
-        optimiserItem.          addActionListener(e -> actionOptimiser());
-        optimiserLiaisonsItem.  addActionListener(e -> actionOptimiserLiaisons());
+        afficherAttributsItem. addActionListener(e -> actionAffichageAttributs());
+        afficherMethodesItem.  addActionListener(e -> actionAffichageMethodes ());
+        optimiserItem.         addActionListener(e -> actionOptimiser         ());
+        optimiserLiaisonsItem. addActionListener(e -> actionOptimiserLiaisons ());
 
         menu.add(afficherAttributsItem);
         menu.add(afficherMethodesItem);
