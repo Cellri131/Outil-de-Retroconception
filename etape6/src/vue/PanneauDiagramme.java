@@ -98,10 +98,15 @@ public class PanneauDiagramme extends JPanel
         this.blocsClasses.clear();
         this.liaisons    .clear();
 
-        List<BlocClasse> blocCharges = fenetrePrincipale.chargerProjetEnBlocsClasses(cheminProjet);
+        // Dans cette étape, le chargement se fait via la fenêtre principale
+        // qui délègue au contrôleur. Après l'appel, récupérer les blocs
+        // et les liaisons depuis la fenetre.
+        fenetrePrincipale.chargerProjet(cheminProjet);
 
-        blocsClasses.addAll(blocCharges                    );
-        liaisons    .addAll(fenetrePrincipale.getLiaisons());
+        List<BlocClasse> blocCharges = fenetrePrincipale.getBlocClasses();
+
+        blocsClasses.addAll(blocCharges);
+        liaisons.addAll(fenetrePrincipale.getLiaisons());
 
         // Passer la liste des blocs à toutes les liaisons pour le contournement
         for (LiaisonVue liaison : liaisons)
@@ -148,20 +153,17 @@ public class PanneauDiagramme extends JPanel
                         if (bloc.contient((int) logicalX, (int) logicalY))
                         {
                             blocClique = bloc;
-                            blocValide = true;
                             System.out.println("Bloc cliqué : " + bloc.getNom());
                             break;
                         }
 
                     }
 
-
-                if(e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 2)
-                {
-                    if (blocValide)
-                    //System.out.println("Double clique droit effectué");
+                    // Double-clic droit sur un bloc : afficher le menu contextuel
+                    if (e.getClickCount() == 2 && blocClique != null)
+                    {
                         PanneauDiagramme.this.menuModif.show(e.getComponent(), e.getX(), e.getY());
-                }   
+                    }
                     // Si on clique sur un bloc, activer l'affichage plein écran temporairement
                     if (blocClique != null)
                     {
