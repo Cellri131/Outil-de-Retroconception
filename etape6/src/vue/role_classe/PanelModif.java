@@ -1,4 +1,4 @@
-package vue ;
+package vue.role_classe;
 
 import java.awt.GridLayout;
 import java.util.List;
@@ -34,7 +34,6 @@ public class PanelModif extends JPanel implements ListSelectionListener, ActionL
     private JList<String>    listeLiaisonsIHM;
     private List<LiaisonVue> listeLiaisons;
 
-    
 
     public PanelModif()
     {

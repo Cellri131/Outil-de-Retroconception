@@ -65,8 +65,8 @@ public class LiaisonVue
         this.multDest        = multDest;
 
         this.id       = UUID.randomUUID();
-        this.roleOrig = "Bonjour";//!!!!!!!!!!!!!!!!!!!!!!!!!!
-        this.roleDest = "orevoir";
+        this.roleOrig = "";//!!!!!!!!!!!!!!!!!!!!!!!!!!
+        this.roleDest = "";
 
         
         initializeHelpers();
@@ -379,9 +379,13 @@ public class LiaisonVue
                 g.drawString(multDest, pos.x, pos.y);
             }
 
+            //System.out.println("je suis dans liaison vue AVANT la condition if dans ASSOCIATION ");
+                System.out.println(this.roleOrig);
 			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             if (roleOrig != null && !roleOrig.isEmpty()) 
 			{
+                //System.out.println("je suis dans liaison vue dans la condition ASSOCIATION ORIGIN");
+                System.out.println(this.roleOrig);
 				Point pos = GestionnaireAncrage.calculateRolePosition(
 					ancrageOrigine,
 					sideOrigine,
@@ -394,6 +398,8 @@ public class LiaisonVue
 			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			if (roleDest != null && !roleDest.isEmpty()) 
 			{
+                //System.out.println("je suis dans liaison vue dans la condition ASSOCIATION DEST");
+                System.out.println(this.roleDest);
 				Point pos = GestionnaireAncrage.calculateRolePosition(
 					ancrageDestination,
 					sideDestination,

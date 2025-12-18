@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 # Compiler tous les fichiers Java avec les packages
 echo "Compilation du projet..."
-javac -d bin src/metier/lecture/*.java src/metier/objet/*.java src/metier/sauvegarde/*.java src/controleur/*.java src/vue/*.java src/metier/util/*.java src/vue/liaison/*.java src/metier/util/test_structure_projet/*.java
+javac -d bin src/metier/lecture/*.java src/metier/objet/*.java src/metier/sauvegarde/*.java src/controleur/*.java src/vue/*.java src/metier/util/*.java src/vue/liaison/*.java src/vue/role_classe/*.java src/metier/util/test_structure_projet/*.java
 if [ $? -ne 0 ]; then
     echo
     echo "✗ Erreur de compilation"

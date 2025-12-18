@@ -1,5 +1,6 @@
 package vue;
 
+import vue.role_classe.*;
 import java.util.UUID;
 import java.awt.*;
 import java.awt.event.*;
@@ -45,11 +46,16 @@ public class PanneauDiagramme extends JPanel
     private boolean             isPanning = false;
     private BlocClasse          blocPleinEcranTemporaire = null;
 
+	// Pour modification des rôles 
+	private BlocClasse          blocClique;
+    private UUID                idLiaison;
+	private boolean             estOrigineLiaison = true;   
+
 
     private JPopupMenu          menuModif; 
-    private JMenuItem menuChangerMultiplicite;
+    private JMenuItem           menuChangerMultiplicite;
+	private JMenuItem           menuModifRole;
 
-    ;
 
 
     //-------------------------//
@@ -60,13 +66,12 @@ public class PanneauDiagramme extends JPanel
     {
         this.lstBlocsClasses           = new ArrayList<>();
         this.lstLiaisons               = new ArrayList<>();
-        this.cheminProjetCourant    = null;
-        this.fenetrePrincipale      = fenetrePrincipale;
+        this.cheminProjetCourant       = null;
+        this.fenetrePrincipale         = fenetrePrincipale;
 
-        this.menuModif                = new JPopupMenu();
-
-        this.menuChangerMultiplicite      = new JMenuItem("Changer la multiplicité");
-
+        this.menuModif                    = new JPopupMenu();
+        this.menuChangerMultiplicite      = new JMenuItem("Modifier multiplicité");
+		this.menuModifRole                = new JMenuItem("Modifier Role");
        
 
         this.menuChangerMultiplicite.addActionListener(ActionEvent -> {
@@ -74,7 +79,32 @@ public class PanneauDiagramme extends JPanel
             fenetreChangementMultiplicite.setVisible(true);
         });
 
+		this.menuModifRole.addActionListener(ActionEvent -> 
+		{
+            FenetreModifRole fenetreModifRole = new FenetreModifRole(this);
+            fenetreModifRole.setVisible(true);
+
+			System.out.println("je suis dans le listener de diagramme");
+            for (LiaisonVue liaisonVue : lstLiaisons)
+            {
+                if (liaisonVue.getBlocOrigine().equals(PanneauDiagramme.this.blocClique))
+                {
+                    this.idLiaison = liaisonVue.getId();
+                    this.estOrigineLiaison = true;
+
+                    break;
+                }
+                else if (liaisonVue.getBlocDestination().equals(PanneauDiagramme.this.blocClique))
+                {
+                    this.idLiaison = liaisonVue.getId();
+                    this.estOrigineLiaison = false;
+                    break;
+                }
+            }
+        });
+
         this.menuModif.add(this.menuChangerMultiplicite);
+		this.menuModif.add(this.menuModifRole);
         setLayout(null);
         setBackground(new Color(255, 255, 255));
         setBorder(BorderFactory.createTitledBorder("Diagramme UML"));
@@ -139,12 +169,14 @@ public class PanneauDiagramme extends JPanel
                 {
                    // System.out.println("Le clic droit a été cliqué");
                     // Chercher si on clique sur un bloc
-                    BlocClasse blocClique = null;
+                   PanneauDiagramme.this.blocClique = null;
 
-                    for (BlocClasse bloc : lstBlocsClasses) {
-                        if (bloc.contient((int) logicalX, (int) logicalY)) {
 
-                            blocClique = bloc;
+                    for (BlocClasse bloc : lstBlocsClasses) 
+                    {
+                        if (bloc.contient((int) logicalX, (int) logicalY)) 
+                        {
+                            PanneauDiagramme.this.blocClique = bloc;
                             blocValide = true;
                             System.out.println("Bloc cliqué : " + bloc.getNom());
                             break;
@@ -160,13 +192,6 @@ public class PanneauDiagramme extends JPanel
                         PanneauDiagramme.this.menuModif.show(e.getComponent(), e.getX(), e.getY());
                 }
 
-                    
-
-                
-                
-
-
-                    
                     // Si on clique sur un bloc, activer l'affichage plein écran temporairement
                     if (blocClique != null) {
                         blocPleinEcranTemporaire = blocClique;
@@ -524,20 +549,32 @@ public class PanneauDiagramme extends JPanel
 
     }
 
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	public void modifierRole(UUID id, String roleOrig, String roleDest) 
+	public void modifierRole(UUID id, boolean estOrigine, String role) 
 	{
 		for (LiaisonVue lv : lstLiaisons) 
 		{
-			if (lv.getId().equals(id)) 
+			if (lv.getId().equals(id))
 			{
-				lv.setRoleOrig(roleOrig);
-				lv.setRoleDest(roleDest);
+				if(estOrigine)
+                {
+					lv.setRoleOrig(role);
+                }
+				else
+                {
+					lv.setRoleDest(role);
+                }
 				return;
 			}
 		}
 	}
 
+    public UUID getIdLiaison(){
+        return idLiaison;
+    }
+
+    public boolean isOrigineLiaison(){
+        return estOrigineLiaison;
+    }
 
     public List<BlocClasse> getBlocsClasses() {
         return lstBlocsClasses;
