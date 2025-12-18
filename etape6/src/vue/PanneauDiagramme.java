@@ -344,7 +344,7 @@ public class PanneauDiagramme extends JPanel
         // Étape 4 : Redessiner
         repaint();
 
-        System.out.println("Opti pos réalisée");
+        //System.out.println("Opti pos réalisée");
     }
 
     public void optimiserPositionsLiaisons()
