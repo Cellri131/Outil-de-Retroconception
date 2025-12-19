@@ -89,7 +89,7 @@ public class PanneauDiagramme extends JPanel
         // Création du menu contextuel
         this.menuModif                    = new JPopupMenu();
         this.menuChangerMultiplicite      = new JMenuItem("Modifier multiplicité");
-		this.menuModifRole                = new JMenuItem("Modifier Role");
+		this.menuModifRole                = new JMenuItem("Modifier rôle");
        
         // Action du menu double clic gauche pour changer multiplicité
         this.menuChangerMultiplicite.addActionListener(ActionEvent -> {
