@@ -7,7 +7,7 @@
 ./run.sh
 
 ### Compiler uniquement
-javac -d bin @compile.list
+javac -d class @compile.list
 
 ### Exécuter uniquement
-java -cp bin vue.FenetrePrincipale 
+java -cp class controleur.Controleur
