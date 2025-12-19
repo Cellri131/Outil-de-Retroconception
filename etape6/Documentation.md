@@ -32,8 +32,7 @@
 - Optimiser les liaisons seulement (Affichage -> Optimiser les liaisons uniquement)
 - Avoir les détails des auteurs (Aide -> A propos)
 
-La liste des projets sauvegardés et leur position est sauvegardée dans le fichier data/projets.xml sous la forme : 
-<chemin absolu> (tabulation) <chemin avec le ficher de sauvegarde du projet en question>
+La liste des projets sauvegardés et leur position est sauvegardée dans le fichier data/projets.xml sous la forme : «chemin absolu» (tabulation) «chemin avec le ficher de sauvegarde du projet en question»
 Les diagrammes sont sauvegardés dans data/sauvegarde/ avec toutes les informations relatives aux classes et leurs liaisons.
 Les données des diagrammes peuvent être changées directement sur les fichiers .xml dans data, via un éditeur de texte.
 
