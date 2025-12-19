@@ -19,10 +19,10 @@ public class Lecture
 
 	public Lecture(String cheminFichier)
 	{
-		this.hashMapClasses       = new HashMap  <String, Classe>();
-		this.lstHeritage          = new ArrayList<Heritage      >();
-		this.lstAssociations      = new ArrayList<Association   >();
-		this.lstInterface         = new ArrayList<Interface     >();
+		this.hashMapClasses  = new HashMap  <String, Classe>();
+		this.lstHeritage     = new ArrayList<Heritage      >();
+		this.lstAssociations = new ArrayList<Association   >();
+		this.lstInterface    = new ArrayList<Interface     >();
 
 		analyserFichier (cheminFichier);
 
@@ -118,12 +118,7 @@ public class Lecture
 	 */
 	private Classe getClasse(String nomFichier)
 	{
-		for (Classe classe : hashMapClasses.values())
-		{
-			if (classe.getNom().equals(nomFichier))
-				return classe;
-		}
-		return null;
+		return this.hashMapClasses.get(nomFichier);
 	}
 
 	// ========== Getters ==========
@@ -149,7 +144,7 @@ public class Lecture
                 if (file.isFile() && !file.getName().endsWith(".java"))
                 {
                     lstFichiersInvalides.add(file.getName());
-                }
+				}
             }
         }
 
