@@ -30,15 +30,43 @@ public class BarreMenus extends JMenuBar
     //      CONSTRUCTEUR       //
     //-------------------------//
     
-    public BarreMenus(FenetrePrincipale fenetrePrincipale) 
-    {
-        add(creerMenuFichier  ());
-        //add(creerMenuEdition());
-        add(creerMenuAffichage());
-        add(creerMenuAide     ());
+	public BarreMenus(FenetrePrincipale fenetrePrincipale) 
+	{
+		this.fenetrePrincipale = fenetrePrincipale;
 
-        this.fenetrePrincipale = fenetrePrincipale;
-    }
+		// Couleur de fond de la barre (bleu nuit)
+		setBackground(new java.awt.Color(15, 15, 70));
+		setOpaque(true);
+
+		// Création des menus
+		JMenu menuFichier   = creerMenuFichier();
+		JMenu menuAffichage = creerMenuAffichage();
+		JMenu menuAide      = creerMenuAide();
+
+		// Style des menus principaux
+		JMenu[] menus = {menuFichier, menuAffichage, menuAide};
+		for(JMenu menu : menus) {
+			menu.setOpaque(true);
+			menu.setBackground(new java.awt.Color(40, 40, 120)); // bleu plus clair pour le menu
+			menu.setForeground(java.awt.Color.WHITE);
+
+			// Style des items visibles sur la barre (mais pas déroulants)
+			menu.setUI(new javax.swing.plaf.basic.BasicMenuUI() {
+				@Override
+				public void installDefaults() {
+					super.installDefaults();
+					menuItem.setBackground(new java.awt.Color(60, 100, 200)); // bleu doux
+					menuItem.setForeground(java.awt.Color.WHITE);
+				}
+			});
+
+			add(menu);
+		}
+	}
+
+
+
+
 
     //----------------------//
     //      METHODES        //
@@ -190,37 +218,37 @@ public class BarreMenus extends JMenuBar
         this.fenetrePrincipale.actionSauvegarder();
     }
 
-private void actionAPropos()
-{
-    String htmlMessage =
-        "<html>"
-      + "<body style='font-family:Arial; font-size:12pt;'>"
+	private void actionAPropos()
+	{
+		String htmlMessage =
+			"<html>"
+		+ "<body style='font-family:Arial; font-size:12pt;'>"
 
-      + "<div style='text-align:center; font-weight:bold; font-size:14pt;'>"
-      + "Modélisation UML – Générateur de Diagrammes"
-      + "</div>"
+		+ "<div style='text-align:center; font-weight:bold; font-size:14pt;'>"
+		+ "Modélisation UML – Générateur de Diagrammes"
+		+ "</div>"
 
-      + "<hr><br>"
+		+ "<hr><br>"
 
-      + "<div style='color:#DC143C;'><u>AUTEURS</u> :</div><br>"
+		+ "<div style='color:#DC143C;'><u>AUTEURS</u> :</div><br>"
 
-      + "<pre style='color:#228B22;'>Hugo     VARAO GOMES DA SILVA</pre>"
-      + "<pre style='color:#FF1493;'>Romain   BARUCHELLO</pre>"
-      + "<pre style='color:#FF8C00;'>Jules    BOUQUET</pre>"
-      + "<pre style='color:#0000FF;'>Pierre   COIGNARD</pre>"
-      + "<pre style='color:#800080;'>Paul     NOEL</pre>"
-      + "<pre style='color:#DC143C;'>Thibaul  PADOIS</pre>"
+		+ "<pre style='color:#228B22;'>Hugo     VARAO GOMES DA SILVA</pre>"
+		+ "<pre style='color:#FF1493;'>Romain   BARUCHELLO</pre>"
+		+ "<pre style='color:#FF8C00;'>Jules    BOUQUET</pre>"
+		+ "<pre style='color:#0000FF;'>Pierre   COIGNARD</pre>"
+		+ "<pre style='color:#800080;'>Paul     NOEL</pre>"
+		+ "<pre style='color:#DC143C;'>Thibaul  PADOIS</pre>"
 
-      + "<br><hr>"
+		+ "<br><hr>"
 
-      + "<div style='text-align:center;'>Projet académique – IUT du Havre</div>"
-      + "<div style='text-align:center;'>SAE 3.01 – Outil de rétroconception Java-UML</div>"
+		+ "<div style='text-align:center;'>Projet académique – IUT du Havre</div>"
+		+ "<div style='text-align:center;'>SAE 3.01 – Outil de rétroconception Java-UML</div>"
 
-      + "</body></html>";
+		+ "</body></html>";
 
-    JOptionPane.showMessageDialog(null,htmlMessage,"À propos",
-                                JOptionPane.INFORMATION_MESSAGE);
-}
+		JOptionPane.showMessageDialog(null,htmlMessage,"À propos",
+									JOptionPane.INFORMATION_MESSAGE);
+	}
 
 
 

@@ -49,6 +49,7 @@ public class Controleur
 
     public static void main(String[] args) 
     {
+        
          // Vérification de la structure du projet
         VerificationStructureProjet verification = new VerificationStructureProjet();
         verification.verifierStructure();

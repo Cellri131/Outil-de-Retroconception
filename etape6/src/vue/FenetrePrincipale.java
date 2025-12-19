@@ -2,6 +2,7 @@ package vue;
 
 import controleur.Controleur;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension; 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -45,6 +46,8 @@ public class FenetrePrincipale extends JFrame
 
         panneauProjets   = new PanneauProjets  (this);
         panneauDiagramme = new PanneauDiagramme(this);
+        panneauProjets.setBackground( new java.awt.Color(15, 15, 70)); 
+        
         this.controleur  = controleur;
 
         setLayout(new BorderLayout());
