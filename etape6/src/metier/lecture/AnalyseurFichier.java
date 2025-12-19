@@ -118,13 +118,6 @@ public class AnalyseurFichier
 		return this.hashMapClasses;
 	}
 
-	public HashMap<String, Classe> getHashMapClasses()
-	{
-		return this.hashMapClasses;
-	}
-
-	public ArrayList<String> getLstNomFichier()
-	{
-		return this.lstNomFichier;
-	}
+	public HashMap  <String, Classe> getHashMapClasses() { return this.hashMapClasses; }
+	public ArrayList<String        > getLstNomFichier () { return this.lstNomFichier ; }
 }

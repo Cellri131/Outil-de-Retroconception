@@ -52,7 +52,7 @@ public class BarreMenus extends JMenuBar
         ouvrirItem.     addActionListener(e -> actionOuvrirProjet());
 
         JMenuItem exporterItem    = new JMenuItem("Exporter en image");
-        exporterItem.   addActionListener(e -> fenetrePrincipale.sauvegarderDiagramme());
+        exporterItem.   addActionListener(e -> fenetrePrincipale.exporterImageDiagramme());
 
         JMenuItem sauvegarderItem = new JMenuItem("Sauvegarder");
         sauvegarderItem.addActionListener(e -> actionSauvegarder());
@@ -136,33 +136,22 @@ public class BarreMenus extends JMenuBar
 
     private void verifierFichiersProjet(String cheminFichier)
     {
-        ArrayList<String> lstFichiersInvalides = this.getLstFichiersInvalides(cheminFichier);
-        String messageInvalide = "Attention fichiers non valides detectés :\n ( ";;
+        ArrayList<String> lstFichiersInvalides = fenetrePrincipale.getLstFichiersInvalides(cheminFichier);
+        String messageInvalide = lstFichiersInvalides.size() == 1
+               ? "Attention, fichier non valide detectés :\n ( "
+               : "Attention, fichiers non valides detectés :\n ( ";
 
-        if (lstFichiersInvalides.size() == 1)
-            messageInvalide = "Attention fichier non valides detectés :\n ( ";
-        
-        if (lstFichiersInvalides.isEmpty())
+        if (lstFichiersInvalides.isEmpty()) return;
+
+        for(String fichierInvalide : lstFichiersInvalides)
         {
-            return;
+            messageInvalide += fichierInvalide + ", ";
         }
-        else
-        {
-            for(String fichierInvalides : this.getLstFichiersInvalides(cheminFichier))
-            {
-                messageInvalide += fichierInvalides + ", ";
-            }
-            // Retirer la derniere virgule
-            messageInvalide = messageInvalide.substring(0, messageInvalide.length() - 2);
-            messageInvalide += " )";
+        // Retirer la derniere virgule
+        messageInvalide = messageInvalide.substring(0, messageInvalide.length() - 2);
+        messageInvalide += " )";
 
-            JOptionPane.showMessageDialog(null, messageInvalide, "Attention", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private ArrayList<String> getLstFichiersInvalides(String cheminProjet)
-    {
-        return fenetrePrincipale.getLstFichiersInvalides(cheminProjet);
+        JOptionPane.showMessageDialog(null, messageInvalide, "Attention", JOptionPane.WARNING_MESSAGE);
     }
 
     private void sauvegardeProjetXml(String cheminFichier) 
@@ -185,11 +174,6 @@ public class BarreMenus extends JMenuBar
         fenetrePrincipale.setSauvegardeAuto(sauvegardeAutoItem.getState());
     }
 
-    private void actionAligner()
-    {
-        JOptionPane.showMessageDialog(null, "Pas fini");
-    }
-
     private void actionOptimiser() 
     {
         fenetrePrincipale.optimiserPositionsClasses ();
@@ -206,12 +190,38 @@ public class BarreMenus extends JMenuBar
         this.fenetrePrincipale.actionSauvegarder();
     }
 
-    private void actionAPropos() 
-    {
-        String messageDeb = "Modélisation UML - Générateur de Diagrammes\n";
-        String messageRes = "par Romain BARUCHELLO,\nJules BOUQUET,\nPierre COIGNARD,\nPaul NOEL,\n";
-        String messageFin = messageDeb + messageRes + "Thibault PADOIS,\nHugo VARAO GOMES DA SILVA";
+private void actionAPropos()
+{
+    String htmlMessage =
+        "<html>"
+      + "<body style='font-family:Arial; font-size:12pt;'>"
 
-        JOptionPane.showMessageDialog(null, messageFin, "À propos", JOptionPane.INFORMATION_MESSAGE);
-    }
+      + "<div style='text-align:center; font-weight:bold; font-size:14pt;'>"
+      + "Modélisation UML – Générateur de Diagrammes"
+      + "</div>"
+
+      + "<hr><br>"
+
+      + "<div style='color:#DC143C;'><u>AUTEURS</u> :</div><br>"
+
+      + "<pre style='color:#228B22;'>Hugo     VARAO GOMES DA SILVA</pre>"
+      + "<pre style='color:#FF1493;'>Romain   BARUCHELLO</pre>"
+      + "<pre style='color:#FF8C00;'>Jules    BOUQUET</pre>"
+      + "<pre style='color:#0000FF;'>Pierre   COIGNARD</pre>"
+      + "<pre style='color:#800080;'>Paul     NOEL</pre>"
+      + "<pre style='color:#DC143C;'>Thibaul  PADOIS</pre>"
+
+      + "<br><hr>"
+
+      + "<div style='text-align:center;'>Projet académique – IUT du Havre</div>"
+      + "<div style='text-align:center;'>SAE 3.01 – Outil de rétroconception Java-UML</div>"
+
+      + "</body></html>";
+
+    JOptionPane.showMessageDialog(null,htmlMessage,"À propos",
+                                JOptionPane.INFORMATION_MESSAGE);
+}
+
+
+
 }

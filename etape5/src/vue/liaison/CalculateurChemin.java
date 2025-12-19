@@ -18,34 +18,49 @@ public class CalculateurChemin {
     
     /**
      * Crée une liste de points qui représente un chemin orthogonal
+     * Système de côtés: 0=HAUT, 1=DROITE, 2=BAS, 3=GAUCHE
      */
     public List<Point> createOrthogonalPath(Point start, Point end, int startSide, int endSide) {
         List<Point> path = new ArrayList<>();
         path.add(start);
         
-        int padding = 15;
+        int padding = 30; // Augmenté pour éviter que les lignes passent dans les blocs
         Point exitPoint = calculateOffsetPoint(start, startSide, padding);
         Point entryPoint = calculateOffsetPoint(end, endSide, padding);
         
         path.add(exitPoint);
         
-        boolean exitHorizontal = (startSide == 0 || startSide == 2);
-        boolean entryHorizontal = (endSide == 0 || endSide == 2);
+        // HAUT(0) et BAS(2) = sortie verticale, DROITE(1) et GAUCHE(3) = sortie horizontale
+        boolean exitHorizontal = (startSide == 1 || startSide == 3);
+        boolean entryHorizontal = (endSide == 1 || endSide == 3);
         
-        if (exitHorizontal && entryHorizontal) {
-            if (exitPoint.y != entryPoint.y) {
-                int cornerX;
-                if (startSide == 2 && endSide == 2) {
-                    cornerX = Math.min(exitPoint.x, entryPoint.x);
-                } else if (startSide == 0 && endSide == 0) {
-                    cornerX = Math.max(exitPoint.x, entryPoint.x);
-                } else {
-                    cornerX = (exitPoint.x + entryPoint.x) / 2;
-                }
-                path.add(new Point(cornerX, exitPoint.y));
-                path.add(new Point(cornerX, entryPoint.y));
-            }
-        } else if (!exitHorizontal && !entryHorizontal) {
+        // Vérifier si c'est une paire de côtés opposés
+        boolean oppositeVertical = (startSide == 2 && endSide == 0) || (startSide == 0 && endSide == 2);
+        boolean oppositeHorizontal = (startSide == 1 && endSide == 3) || (startSide == 3 && endSide == 1);
+        
+        // Détecter si les côtés opposés sont parfaitement alignés pour une ligne droite
+        if (oppositeVertical && start.x == end.x) {
+            // Alignés verticalement: ligne droite directe
+            path.clear();
+            path.add(start);
+            path.add(end);
+            return path;
+        } else if (oppositeHorizontal && start.y == end.y) {
+            // Alignés horizontalement: ligne droite directe
+            path.clear();
+            path.add(start);
+            path.add(end);
+            return path;
+        } else if (oppositeVertical) {
+            // BAS↔HAUT non alignés: un seul point intermédiaire (2 segments)
+            Point intermediate = avoidCorner(exitPoint.x, entryPoint.y, exitPoint.y, true);
+            path.add(intermediate);
+        } else if (oppositeHorizontal) {
+            // DROITE↔GAUCHE non alignés: un seul point intermédiaire (2 segments)
+            Point intermediate = avoidCorner(exitPoint.y, entryPoint.x, exitPoint.x, false);
+            path.add(intermediate);
+        } else if (exitHorizontal && entryHorizontal) {
+            // Les deux sorties sont horizontales (même côté)
             if (exitPoint.x != entryPoint.x) {
                 int cornerY;
                 if (startSide == 3 && endSide == 3) {
@@ -58,10 +73,26 @@ public class CalculateurChemin {
                 path.add(new Point(exitPoint.x, cornerY));
                 path.add(new Point(entryPoint.x, cornerY));
             }
+        } else if (!exitHorizontal && !entryHorizontal) {
+            // Les deux sorties sont verticales (même côté)
+            if (exitPoint.y != entryPoint.y) {
+                int cornerX;
+                if (startSide == 0 && endSide == 0) {
+                    cornerX = Math.min(exitPoint.x, entryPoint.x);
+                } else if (startSide == 2 && endSide == 2) {
+                    cornerX = Math.max(exitPoint.x, entryPoint.x);
+                } else {
+                    cornerX = (exitPoint.x + entryPoint.x) / 2;
+                }
+                path.add(new Point(cornerX, exitPoint.y));
+                path.add(new Point(cornerX, entryPoint.y));
+            }
         } else if (exitHorizontal && !entryHorizontal) {
-            path.add(new Point(entryPoint.x, exitPoint.y));
-        } else {
+            // Sortie horizontale, entrée verticale
             path.add(new Point(exitPoint.x, entryPoint.y));
+        } else {
+            // Sortie verticale, entrée horizontale
+            path.add(new Point(entryPoint.x, exitPoint.y));
         }
         
         path.add(entryPoint);
@@ -72,10 +103,16 @@ public class CalculateurChemin {
     
     /**
      * Calcule le point décalé selon le côté
+     * side 0=HAUT, 1=DROITE, 2=BAS, 3=GAUCHE
      */
     private Point calculateOffsetPoint(Point pt, int side, int padding) {
-        return new Point(pt.x + (side == 0 ? padding : side == 2 ? -padding : 0),
-                        pt.y + (side == 1 ? padding : side == 3 ? -padding : 0));
+        switch(side) {
+            case 0: return new Point(pt.x, pt.y - padding); // HAUT
+            case 1: return new Point(pt.x + padding, pt.y); // DROITE
+            case 2: return new Point(pt.x, pt.y + padding); // BAS
+            case 3: return new Point(pt.x - padding, pt.y); // GAUCHE
+            default: return pt;
+        }
     }
     
     /**
@@ -113,6 +150,26 @@ public class CalculateurChemin {
         }
         
         return cleaned;
+    }
+    
+    /**
+     * Évite les coins parfaits en ajustant la position si trop proche d'une transition
+     */
+    private Point avoidCorner(int pos, int fixedCoord, int compareCoord, boolean isVertical) {
+        int distance = Math.abs(fixedCoord - compareCoord);
+        if (distance < 25) {
+            int adjustment = (fixedCoord < compareCoord) ? -20 : 20;
+            if (isVertical) {
+                return new Point(pos + adjustment, fixedCoord);
+            } else {
+                return new Point(fixedCoord, pos + adjustment);
+            }
+        }
+        if (isVertical) {
+            return new Point(pos, fixedCoord);
+        } else {
+            return new Point(fixedCoord, pos);
+        }
     }
     
     /**
@@ -192,5 +249,14 @@ public class CalculateurChemin {
         }
         
         return offsetPath;
+    }
+    
+    /**
+     * Met à jour le chemin calculé.
+     * @param chemin Le nouveau chemin à appliquer.
+     */
+    public void setPath(List<Point> chemin) {
+        // Implémentation pour mettre à jour le chemin
+        // Ajoutez ici la logique nécessaire pour gérer le chemin
     }
 }
