@@ -2,7 +2,6 @@ package vue;
 
 import controleur.Controleur;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension; 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -81,11 +80,13 @@ public class FenetrePrincipale extends JFrame
             panneauDiagramme.chargerProjet(cheminProjet);
             // Enregistrer le projet au premier chargement
             controleur.sauvegardeProjetXml(cheminProjet);
+            panneauProjets.actualiser();
 
             // Forcer le recalcul des liaisons après le layout Swing
             // pour eviter un mauvais placement des fléches
             SwingUtilities.invokeLater(() ->
             {
+                    optimiserPositionsClasses();
                     optimiserPositionsLiaisons();
                     revalidate();
                     repaint();

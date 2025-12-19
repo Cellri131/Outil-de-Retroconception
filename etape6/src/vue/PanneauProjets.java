@@ -114,7 +114,7 @@ public class PanneauProjets extends JPanel
             if (vide) 
             {
                 JLabel labelVide = new JLabel("Aucun projet");
-                labelVide.setForeground(Color.GRAY);
+                labelVide.setForeground(new Color(245, 245, 220));
                 panelProjets.add(labelVide);
             }
         }
