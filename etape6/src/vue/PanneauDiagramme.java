@@ -524,6 +524,7 @@ public class PanneauDiagramme extends JPanel
         for (BlocClasse bloc : lstBlocsClasses)
             bloc.dessiner(g2d, this.afficherAttributs, this.afficherMethodes);
         // Afficher le pourcentage de zoom
+        afficherZoomPercentage(g2d);
     }
 
     private void afficherZoomPercentage(Graphics2D g2d)
