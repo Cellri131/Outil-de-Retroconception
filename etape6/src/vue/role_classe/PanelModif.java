@@ -1,181 +1,291 @@
 package vue.role_classe;
 
 import java.awt.GridLayout;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+
+import vue.PanneauDiagramme;
 import vue.liaison.LiaisonVue;
 import java.awt.event.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
-
-
-
+import vue.BlocClasse;
 
 public class PanelModif extends JPanel implements ListSelectionListener, ActionListener
 {
+	private JTextField txtMultipliciteMin;
+	private JTextField txtMultipliciteMax;
 
-    private JTextField txtMultipliciteMin;
-    private JTextField txtMultipliciteMax;
+	private JLabel lblMultipliciteMin;
+	private JLabel lblMultipliciteMax;
 
+	private JLabel lblTitre;
 
-    private JLabel lblMultipliciteMin;
-    private JLabel lblMultipliciteMax;
+	private JPanel panel1;
+	private JPanel panel2;
 
-    private JLabel lblTitre;
+	private JButton btnValider;
+	private JButton btnAnnuler;
 
-    private JPanel panel1;
-    private JPanel panel2;
+	private JPanel panelBoutons;
 
-    private JButton btnValider;
-    private JButton btnAnnuler;
+	private JList<String>    listeLiaisonsIHM;
+	private List<LiaisonVue> listeLiaisons;
 
-    private JPanel panelBoutons;
+	private String[] listeClasseDest;
 
-    private JList<String>    listeLiaisonsIHM;
-    private List<LiaisonVue> listeLiaisons;
+	private PanneauDiagramme panDiag;
 
+	private String nomSelectionListe;
 
-    public PanelModif()
-    {
+	private final String MULTIPLICITE_PAR_DEFAUT = "1..1";
 
-        String[] testLiaisons = { "Liaison 1", "Liaison 2", "Liaison 3", "Liaison 4" };
-        this.listeLiaisonsIHM = new JList<>(testLiaisons);
-        this.setLayout(new GridLayout(5,1));
+	private BlocClasse blocSelectionne;
 
-        this.panel1 = new JPanel();
-        this.panel2 = new JPanel();
+	public PanelModif(PanneauDiagramme panDiag)
+	{
+		this.panDiag = panDiag;
+		this.blocSelectionne = panDiag.getBlocClique();
+		
+		this.listeClasseDest = new String[getLiaisonConnectees(panDiag.getBlocClique()).size() - 1];
+		initListe();
 
-        
+		this.listeLiaisonsIHM = new JList<>(listeClasseDest);
+		this.setLayout(new GridLayout(5,1));
 
+		this.panel1 = new JPanel();
+		this.panel2 = new JPanel();
 
-        this.lblTitre = new JLabel("Modification : [ BLOC CLIQUE ] a ",  JLabel.CENTER);
-        
-        this.lblMultipliciteMin = new JLabel("Multiplicité Min : ");
-        this.txtMultipliciteMin = new JTextField(20);
+		this.lblTitre = new JLabel("Modification :" + this.blocSelectionne.getNom() ,  JLabel.CENTER);
+		
+		this.lblMultipliciteMin = new JLabel("Multiplicité Min : ");
+		this.txtMultipliciteMin = new JTextField(20);
 
-        this.lblMultipliciteMax = new JLabel("Multiplicité Max : ");
-        this.txtMultipliciteMax = new JTextField(20);
+		this.lblMultipliciteMax = new JLabel("Multiplicité Max : ");
+		this.txtMultipliciteMax = new JTextField(20);
 
-        this.btnValider = new JButton("Valider");
-        this.btnAnnuler = new JButton("Annuler");
+		this.btnValider = new JButton("Valider");
+		this.btnAnnuler = new JButton("Annuler");
 
-        this.panelBoutons = new JPanel();
+		this.panelBoutons = new JPanel();
 
-        JScrollPane scrollPane = new JScrollPane(listeLiaisonsIHM);
-        //scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		JScrollPane scrollPane = new JScrollPane(listeLiaisonsIHM);
+		//scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        panelBoutons.add(this.btnValider);
-        panelBoutons.add(this.btnAnnuler);
+		panelBoutons.add(this.btnValider);
+		panelBoutons.add(this.btnAnnuler);
 
-        this.add(lblTitre);
+		this.add(lblTitre);
 
-        panel1.add(lblMultipliciteMin);
-        panel1.add(txtMultipliciteMin);
-        this.add(panel1);
+		panel1.add(lblMultipliciteMin);
+		panel1.add(txtMultipliciteMin);
+		this.add(panel1);
 
-        panel2.add(lblMultipliciteMax);
-        panel2.add(txtMultipliciteMax);
-        this.add(panel2);
-
-
-       // this.add(listeLiaisonsIHM);
-
-
-
-        //this.add(this.listeLiaisonsIHM);
-        this.add(scrollPane);
-
-        this.add(panelBoutons);
-
-        this.listeLiaisonsIHM.addListSelectionListener(this);
-
-        this.btnValider.addActionListener(this);
-        this.btnAnnuler.addActionListener(this);
-
-        this.setVisible(true);
-    }
+		panel2.add(lblMultipliciteMax);
+		panel2.add(txtMultipliciteMax);
+		this.add(panel2);
 
 
-    public void valueChanged(ListSelectionEvent e)
-    {
-        System.out.println("Liaison sélectionnée : " + listeLiaisonsIHM.getSelectedValue());
-        lblTitre.setText("Modification : [ BLOC CLIQUE ] a " + listeLiaisonsIHM.getSelectedValue());
-    }
+	// this.add(listeLiaisonsIHM);
 
-    public boolean caractereValideMultMin()
-    {
+		//this.add(this.listeLiaisonsIHM);
+		this.add(scrollPane);
 
-        try
-        {
-            Integer.parseInt(txtMultipliciteMin.getText());
-            return true;
-        }
-        catch (NumberFormatException e)
-        {
-            System.out.println("Erreur : Multiplicité Min non valide");
-        }
+		this.add(panelBoutons);
 
-        return false;
-    }
+		this.listeLiaisonsIHM.addListSelectionListener(this);
 
-    public boolean caractereValideMultMax()
-    {
+		this.btnValider.addActionListener(this);
+		this.btnAnnuler.addActionListener(this);
 
-        try
-        {
-            Integer.parseInt(txtMultipliciteMax.getText());
-            return true;
-        }
-        catch (NumberFormatException e)
-        {
-            System.out.println("Erreur : Multiplicité Max non valide");
-        }
+		this.setVisible(true);
+	}
 
-        return false;
-    }
+	public void initListe()
+	{
+		
+		int index = 0;
+		for (LiaisonVue liaison : this.panDiag.getLstLiaisons()) 
+		{
+			if (liaison.getType().equals("association")) 
+			{
+				// Si la classe cliquée est l'origine ou la destination, on affiche l'autre extrémité
+				if (this.blocSelectionne == liaison.getBlocOrigine()) 
+				{
+					this.listeClasseDest[index] = liaison.getBlocDestination().getNom();
+					index++;
+				} 
+				else if (this.blocSelectionne == liaison.getBlocDestination()) 
+				{
+					this.listeClasseDest[index] = liaison.getBlocOrigine().getNom();
+					index++;
+				}
+			}
+		}
+		// Tronquer le tableau si besoin
+	}
+	public void valueChanged(ListSelectionEvent e)
+	{
+		System.out.println("Liaison sélectionnée : " + listeLiaisonsIHM.getSelectedValue());
+		lblTitre.setText("Modification : " + this.blocSelectionne.getNom() + " à " + listeLiaisonsIHM.getSelectedValue());
+		nomSelectionListe = listeLiaisonsIHM.getSelectedValue();
+	}
 
-    public boolean estValide()
-    {
-        if ((caractereValideMultMin() && txtMultipliciteMax.getText().equals("*")) || (caractereValideMultMin() && caractereValideMultMax()))
-        {
-            return true;
-        }
+	public boolean caractereValideMultMin(String min)
+	{
+		try
+		{
+			Integer.parseInt(min);
+			return true;
+		}
+		catch (NumberFormatException e)
+		{
+			System.out.println("Erreur : Multiplicité min non valide");
+		}
 
-        return false;
+		return false;
+	}
 
-    }
+	public boolean caractereValideMultMax(String max)
+	{
+		try
+		{
+			
+			Integer.parseInt(max);
+			
+			return true;
+		}
+		catch (NumberFormatException e)
+		{
+			System.out.println("Erreur : Multiplicité Max non valide");
+		}
 
+		return false;
+	}
 
-    
+	public boolean estMultipliciteValide(String min, String max)
+	{
+		
+		if ((caractereValideMultMin(min) && txtMultipliciteMax.getText().equals("*")) || (caractereValideMultMin(min) && caractereValideMultMax(max)) )
+		{
+			try
+			{
+				int minFormat = Integer.parseInt(min);
+				int maxFormat = Integer.parseInt(max);
+				if (minFormat > maxFormat)
+				{
+					System.out.println("Changement impossible : Le minimum est superieur au maximum");
+					return false;
+				}
+			}
+			catch(NumberFormatException e)
+			{
+				e.printStackTrace();
+			}
+			
+			return true;
+		}
 
+		return false;
 
-    public void actionPerformed(ActionEvent e)
-    {
-        if(e.getSource() == btnValider)
-        {
+	}
 
-            if (estValide())
-            {
-                int min = Integer.parseInt(txtMultipliciteMin.getText());
-                String max = txtMultipliciteMax.getText();
-                System.out.println("Vous avez valider les Multiplicités : " + min + " et " + max);
-            }
-            else
-            {
-                System.out.println("Erreur : Multiplicité non valide");
-                return;
-            }
-            
-        }
-        else if(e.getSource() == btnAnnuler)
-        {
-            System.out.println("Annuler clicked");
-        }
-    }
+	public BlocClasse getBlocClasseSelectionne()
+	{
+		List<BlocClasse> lstBlocsClasses = panDiag.getBlocsClasses();
 
+		for (BlocClasse blcClasse : lstBlocsClasses)
+		{
+			if (blcClasse.getNom() == this.nomSelectionListe)
+			{
+				return blcClasse;
+			}
+		}
+		
+		return null;
+	}
+	
 
+	public void actionPerformed(ActionEvent e)
+	{
+		if(e.getSource() == btnValider)
+		{				
+			
+			valider();
+			SwingUtilities.getWindowAncestor(this).dispose();
+			
+		}
 
+		if(e.getSource() == btnAnnuler)
+		{
+			SwingUtilities.getWindowAncestor(this).dispose();
+			System.out.println("Annuler clicked");
+		}
 
+			
+	}
 
-    
+	public void valider()
+	{
+		String	 nouvelleMultiplicite = MULTIPLICITE_PAR_DEFAUT;
+
+		String min = txtMultipliciteMin.getText();
+		String max = txtMultipliciteMax.getText();
+
+		System.out.println("minimum : " + min);
+		System.out.println("maximum : " + max);
+		
+		if (!getBlocClasseSelectionne().equals(null) && estMultipliciteValide(min, max))
+		{
+			int minFormatte = Integer.parseInt(min);
+
+			List<LiaisonVue> lstLiaisons = getLiaisonConnectees(this.getBlocClasseSelectionne());
+
+			for (LiaisonVue liaison : lstLiaisons)
+			{
+				if(liaison.getBlocOrigine() == this.getBlocClasseSelectionne())
+				{
+					nouvelleMultiplicite = min + ".." + max;
+					
+					liaison.setMultDest(nouvelleMultiplicite);
+				}
+				else if(liaison.getBlocDestination() == this.getBlocClasseSelectionne())
+				{
+					nouvelleMultiplicite = min + ".." + max;
+					
+					liaison.setMultOrig(nouvelleMultiplicite);
+				}
+			}
+
+			System.out.println("Nouvelle Multiplicité : " + nouvelleMultiplicite);
+			//System.out.println("Les multiplicités de " + this.blocSelectionne.getNom() + " vers " + listeLiaisonsIHM.getSelectedValue() + " sont modifiés");
+			this.panDiag.rafraichirDiagramme();
+		}
+		else
+		{
+			System.out.println("Erreur : Multiplicité non valide");
+			return;
+		}
+	}
+
+	public List<LiaisonVue> getLiaisonConnectees(BlocClasse blcClasse) 
+	{
+		List<LiaisonVue> lstLiaisonVues = new ArrayList<>();
+
+		for(LiaisonVue liaison : this.panDiag.getLstLiaisons())
+		{
+			if(liaison.getBlocOrigine() == this.blocSelectionne)
+			{
+				lstLiaisonVues.add(liaison);
+			}
+			else
+			if(liaison.getBlocDestination() == this.blocSelectionne)
+			{
+				lstLiaisonVues.add(liaison);
+			}
+		}
+
+		return lstLiaisonVues;
+	}
 }
