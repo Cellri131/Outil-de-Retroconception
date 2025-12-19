@@ -1,5 +1,6 @@
 package vue;
 
+import java.util.UUID;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,8 @@ public class BlocClasse
 	//--------------------------//
 	//        ATTRIBUTS         //
 	//--------------------------//
+
+	private final UUID id;
 
 	private String       nom           ;
 	private boolean      estInterface  ;
@@ -45,6 +48,8 @@ public class BlocClasse
 	
 	public BlocClasse(String nom, int x, int y) 
 	{
+		this.id = UUID.randomUUID();
+
 		this.nom = nom;
 		this.x   = x;
 		this.y   = y;
@@ -408,6 +413,7 @@ public class BlocClasse
 	}
 
 	// Getters et Setters
+	public UUID         getId             () {return this.id;}
 	public int          getX              () { return x              ; }
 	public int          getY              () { return y              ; }
 	public int          getLargeur        () { return largeur        ; }

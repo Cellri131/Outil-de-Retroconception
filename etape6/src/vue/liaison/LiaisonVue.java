@@ -233,6 +233,8 @@ public class LiaisonVue
 		this.posRelDestination = bestDestPos;
 	}
 
+
+
 	// =========================
 	// Méthodes utilitaires internes
 	// =========================
