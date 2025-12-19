@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import vue.liaison.LiaisonVue;
+import java.awt.Image;
 
 /**
 * Fenêtre principale de l'IHM du générateur de diagramme UML.
