@@ -1,4 +1,4 @@
-package vue;
+package vue.role_classe;
 
 
 import controleur.Controleur;
@@ -30,12 +30,5 @@ public class FenetreChangementMultiplicite extends JFrame
         this.setVisible(true);
 
     }
-
-
-    
-
-
-
-    
 
 }

@@ -8,7 +8,7 @@ import java.awt.Point;
  */
 public class GestionnaireAncrage {
     
-    private static final int ANCHOR_RADIUS = 10;
+    private static final int ANCHOR_RADIUS = 20;
     
     /**
      * Renvoie un point sur un côté d'un bloc

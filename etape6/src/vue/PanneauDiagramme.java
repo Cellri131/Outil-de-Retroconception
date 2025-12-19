@@ -1,5 +1,6 @@
 package vue;
 
+import vue.role_classe.*;
 import java.util.UUID;
 import java.awt.*;
 import java.awt.event.*;
@@ -14,8 +15,8 @@ public class PanneauDiagramme extends JPanel
     //        ATTRIBUTS         //
     //--------------------------//
 
-    private List<BlocClasse>    blocsClasses                   ;
-    private List<LiaisonVue>    liaisons                       ; 
+    private List<BlocClasse>    lstBlocsClasses                   ;
+    private List<LiaisonVue>    lstLiaisons                       ; 
 
     private FenetrePrincipale   fenetrePrincipale              ;
 
@@ -27,7 +28,7 @@ public class PanneauDiagramme extends JPanel
     private boolean             afficherMethodes  = true       ;
     private boolean             sauvegardeAuto    = false      ;
 
-    // Pour le drag des points d'ancrage de liaisons
+    // Pour le drag des points d'ancrage de lstLiaisons
     private LiaisonVue          liaisonEnDeplacement           ;
     private boolean             draggingOriginAnchor           ;
     private boolean             draggingDestinationAnchor      ;
@@ -45,11 +46,16 @@ public class PanneauDiagramme extends JPanel
     private boolean             isPanning = false              ;
     private BlocClasse          blocPleinEcranTemporaire = null;
 
+	// Pour modification des rôles 
+	private BlocClasse          blocClique;
+    private UUID                idLiaison;
+	private boolean             estOrigineLiaison = true;   
+
 
     private JPopupMenu          menuModif; 
-    private JMenuItem menuChangerMultiplicite;
+    private JMenuItem           menuChangerMultiplicite;
+	private JMenuItem           menuModifRole;
 
-    ;
 
 
     //-------------------------//
@@ -58,15 +64,14 @@ public class PanneauDiagramme extends JPanel
 
     public PanneauDiagramme(FenetrePrincipale fenetrePrincipale) 
     {
-        this.blocsClasses           = new ArrayList<>();
-        this.liaisons               = new ArrayList<>();
-        this.cheminProjetCourant    = null             ;
-        this.fenetrePrincipale      = fenetrePrincipale;
+        this.lstBlocsClasses           = new ArrayList<>();
+        this.lstLiaisons               = new ArrayList<>();
+        this.cheminProjetCourant       = null;
+        this.fenetrePrincipale         = fenetrePrincipale;
 
-        this.menuModif                = new JPopupMenu();
-
-        this.menuChangerMultiplicite      = new JMenuItem("Changer la multiplicité");
-
+        this.menuModif                    = new JPopupMenu();
+        this.menuChangerMultiplicite      = new JMenuItem("Modifier multiplicité");
+		this.menuModifRole                = new JMenuItem("Modifier Role");
        
 
         this.menuChangerMultiplicite.addActionListener(ActionEvent -> {
@@ -74,10 +79,34 @@ public class PanneauDiagramme extends JPanel
             fenetreChangementMultiplicite.setVisible(true);
         });
 
+		this.menuModifRole.addActionListener(ActionEvent -> 
+		{
+            FenetreModifRole fenetreModifRole = new FenetreModifRole(this);
+            fenetreModifRole.setVisible(true);
+
+            for (LiaisonVue liaisonVue : lstLiaisons)
+            {
+                if (liaisonVue.getBlocOrigine().equals(PanneauDiagramme.this.blocClique))
+                {
+                    this.idLiaison = liaisonVue.getId();
+                    this.estOrigineLiaison = true;
+
+                    break;
+                }
+                else if (liaisonVue.getBlocDestination().equals(PanneauDiagramme.this.blocClique))
+                {
+                    this.idLiaison = liaisonVue.getId();
+                    this.estOrigineLiaison = false;
+                    break;
+                }
+            }
+        });
+
         this.menuModif.add(this.menuChangerMultiplicite);
+		this.menuModif.add(this.menuModifRole);
         setLayout(null);
         setBackground(new Color(255, 255, 255));
-        setBorder(BorderFactory.createTitledBorder("Diagramme UML"));
+        setBorder(BorderFactory.createTitledBorder("Diagramme de classe"));
         
         // Augmenter la taille de la police par défaut pour la bordure
         Font defaultFont = UIManager.getFont("TitledBorder.font");
@@ -95,19 +124,24 @@ public class PanneauDiagramme extends JPanel
     {
         this.cheminProjetCourant = cheminProjet;
 
-        this.blocsClasses.clear();
-        this.liaisons    .clear();
+        this.lstBlocsClasses.clear();
+        this.lstLiaisons    .clear();
 
-        List<BlocClasse> blocCharges = fenetrePrincipale.chargerProjetEnBlocsClasses(cheminProjet);
+        // Dans cette étape, le chargement se fait via la fenêtre principale
+        // qui délègue au contrôleur. Après l'appel, récupérer les blocs
+        // et les lstLiaisons depuis la fenetre.
+        fenetrePrincipale.chargerProjet(cheminProjet);
 
-        blocsClasses.addAll(blocCharges                    );
-        liaisons    .addAll(fenetrePrincipale.getLiaisons());
+        List<BlocClasse> blocCharges = fenetrePrincipale.getBlocClasses();
 
-        // Passer la liste des blocs à toutes les liaisons pour le contournement
-        for (LiaisonVue liaison : liaisons)
-            liaison.setTousLesBlocs(blocsClasses);
+        lstBlocsClasses.addAll(blocCharges);
+        lstLiaisons.addAll(fenetrePrincipale.getLiaisons());
 
-        repaint();
+        // Passer la liste des blocs à toutes les lstLiaisons pour le contournement
+        for (LiaisonVue liaison : lstLiaisons)
+            liaison.setTousLesBlocs(lstBlocsClasses);
+
+        rafraichirDiagramme();
     }
 
     private void ajouterListenersInteraction()
@@ -133,59 +167,59 @@ public class PanneauDiagramme extends JPanel
                     return;
                 }
                 
-                // Convertir les coordonnées écran en coordonnées logiques (avec zoom et pan)
-                double logicalX = (e.getX() - panOffsetX - getWidth () / 2) / zoomLevel + getWidth () / (2 * zoomLevel);
-                double logicalY = (e.getY() - panOffsetY - getHeight() / 2) / zoomLevel + getHeight() / (2 * zoomLevel);
+				// Convertir les coordonnées écran en coordonnées logiques (avec zoom et pan)
+				double logicalX = (e.getX() - panOffsetX - getWidth() / 2) / zoomLevel + getWidth() / (2 * zoomLevel);
+				double logicalY = (e.getY() - panOffsetY - getHeight() / 2) / zoomLevel + getHeight() / (2 * zoomLevel);
 
-                // Clic-droit : affichage plein écran d'une classe ou pan
-                if (e.getButton() == MouseEvent.BUTTON3 )
-                {
-                   // System.out.println("Le clic droit a été cliqué");
-                    // Chercher si on clique sur un bloc
-                    BlocClasse blocClique = null;
-                    for (BlocClasse bloc : blocsClasses)
-                    {
-                        if (bloc.contient((int) logicalX, (int) logicalY))
-                        {
-                            blocClique = bloc;
-                            blocValide = true;
-                            System.out.println("Bloc cliqué : " + bloc.getNom());
-                            break;
-                        }
+				// Vérifier sur quel bloc on clique
+				PanneauDiagramme.this.blocClique = null;
+				for (BlocClasse bloc : lstBlocsClasses) 
+				{
+					if (bloc.contient((int) logicalX, (int) logicalY)) 
+					{
+						PanneauDiagramme.this.blocClique = bloc;
+						break;
+					}
+				}
 
-                    }
+				// --- DOUBLE CLIC GAUCHE pour ouvrir le menu ---
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && blocClique != null) 
+				{
+					PanneauDiagramme.this.menuModif.show(e.getComponent(), e.getX(), e.getY());
+					return; // on sort après avoir affiché le menu
+				}
 
+				// --- CLIC GAUCHE MAINTENU pour drag ---
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1 && blocClique != null) 
+				{
+					blocEnDeplacement = blocClique;
+					blocClique.setSelectionne(true);
+					pointDernier = e.getPoint();
+				}
 
-                if(e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 2)
-                {
-                    if (blocValide)
-                    //System.out.println("Double clique droit effectué");
-                        PanneauDiagramme.this.menuModif.show(e.getComponent(), e.getX(), e.getY());
-                }   
-                    // Si on clique sur un bloc, activer l'affichage plein écran temporairement
-                    if (blocClique != null)
-                    {
-                        blocPleinEcranTemporaire = blocClique;
-                        blocClique.setAffichagePleinEcran(true);
-                        repaint();
-                        return;
-                    }
-                    
-                    // Sinon, commencer le pan
-                    isPanning = true           ;
-                    pointDernier = e.getPoint();
+				// --- CLIC DROIT pour pan / plein écran ---
+				if (SwingUtilities.isRightMouseButton(e)) 
+				{
+					if (blocClique != null) 
+					{
+						blocPleinEcranTemporaire = blocClique;
+						blocClique.setAffichagePleinEcran(true);
+						repaint();
+						return;
+					}
+					isPanning = true;
+					pointDernier = e.getPoint();
+					return;
+				}
 
-                    return;
-                }
-
-                pointDernier              = e.getPoint();
-                blocEnDeplacement         = null        ;
-                liaisonEnDeplacement      = null        ;
-                draggingOriginAnchor      = false       ;
-                draggingDestinationAnchor = false       ;
+				// Réinitialisation par défaut
+				pointDernier = e.getPoint();
+				liaisonEnDeplacement = null;
+				draggingOriginAnchor = false;
+				draggingDestinationAnchor = false;
 
                 // Vérifier si on clique sur un point d'ancrage de liaison
-                for (LiaisonVue liaison : liaisons)
+                for (LiaisonVue liaison : lstLiaisons)
                 {
                     if (liaison.isOnOriginAnchor(e.getPoint(), zoomLevel, panOffsetX, panOffsetY, getWidth(), getHeight()))
                     {
@@ -202,7 +236,7 @@ public class PanneauDiagramme extends JPanel
                 }
 
                 // Sinon, vérifier si on clique sur un bloc
-                for (BlocClasse bloc : blocsClasses)
+                for (BlocClasse bloc : lstBlocsClasses)
                 {
                     if (bloc.contient((int) logicalX, (int) logicalY))
                     {
@@ -333,33 +367,33 @@ public class PanneauDiagramme extends JPanel
 
     public void optimiserPositionsClasses()
     {
-        if (blocsClasses.isEmpty())
+        if (lstBlocsClasses.isEmpty())
             return;
 
         // organiser les blocs en grille
         organiserEnGrille();
 
         // Étape 4 : Redessiner
-        repaint();
+        rafraichirDiagramme();
 
-        System.out.println("Opti pos réalisée");
+        //System.out.println("Opti pos réalisée");
     }
 
     public void optimiserPositionsLiaisons()
     {
-        if (liaisons.isEmpty())
+        if (lstLiaisons.isEmpty())
             return;
 
-        // D'abord, passer la liste de toutes les liaisons à chaque liaison
-        for (LiaisonVue liaison : liaisons)
-            liaison.setToutesLesLiaisons(liaisons);
+        // D'abord, passer la liste de toutes les lstLiaisons à chaque liaison
+        for (LiaisonVue liaison : lstLiaisons)
+            liaison.setToutesLesLiaisons(lstLiaisons);
         
-        // Réinitialiser toutes les liaisons avec le nouvel algorithme
-        for (LiaisonVue liaison : liaisons)
+        // Réinitialiser toutes les lstLiaisons avec le nouvel algorithme
+        for (LiaisonVue liaison : lstLiaisons)
             liaison.recalculerAncrages();
 
         // Redessiner
-        repaint();
+        rafraichirDiagramme();
     }
 
     /**
@@ -367,21 +401,21 @@ public class PanneauDiagramme extends JPanel
      */
     private void organiserEnGrille()
     {
-        int cols     = (int) Math.ceil(Math.sqrt(blocsClasses.size()));
+        int cols     = (int) Math.ceil(Math.sqrt(lstBlocsClasses.size()));
         int spacingX = 275                                            ; // Espacement entre les blocs
         int spacingY = 275                                            ;
         int startX   = 50                                             ;
         int startY   = 50                                             ;
 
-        for (BlocClasse bloc : blocsClasses)
+        for (BlocClasse bloc : lstBlocsClasses)
         {
             if (spacingY < bloc.getHauteurCalculee())
                 spacingY = bloc.getHauteurCalculee();
         }
 
-        for (int i = 0; i < blocsClasses.size(); i++)
+        for (int i = 0; i < lstBlocsClasses.size(); i++)
         {
-            BlocClasse bloc = blocsClasses.get(i);
+            BlocClasse bloc = lstBlocsClasses.get(i);
 
             int col  = i % cols               ;
             int row  = i / cols               ;
@@ -395,7 +429,7 @@ public class PanneauDiagramme extends JPanel
 
     private void reinitialiserAnchages()
     {
-        for (LiaisonVue liaison : liaisons)
+        for (LiaisonVue liaison : lstLiaisons)
         {
             // Réinitialiser les côtés selon la position relative des blocs
             optimiserAncragesPourLiaison(liaison);
@@ -479,17 +513,18 @@ public class PanneauDiagramme extends JPanel
         g2d.scale(zoomLevel, zoomLevel);
         g2d.translate(-getWidth() / (2 * zoomLevel), -getHeight() / (2 * zoomLevel));
 
-        // Mettre à jour la liste de toutes les liaisons pour détecter les intersections
-        for (LiaisonVue liaison : liaisons)
-            liaison.setToutesLesLiaisons(liaisons);
+        // Mettre à jour la liste de toutes les lstLiaisons pour détecter les intersections
+        for (LiaisonVue liaison : lstLiaisons)
+            liaison.setToutesLesLiaisons(lstLiaisons);
         
-        // Dessiner les liaisons
+        // Dessiner les lstLiaisons
         dessinerLiaisons(g2d);
 
         // Dessiner les blocs
-        for (BlocClasse bloc : blocsClasses)
+        for (BlocClasse bloc : lstBlocsClasses)
             bloc.dessiner(g2d, this.afficherAttributs, this.afficherMethodes);
         // Afficher le pourcentage de zoom
+        afficherZoomPercentage(g2d);
     }
 
     private void afficherZoomPercentage(Graphics2D g2d)
@@ -519,17 +554,84 @@ public class PanneauDiagramme extends JPanel
 
     private void dessinerLiaisons(Graphics2D g2d)
     {
-        for (LiaisonVue liaison : liaisons)
+        for (LiaisonVue liaison : lstLiaisons)
             liaison.dessiner(g2d);
     }
 
-    public List<BlocClasse> getBlocsClasses       () { return blocsClasses       ; }
-    public String           getCheminProjetCourant() { return cheminProjetCourant; }
     public double           getZoomLevel          () { return zoomLevel          ; }
     public boolean          isAfficherTextZoom    () { return afficherTextZoom   ; }
 
-    public void setAfficherMethodes(boolean b)
+    public void modifieMultiplicite(String multiModifie, boolean estOrigine, UUID idLiaison)
     {
+        for (LiaisonVue liaisonVue : this.lstLiaisons) 
+        {
+            if(liaisonVue.getId().equals(idLiaison))
+            {
+                if(estOrigine)
+                    liaisonVue.setMultOrig(multiModifie);
+                else
+                    liaisonVue.setMultDest(multiModifie);
+            }
+        }
+
+    }
+
+	public void modifierRole(UUID id, boolean estOrigine, String role) 
+	{
+		for (LiaisonVue lv : lstLiaisons) 
+		{
+			if (lv.getId().equals(id))
+			{
+				if(estOrigine)
+                {
+					lv.setRoleOrig(role);
+                }
+				else
+                {
+					lv.setRoleDest(role);
+                }
+				return;
+			}
+		}
+	}
+
+    /**
+     * Force un rafraîchissement complet du diagramme.
+     * À appeler après toute modification du modèle.
+     */
+    public void rafraichirDiagramme()
+    {
+        revalidate();
+        repaint();
+        requestFocusInWindow();
+    }
+
+    public UUID getIdLiaison(){
+        return idLiaison;
+    }
+
+    public List<LiaisonVue> getLstLiaisons() {
+        return lstLiaisons;
+    }
+
+    public boolean isOrigineLiaison(){
+        return estOrigineLiaison;
+    }
+
+    public List<BlocClasse> getBlocsClasses() {
+        return lstBlocsClasses;
+    }
+
+
+    public BlocClasse getBlocClique() {
+        return blocClique;
+    }
+
+    public String getCheminProjetCourant() {
+        return cheminProjetCourant;
+    }
+
+    public void setAfficherMethodes(boolean b) {
         this.afficherMethodes = b;
         this.repaint();
     }
@@ -556,7 +658,7 @@ public class PanneauDiagramme extends JPanel
     {
         // Ne sauvegarder que si un projet a été chargé
         if (cheminProjetCourant != null && !cheminProjetCourant.isEmpty())
-            this.fenetrePrincipale.sauvegarderClasses(this.blocsClasses, this.liaisons, cheminProjetCourant);
+            this.fenetrePrincipale.sauvegarderClasses(this.lstBlocsClasses, this.lstLiaisons, cheminProjetCourant);
     }
 
     public void setSauvegardeAuto(boolean b)
@@ -573,5 +675,12 @@ public class PanneauDiagramme extends JPanel
             this.actionSauvegarder();
             System.out.println("Sauvegarde auto effectuée !");
         }
+    }
+
+    public void viderDiagramme() 
+    {
+        this.lstBlocsClasses.clear();
+        this.lstLiaisons.clear();
+        this.repaint();
     }
 }

@@ -27,6 +27,7 @@ public class GestionSauvegarde
 	private  final String SECTION_LIAISONS = "---- Liaisons ----";
 	private  final String COMMENTAIRE      = "#";
 	private  final String SEPARATEUR       = "\t";
+	private  final String VALEUR_VIDE      = "?"; 
 
 	private String      cheminDossier;
 	private Controleur  ctrl;
@@ -39,7 +40,7 @@ public class GestionSauvegarde
 	
 	public GestionSauvegarde(Controleur ctrl) 
 	{
-		this.ctrl            = ctrl;
+		this.ctrl = ctrl;
 	}
 
 	//----------------------//
@@ -48,91 +49,9 @@ public class GestionSauvegarde
 
 	private boolean ligneIgnorable(String ligne) 
 	{
-		return ligne == null       ||
-			ligne.trim().isEmpty() ||
-			ligne.trim().startsWith(this.COMMENTAIRE);
-	}
-
-	/**
-	* Récupère une map de coordonnées 
-	* @param dossierFichSelec L'intitulé du projet sur lequel baser les coordonées
-	* @return Une {@link Map<String, int[]>} des noms des Classes et leurs coordonées (x et y)
-	*/
-	public Map<String, int[]> lireCoordoneesXml(String dossierFichSelec) //!!!!!!!!!!!!!!!!!!!!!! a modifier le nom et la javaDoc
-	{
-		//Récupére depuis util le chemin pour sauvegarde/dossier
-		String cheminDossier = Path.of(ConstantesChemins.SAUVEGARDES , dossierFichSelec).toString();
-
-		System.out.println("emplacement du fichier à charger : " + dossierFichSelec);
-
-		Map<String, int[]> hashCoordonnees = new HashMap<String, int[]>();
-
-		try (BufferedReader reader = new BufferedReader(new FileReader(cheminDossier))) 
-		{
-			String ligne;
-			boolean lectureClasses = false;
-
-			while ((ligne = reader.readLine()) != null) 
-			{
-
-				if (ligneIgnorable(ligne)) continue;
-
-				// Enregistrer le chemin du projet
-				if (ligne.contains("/") || ligne.contains("\\")) 
-				{
-					this.cheminDossier = ligne.trim();
-					continue;
-				}
-
-				// Détecter le début de la section Classes
-				if (ligne.startsWith(this.SECTION_CLASSES))
-				{
-					lectureClasses = true;
-					continue;
-				}
-
-				// Détecter le début de la section Liaisons (fin de Classes)
-				if (ligne.startsWith(this.SECTION_LIAISONS))
-				{
-					lectureClasses = false;
-					break;
-				}
-
-
-				if (lectureClasses)
-				{
-					// Vérifier si c'est une ligne de bloc classe (contient des tabs et au moins 5 colonnes)
-					if (ligne.contains(this.SEPARATEUR) && !ligne.startsWith("-") && !ligne.startsWith("+") && !ligne.startsWith(this.COMMENTAIRE))
-					{
-						String[] parts = ligne.split(this.SEPARATEUR);
-						
-						if (parts.length >= 3)
-						{
-							try
-							{
-								String nomClass = parts[0].trim();
-								int    x        = Integer.parseInt(parts[1].trim());
-								int    y        = Integer.parseInt(parts[2].trim());
-
-								hashCoordonnees.put(nomClass, new int[] { x, y });
-							}
-							catch (NumberFormatException e)
-							{
-								// Ignorer les lignes qui ne sont pas des blocs (comme les attributs/méthodes)
-								continue;
-							}
-						}
-					}
-				}
-			}
-
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-
-		return hashCoordonnees;
+		return ligne == null           ||
+			   ligne.trim().isEmpty()  ||
+			   ligne.trim().startsWith(this.COMMENTAIRE);
 	}
 
 	/**
@@ -152,17 +71,14 @@ public class GestionSauvegarde
 
 		String chemin = Path.of(ConstantesChemins.SAUVEGARDES , this.getIntituleFromLien(dossierFichSelec)).toString() + ".xml";
 		
-
 		try (BufferedReader br = new BufferedReader(new FileReader(chemin))) 
 		{
 			String  ligne;
 			boolean lectureLiaisons = false;
 
-
 			// on commence a lire :D
 			while ((ligne = br.readLine()) != null) 
 			{
-
 				ligne = ligne.trim();
 				
 				if (ligneIgnorable(ligne)) continue;
@@ -187,6 +103,19 @@ public class GestionSauvegarde
 
 				//System.out.println("Ligne analysée : " + typeLiaison + ", orig : " + blocOrig.getNom() + ", dest : " + blocDest.getNom());
 
+				// Récupérer les rôles en convertissant "?" ou espaces en ""
+				String roleOrig = tabLigne[8].trim();
+				if (roleOrig.isEmpty() || roleOrig.equals("?") || roleOrig.isBlank())
+					roleOrig = "";
+
+				String roleDest = tabLigne[9].trim();
+				if (roleDest.isEmpty() || roleDest.equals("?") || roleDest.isBlank())
+					roleDest = "";
+
+				// Multiplicité
+				String multiOrig = tabLigne[10].trim();
+				String multiDest = tabLigne[11].trim();
+				
 				LiaisonVue liaisonVue;
 
 				if(typeLiaison.equals("association_uni") || 
@@ -196,22 +125,21 @@ public class GestionSauvegarde
 					{
 						 liaisonVue = new LiaisonVue(blocOrig, blocDest, "association",
 																	true,
-																	tabLigne[8].trim(),
-																	tabLigne[9].trim()
+																	multiOrig,
+																	multiDest
 																	);
 					}
 					else
 					{
 						 liaisonVue = new LiaisonVue(blocOrig, blocDest, "association",
 																	false,
-																	tabLigne[8].trim(),
-																	tabLigne[9].trim()
+																	multiOrig,
+																	multiDest
 																	);
 	
 					}
 
 					lstLiaisons.add(liaisonVue);
-					
 				}
 				else
 				{
@@ -219,13 +147,14 @@ public class GestionSauvegarde
 					lstLiaisons.add(liaisonVue);
 
 				}
-
 					liaisonVue.setPosRelOrig(Double.parseDouble(tabLigne[4].trim()));
 					liaisonVue.setPosRelDest(Double.parseDouble(tabLigne[7].trim()));
-					
 
 					int numPositionPointOrig = convertirPosition(tabLigne[3].trim());
 					int numPositionPointDest = convertirPosition(tabLigne[6].trim());
+
+					liaisonVue.setRoleOrig(roleOrig.trim());
+					liaisonVue.setRoleDest(roleDest.trim());
 
 					liaisonVue.setSideOrigine(numPositionPointOrig);
 					liaisonVue.setSideDestination(numPositionPointDest);
@@ -252,7 +181,6 @@ public class GestionSauvegarde
 			default       -> -1;
 		};
     };
-
 
 	/**
 	* Charge les blocs classe depuis le fichier de sauvegarde portant le nom du projet
@@ -317,10 +245,10 @@ public class GestionSauvegarde
 						{
 							// C'est une ligne de définition de bloc
 							String  nomBloc      = parts[0].trim();
-							int     x            = Integer.parseInt(parts[1].trim());
-							int     y            = Integer.parseInt(parts[2].trim());
-							int     largeur      = Integer.parseInt(parts[3].trim());
-							int     hauteur      = Integer.parseInt(parts[4].trim());
+							int     x            = Integer.parseInt    (parts[1].trim());
+							int     y            = Integer.parseInt    (parts[2].trim());
+							int     largeur      = Integer.parseInt    (parts[3].trim());
+							int     hauteur      = Integer.parseInt    (parts[4].trim());
 							boolean estInterface = Boolean.parseBoolean(parts[5].trim());
 
 							// Créer le bloc
@@ -483,50 +411,53 @@ public class GestionSauvegarde
 		Path cheminPath = Path.of(ConstantesChemins.SAUVEGARDES, nomProjet + ".xml");
 		File file       = new File(cheminPath.toString());
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) 
-        {
-            bw.write(this.SECTION_LIAISONS);
-            bw.newLine();
-            bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tblocDest\tcoteDest\tposRelDest\tmultiOrig\tmultiDest");
-            bw.newLine();
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) 
+		{
+			bw.write(this.SECTION_LIAISONS);
+			bw.newLine();
+			bw.write("#typeLiaison\tid\tblocOrig\tcoteOrig\tposRelOrig\tblocDest\tcoteDest\tposRelDest\troleOrig\troleDest\tmultiOrig\tmultiDest");
+			bw.newLine();
 
+			int id = 0;
 
-            int id = 0;
-            // Écrire les informations de toutes les liaisons
-            for (LiaisonVue liaisonVue : listLiaison) 
-            {	
+			for (LiaisonVue liaisonVue : listLiaison) 
+			{	
 				String type = liaisonVue.getType();
-				if(type.equals("association"))
+				if (type.equals("association")) 
 				{
-					if(liaisonVue.isUnidirectionnel())
-					{
-						type = type + "_uni";
-					} 
-					else 
-					{
-						type = type + "_bi";
-					}
+					type = liaisonVue.isUnidirectionnel() ? type + "_uni" : type + "_bi";
 				}
-				
-                bw.write(type                                     + this.SEPARATEUR + 
-                         id                                       + this.SEPARATEUR + 
-                         liaisonVue.getBlocOrigine().getNom()     + this.SEPARATEUR + 
-                         liaisonVue.getSideOrig()                 + this.SEPARATEUR + 
-                         liaisonVue.getNivOrig()                  + this.SEPARATEUR + 
-                         liaisonVue.getBlocDestination().getNom() + this.SEPARATEUR + 
-                         liaisonVue.getSideDest()                 + this.SEPARATEUR + 
-                         liaisonVue.getNivDest()                  + this.SEPARATEUR +
-						 liaisonVue.getMultOrig()                 + this.SEPARATEUR + 
-                         liaisonVue.getMultDest() );
-                bw.newLine();
-                id++;
-            }
-        } 
-        catch (Exception e) 
-        {
-            e.printStackTrace();
-        }
-    }
+
+				// Rôles et multiplicité avec trim + valeur par défaut
+				String roleOrig  = (liaisonVue.getRoleOrig()  == null || liaisonVue.getRoleOrig().trim().isEmpty())  ? VALEUR_VIDE : liaisonVue.getRoleOrig().trim();
+				String roleDest  = (liaisonVue.getRoleDest()  == null || liaisonVue.getRoleDest().trim().isEmpty())  ? VALEUR_VIDE : liaisonVue.getRoleDest().trim();
+				String multOrig  = (liaisonVue.getMultOrig()  == null || liaisonVue.getMultOrig().trim().isEmpty())  ? VALEUR_VIDE : liaisonVue.getMultOrig().trim();
+				String multDest  = (liaisonVue.getMultDest()  == null || liaisonVue.getMultDest().trim().isEmpty())  ? VALEUR_VIDE : liaisonVue.getMultDest().trim();
+
+				// Écriture dans le fichier
+				bw.write(
+					type                                     + this.SEPARATEUR +
+					id                                       + this.SEPARATEUR +
+					liaisonVue.getBlocOrigine().getNom()     + this.SEPARATEUR +
+					liaisonVue.getSideOrig()                 + this.SEPARATEUR +
+					liaisonVue.getNivOrig()                  + this.SEPARATEUR +
+					liaisonVue.getBlocDestination().getNom() + this.SEPARATEUR +
+					liaisonVue.getSideDest()                 + this.SEPARATEUR +
+					liaisonVue.getNivDest()                  + this.SEPARATEUR +
+					roleOrig                                 + this.SEPARATEUR +
+					roleDest                                 + this.SEPARATEUR +
+					multOrig                                 + this.SEPARATEUR +
+					multDest
+				);
+				bw.newLine();
+				id++;
+			}
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+	}
 
 	public boolean fichierDeSauvegardeExiste(String nomIntitule) 
 	{
@@ -534,7 +465,7 @@ public class GestionSauvegarde
 		File   file       = new File(cheminPath);
 		return file.exists();
 	}
-	
+
 	public String getIntituleFromLien(String paraCheminDossier) 
 	{
 
@@ -600,7 +531,6 @@ public class GestionSauvegarde
 
 	public boolean projetEstSauvegarde(String cheminProjet) 
 	{
-
 		String fichierPath = Path.of(ConstantesChemins.DONNEES, "projets.xml").toString();
 		
 		try(Scanner scan = new Scanner(new File(fichierPath))) 
@@ -613,9 +543,7 @@ public class GestionSauvegarde
 
 				// Vérifier si le chemin du projet correspond
 				if(tabLigne.length >= 1 && tabLigne[0].equals(cheminProjet.trim()))
-				{
 					return true;
-				}
 			}
 			
 		} 
@@ -635,7 +563,6 @@ public class GestionSauvegarde
 		// Vérifier si le projet est déjà enregistré
 		if (!projetEstSauvegarde(cheminFichier))
 		{
-	
 			String fichierPath = Path.of(ConstantesChemins.DONNEES, "projets.xml").toString();
 
 			File fichier = new File(fichierPath);
@@ -669,14 +596,9 @@ public class GestionSauvegarde
 		}
 	}
 
-
 	//-----------//
 	//  GETTERS  //
 	//-----------//
 
-	public String getCheminDossier() 
-	{
-		return this.cheminDossier;
-	}
+	public String getCheminDossier() { return this.cheminDossier; }
 }
-//test
