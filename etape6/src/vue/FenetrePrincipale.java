@@ -86,8 +86,6 @@ public class FenetrePrincipale extends JFrame
             // pour eviter un mauvais placement des fléches
             SwingUtilities.invokeLater(() ->
             {
-                    optimiserPositionsClasses();
-                    optimiserPositionsLiaisons();
                     revalidate();
                     repaint();
             });
