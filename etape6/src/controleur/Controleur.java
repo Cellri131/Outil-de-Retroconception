@@ -312,8 +312,5 @@ public class Controleur
 
     public List<BlocClasse> getBlocClasses() { return this.lstBlocs; }
 
-    public ArrayList<String> getLstFichiersInvalides(String cheminDossier)
-    {
-        return Lecture.getFichiersInvalides(cheminDossier);
-    }
+    public ArrayList<String> getLstFichiersInvalides(String cheminDossier) {    return Lecture.getFichiersInvalides(cheminDossier); }
 }
