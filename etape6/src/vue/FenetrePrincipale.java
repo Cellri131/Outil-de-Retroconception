@@ -10,6 +10,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import metier.util.test_structure_projet.VerificationStructureProjet;
@@ -118,16 +119,16 @@ public class FenetrePrincipale extends JFrame
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY); // choisir un fichier
         chooser.setSelectedFile(new File("diagramme.png")); // nom par défaut
 
-        int retour = chooser.showSaveDialog(panneauDiagramme);
+        int resultat = chooser.showSaveDialog(panneauDiagramme);
 
-        if (retour == JFileChooser.APPROVE_OPTION) 
+        if (resultat == JFileChooser.APPROVE_OPTION) 
         {
             File fichierSortie = chooser.getSelectedFile();
             if (!fichierSortie.getName().toLowerCase().endsWith(".png")) 
             {
                 fichierSortie = new File(fichierSortie.getParentFile(), fichierSortie.getName() + ".png");
             }
-            
+
             try 
             {
                 // Sauvegarder le zoom actuel et le réinitialiser pour l'export
@@ -135,7 +136,7 @@ public class FenetrePrincipale extends JFrame
                 boolean textZoomSauvegarde = panneauDiagramme.isAfficherTextZoom();
 
                 panneauDiagramme.setAfficherTextZoom(false);
-                
+
                 BufferedImage image = new BufferedImage
                 (
                     panneauDiagramme.getWidth(), panneauDiagramme.getHeight(), BufferedImage.TYPE_INT_ARGB
@@ -143,8 +144,10 @@ public class FenetrePrincipale extends JFrame
 
                 panneauDiagramme.printAll(image.createGraphics());
                 ImageIO.write(image, "png", fichierSortie);
-                System.out.println("Diagramme sauvegardé dans"+fichierSortie);
-                
+
+                String diagrammeSave = "Diagramme sauvegardé dans " + fichierSortie.getPath();
+                JOptionPane.showMessageDialog(this, diagrammeSave, "Save Diagramme", JOptionPane.INFORMATION_MESSAGE);
+
                 // Restaurer le zoom et l'affichage du texte
                 panneauDiagramme.setZoomLevel       (zoomSauvegarde    );
                 panneauDiagramme.setAfficherTextZoom(textZoomSauvegarde);
