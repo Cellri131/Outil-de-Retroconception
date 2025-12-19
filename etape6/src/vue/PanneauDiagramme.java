@@ -75,7 +75,7 @@ public class PanneauDiagramme extends JPanel
        
 
         this.menuChangerMultiplicite.addActionListener(ActionEvent -> {
-            FenetreChangementMultiplicite fenetreChangementMultiplicite = new FenetreChangementMultiplicite();
+            FenetreChangementMultiplicite fenetreChangementMultiplicite = new FenetreChangementMultiplicite(this);
             fenetreChangementMultiplicite.setVisible(true);
         });
 
@@ -114,6 +114,11 @@ public class PanneauDiagramme extends JPanel
             UIManager.put("TitledBorder.font", new Font(defaultFont.getName(), Font.PLAIN, 14));
 
         ajouterListenersInteraction();
+    }
+
+    public BlocClasse getBlocClasseClic()
+    {
+        return this.blocClique;
     }
 
     //----------------------//
@@ -177,6 +182,7 @@ public class PanneauDiagramme extends JPanel
 				{
 					if (bloc.contient((int) logicalX, (int) logicalY)) 
 					{
+                        System.out.println("OOOOOOOOOOOOOOOOOOOOOOOO Bloc cliqué mis à jour : " + bloc.getNom());
 						PanneauDiagramme.this.blocClique = bloc;
 						break;
 					}
