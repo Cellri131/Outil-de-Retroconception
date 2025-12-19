@@ -149,8 +149,8 @@ public class LiaisonVue
                         liaison.posRelDestination = Math.max(0.1, Math.min(0.9, meilleurChemin.posRelDestination + destOffset));
                     }
                     
-                    liaison.ancrageOrigine = GestionnaireAncrage.getPointOnSide(liaison.blocOrigine, liaison.sideOrigine, liaison.posRelOrigine);
-                    liaison.ancrageDestination = GestionnaireAncrage.getPointOnSide(liaison.blocDestination, liaison.sideDestination, liaison.posRelDestination);
+                    liaison.ancrageOrigine = GestionnaireAncrage.getPointSurCote(liaison.blocOrigine, liaison.sideOrigine, liaison.posRelOrigine);
+                    liaison.ancrageDestination = GestionnaireAncrage.getPointSurCote(liaison.blocDestination, liaison.sideDestination, liaison.posRelDestination);
                     index++;
                 }
                 return;
@@ -186,17 +186,17 @@ public class LiaisonVue
                         if (isAnchorOccupied(blocOrigine, origSide, origPos) || 
                             isAnchorOccupied(blocDestination, destSide, destPos)) continue;
                         
-                        Point start = GestionnaireAncrage.getPointOnSide(blocOrigine, origSide, origPos);
-                        Point end = GestionnaireAncrage.getPointOnSide(blocDestination, destSide, destPos);
+                        Point start = GestionnaireAncrage.getPointSurCote(blocOrigine, origSide, origPos);
+                        Point end = GestionnaireAncrage.getPointSurCote(blocDestination, destSide, destPos);
                         
                         // Calculer le chemin orthogonal
-                        List<Point> testPath = calculateurChemin.createOrthogonalPath(start, end, origSide, destSide);
+                        List<Point> testPath = calculateurChemin.creerCheminOrthogonal(start, end, origSide, destSide);
                         
                         // Vérifier les collisions
-                        if (!calculateurChemin.pathHasCollisions(testPath)) {
+                        if (!calculateurChemin.cheminADesCollisions(testPath)) {
                             // Compter le nombre RÉEL de segments dans le chemin calculé
                             int actualSegments = testPath.size() - 1;
-                            double distance = calculateurChemin.calculatePathLength(testPath);
+                            double distance = calculateurChemin.calculerLongueurChemin(testPath);
                             
                             // Pénalité massive pour les accordéons
                             boolean hasAccordion = hasAccordion(testPath);
@@ -385,18 +385,18 @@ public class LiaisonVue
 
 		if (start.x == end.x)
 		{
-			result.canDirect = !detecteurObstacles.hasVerticalObstacleStrict(start.x, start.y, end.y);
+			result.canDirect = !detecteurObstacles.aObstacleVerticalStrict(start.x, start.y, end.y);
 			result.distance  = Math.abs(end.y - start.y);
 		}
 		else if (start.y == end.y)
 		{
-			result.canDirect = !detecteurObstacles.hasHorizontalObstacleStrict(start.x, end.x, start.y);
+			result.canDirect = !detecteurObstacles.aObstacleHorizontalStrict(start.x, end.x, start.y);
 			result.distance  = Math.abs(end.x - start.x);
 		}
 
 		if (result.canDirect)
 		{
-			int centerPriority = GestionnaireAncrage.calculateCenterPriority(pos);
+			int centerPriority = GestionnaireAncrage.calculerPrioriteCentre(pos);
 			int naturalBonus   = isNatural ? -1000 : 0;
 			result.priority    = centerPriority + naturalBonus;
 		}
@@ -490,11 +490,11 @@ public class LiaisonVue
         List<LiaisonVue> overlapping = new ArrayList<>();
         for (LiaisonVue autre : toutesLesLiaisons) {
             if (autre == this) continue;
-            Point autreOrig = GestionnaireAncrage.getPointOnSide(autre.blocOrigine, autre.sideOrigine, autre.posRelOrigine);
-            Point autreDest = GestionnaireAncrage.getPointOnSide(autre.blocDestination, autre.sideDestination, autre.posRelDestination);
-            List<Point> autrePath = calculateurChemin.createOrthogonalPath(autreOrig, autreDest, autre.sideOrigine, autre.sideDestination);
+            Point autreOrig = GestionnaireAncrage.getPointSurCote(autre.blocOrigine, autre.sideOrigine, autre.posRelOrigine);
+            Point autreDest = GestionnaireAncrage.getPointSurCote(autre.blocDestination, autre.sideDestination, autre.posRelDestination);
+            List<Point> autrePath = calculateurChemin.creerCheminOrthogonal(autreOrig, autreDest, autre.sideOrigine, autre.sideDestination);
             
-            if (gestionnaireIntersections.pathsShareSegments(myPath, autrePath)) {
+            if (gestionnaireIntersections.cheminsPartagentSegments(myPath, autrePath)) {
                 overlapping.add(autre);
             }
         }
@@ -519,18 +519,18 @@ public class LiaisonVue
 		{
 			if (autre == this) continue;
 
-			Point autreOrig     = GestionnaireAncrage.getPointOnSide(autre.blocOrigine, autre.sideOrigine, autre.posRelOrigine);
-			Point autreDest     = GestionnaireAncrage.getPointOnSide(autre.blocDestination, autre.sideDestination, autre.posRelDestination);
-			List<Point> autreOrigPath = calculateurChemin.createOrthogonalPath(autreOrig, autreDest, autre.sideOrigine, autre.sideDestination);
+			Point autreOrig     = GestionnaireAncrage.getPointSurCote(autre.blocOrigine, autre.sideOrigine, autre.posRelOrigine);
+			Point autreDest     = GestionnaireAncrage.getPointSurCote(autre.blocDestination, autre.sideDestination, autre.posRelDestination);
+			List<Point> autreOrigPath = calculateurChemin.creerCheminOrthogonal(autreOrig, autreDest, autre.sideOrigine, autre.sideDestination);
 
 			int autreOffset = autre.calculatePathOffset(autreOrigPath);
-			List<Point> autrePath = (autreOffset != 0) ? calculateurChemin.applyOffsetToPath(autreOrigPath, autreOffset) : autreOrigPath;
+			List<Point> autrePath = (autreOffset != 0) ? calculateurChemin.appliquerDecalageAuChemin(autreOrigPath, autreOffset) : autreOrigPath;
 
 			for (int i = 0; i < myPath.size() - 1; i++)
 			{
 				for (int j = 0; j < autrePath.size() - 1; j++)
 				{
-					Point inter = gestionnaireIntersections.getSegmentIntersection(
+					Point inter = gestionnaireIntersections.getIntersectionSegment(
 						myPath.get(i), myPath.get(i + 1),
 						autrePath.get(j), autrePath.get(j + 1)
 					);
@@ -558,12 +558,12 @@ public class LiaisonVue
 	// =========================
 	public void dessiner(Graphics2D g)
 	{
-		ancrageOrigine      = GestionnaireAncrage.getPointOnSide(blocOrigine, sideOrigine, posRelOrigine);
-		ancrageDestination  = GestionnaireAncrage.getPointOnSide(blocDestination, sideDestination, posRelDestination);
+		ancrageOrigine      = GestionnaireAncrage.getPointSurCote(blocOrigine, sideOrigine, posRelOrigine);
+		ancrageDestination  = GestionnaireAncrage.getPointSurCote(blocDestination, sideDestination, posRelDestination);
 
-		List<Point> originalPath = calculateurChemin.createOrthogonalPath(ancrageOrigine, ancrageDestination, sideOrigine, sideDestination);
+		List<Point> originalPath = calculateurChemin.creerCheminOrthogonal(ancrageOrigine, ancrageDestination, sideOrigine, sideDestination);
 		int offset = calculatePathOffset(originalPath);
-		List<Point> path = (offset != 0) ? calculateurChemin.applyOffsetToPath(originalPath, offset) : originalPath;
+		List<Point> path = (offset != 0) ? calculateurChemin.appliquerDecalageAuChemin(originalPath, offset) : originalPath;
 		List<Point> intersections = findIntersections(path);
 
 		g.setColor(Color.BLACK);
@@ -581,7 +581,7 @@ public class LiaisonVue
 			if (segmentIntersections.isEmpty())
 				g.drawLine(p1.x, p1.y, p2.x, p2.y);
 			else
-				renduLiaison.drawLineWithBridges(g, p1, p2, segmentIntersections, normalStroke);
+				renduLiaison.dessinerLigneAvecPonts(g, p1, p2, segmentIntersections, normalStroke);
 		}
 
 
@@ -609,25 +609,25 @@ public class LiaisonVue
 
 		if (multOrig != null && !multOrig.isEmpty())
 		{
-			Point pos = GestionnaireAncrage.calculateMultiplicityPosition(ancrageOrigine, sideOrigine, fm.stringWidth(multOrig), fm.getAscent());
+			Point pos = GestionnaireAncrage.calculerPositionMultiplicite(ancrageOrigine, sideOrigine, fm.stringWidth(multOrig), fm.getAscent());
 			g.drawString(multOrig, pos.x, pos.y);
 		}
 
 		if (multDest != null && !multDest.isEmpty())
 		{
-			Point pos = GestionnaireAncrage.calculateMultiplicityPosition(ancrageDestination, sideDestination, fm.stringWidth(multDest), fm.getAscent());
+			Point pos = GestionnaireAncrage.calculerPositionMultiplicite(ancrageDestination, sideDestination, fm.stringWidth(multDest), fm.getAscent());
 			g.drawString(multDest, pos.x, pos.y);
 		}
 
 		if (roleOrig != null && !roleOrig.isEmpty())
 		{
-			Point rolePos = GestionnaireAncrage.calculateRolePosition(ancrageOrigine, sideOrigine, fm.stringWidth(roleOrig), fm.getAscent(), fm.getAscent());
+			Point rolePos = GestionnaireAncrage.calculerPositionRole(ancrageOrigine, sideOrigine, fm.stringWidth(roleOrig), fm.getAscent(), fm.getAscent());
 			g.drawString(roleOrig, rolePos.x, rolePos.y);
 		}
 
 		if (roleDest != null && !roleDest.isEmpty())
 		{
-			Point rolePos = GestionnaireAncrage.calculateRolePosition(ancrageDestination, sideDestination, fm.stringWidth(roleDest), fm.getAscent(), fm.getAscent());
+			Point rolePos = GestionnaireAncrage.calculerPositionRole(ancrageDestination, sideDestination, fm.stringWidth(roleDest), fm.getAscent(), fm.getAscent());
 			g.drawString(roleDest, rolePos.x, rolePos.y);
 		}
 	}
@@ -661,16 +661,16 @@ public class LiaisonVue
 	// =========================
 	// Gestion des ancrages (drag, vérifications)
 	// =========================
-	public boolean isOnOriginAnchor(Point m) { return GestionnaireAncrage.isOnAnchor(ancrageOrigine, m, 1, 0, 0, 0, 0); }
-	public boolean isOnOriginAnchor(Point m, double z, int px, int py, int w, int h) { return GestionnaireAncrage.isOnAnchor(ancrageOrigine, m, z, px, py, w, h); }
-	public boolean isOnDestinationAnchor(Point m) { return GestionnaireAncrage.isOnAnchor(ancrageDestination, m, 1, 0, 0, 0, 0); }
-	public boolean isOnDestinationAnchor(Point m, double z, int px, int py, int w, int h) { return GestionnaireAncrage.isOnAnchor(ancrageDestination, m, z, px, py, w, h); }
+public boolean isOnOriginAnchor(Point m) { return GestionnaireAncrage.estSurAncrage(ancrageOrigine, m, 1, 0, 0, 0, 0); }
+        public boolean isOnOriginAnchor(Point m, double z, int px, int py, int w, int h) { return GestionnaireAncrage.estSurAncrage(ancrageOrigine, m, z, px, py, w, h); }
+        public boolean isOnDestinationAnchor(Point m) { return GestionnaireAncrage.estSurAncrage(ancrageDestination, m, 1, 0, 0, 0, 0); }
+        public boolean isOnDestinationAnchor(Point m, double z, int px, int py, int w, int h) { return GestionnaireAncrage.estSurAncrage(ancrageDestination, m, z, px, py, w, h); }
 
 	private void dragAnchor(Point m, double z, int px, int py, int w, int h, BlocClasse bloc, boolean isOrig)
 	{
 		Point lm = z == 1.0 ? m : new Point((int)((m.x - px - w / 2) / z + w / (2 * z)), (int)((m.y - py - h / 2) / z + h / (2 * z)));
-		int s = GestionnaireAncrage.getClosestSide(lm, bloc);
-		double p = GestionnaireAncrage.getRelativePosFromMouse(lm, bloc, s);
+int s = GestionnaireAncrage.getCoteLePlusProche(lm, bloc);
+                double p = GestionnaireAncrage.getPosRelativeDepuisSouris(lm, bloc, s);
 
 		if (isOrig)
 		{
@@ -828,14 +828,14 @@ public class LiaisonVue
                 boolean isNaturalPair = isNaturalSidePair(origSide, destSide, destIsRight, destIsLeft, destIsBelow, destIsAbove);
                 
                 if (isNaturalPair) {
-                    Point start = GestionnaireAncrage.getPointOnSide(origine, origSide, 0.5);
-                    Point end = GestionnaireAncrage.getPointOnSide(destination, destSide, 0.5);
+                    Point start = GestionnaireAncrage.getPointSurCote(origine, origSide, 0.5);
+                    Point end = GestionnaireAncrage.getPointSurCote(destination, destSide, 0.5);
                     
-                    List<Point> testPath = calculateurChemin.createOrthogonalPath(start, end, origSide, destSide);
+                    List<Point> testPath = calculateurChemin.creerCheminOrthogonal(start, end, origSide, destSide);
                     
-                    if (!calculateurChemin.pathHasCollisions(testPath) && !hasAccordion(testPath)) {
+                    if (!calculateurChemin.cheminADesCollisions(testPath) && !hasAccordion(testPath)) {
                         int actualSegments = testPath.size() - 1;
-                        double distance = calculateurChemin.calculatePathLength(testPath);
+                        double distance = calculateurChemin.calculerLongueurChemin(testPath);
                         
                         CheminCandidat candidat = new CheminCandidat(
                             origSide, destSide, 0.5, 0.5,
@@ -856,20 +856,21 @@ public class LiaisonVue
         }
         
         // Sinon, tester toutes les combinaisons
+        int actualSegments = 0;
         for (int origSide = 0; origSide < 4; origSide++) {
             for (int destSide = 0; destSide < 4; destSide++) {
                 boolean isNaturalPair = isNaturalSidePair(origSide, destSide, destIsRight, destIsLeft, destIsBelow, destIsAbove);
                 
                 for (double origPos : positions) {
                     for (double destPos : positions) {
-                        Point start = GestionnaireAncrage.getPointOnSide(origine, origSide, origPos);
-                        Point end = GestionnaireAncrage.getPointOnSide(destination, destSide, destPos);
+                        Point start = GestionnaireAncrage.getPointSurCote(blocOrigine, origSide, origPos);
+                        Point end = GestionnaireAncrage.getPointSurCote(blocDestination, destSide, destPos);
                         
-                        List<Point> testPath = calculateurChemin.createOrthogonalPath(start, end, origSide, destSide);
+                        List<Point> testPath = calculateurChemin.creerCheminOrthogonal(start, end, origSide, destSide);
                         
-                        if (!calculateurChemin.pathHasCollisions(testPath)) {
-                            int actualSegments = testPath.size() - 1;
-                            double distance = calculateurChemin.calculatePathLength(testPath);
+                        if (!calculateurChemin.cheminADesCollisions(testPath)) {
+                            actualSegments = testPath.size() - 1;
+                            double distance = calculateurChemin.calculerLongueurChemin(testPath);
                             boolean hasAccordion = hasAccordion(testPath);
                             
                             // Pénalité légère pour positions exactement sur les coins

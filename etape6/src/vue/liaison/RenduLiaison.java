@@ -17,7 +17,7 @@ public class RenduLiaison {
     /**
      * Dessine une ligne avec des ponts aux intersections
      */
-    public void drawLineWithBridges(Graphics2D g, Point p1, Point p2, List<Point> intersections, Stroke normalStroke) {
+    public void dessinerLigneAvecPonts(Graphics2D g, Point p1, Point p2, List<Point> intersections, Stroke traitNormal) {
         final int BRIDGE_SIZE = 8;
         
         boolean horizontal = (p1.y == p2.y);
@@ -43,7 +43,7 @@ public class RenduLiaison {
         Point current = p1;
         
         for (Point inter : intersections) {
-            g.setStroke(normalStroke);
+            g.setStroke(traitNormal);
             if (current.y < inter.y) {
                 g.drawLine(current.x, current.y, inter.x, inter.y - BRIDGE_SIZE / 2);
             } else {
@@ -61,7 +61,7 @@ public class RenduLiaison {
             }
         }
         
-        g.setStroke(normalStroke);
+        g.setStroke(traitNormal);
         g.drawLine(current.x, current.y, p2.x, p2.y);
     }
     

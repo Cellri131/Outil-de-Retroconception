@@ -12,7 +12,7 @@ public class GestionnaireIntersections
     /**
      * Détecte si deux segments orthogonaux se croisent
      */
-    public Point getSegmentIntersection(Point a1, Point a2, Point b1, Point b2)
+    public Point getIntersectionSegment(Point a1, Point a2, Point b1, Point b2)
     {
         boolean a_horizontal = (a1.y == a2.y);
         boolean a_vertical   = (a1.x == a2.x);
@@ -51,21 +51,21 @@ public class GestionnaireIntersections
     /**
      * Vérifie si deux chemins partagent des segments communs
      */
-    public boolean pathsShareSegments(List<Point> path1, List<Point> path2)
+    public boolean cheminsPartagentSegments(List<Point> chemin1, List<Point> chemin2)
     {
-        if (path1.size() < 2 || path2.size() < 2) return false;
+        if (chemin1.size() < 2 || chemin2.size() < 2) return false;
         
-        for (int i = 0; i < path1.size() - 1; i++)
+        for (int i = 0; i < chemin1.size() - 1; i++)
         {
-            Point p1a = path1.get(i    );
-            Point p1b = path1.get(i + 1);
+            Point p1a = chemin1.get(i    );
+            Point p1b = chemin1.get(i + 1);
             
-            for (int j = 0; j < path2.size() - 1; j++)
+            for (int j = 0; j < chemin2.size() - 1; j++)
             {
-                Point p2a = path2.get(j    );
-                Point p2b = path2.get(j + 1);
+                Point p2a = chemin2.get(j    );
+                Point p2b = chemin2.get(j + 1);
                 
-                if (segmentsOverlap(p1a, p1b, p2a, p2b))
+                if (segmentsSeChevauchent(p1a, p1b, p2a, p2b))
                     return true;
             }
         }
@@ -75,7 +75,7 @@ public class GestionnaireIntersections
     /**
      * Vérifie si deux segments sont colinéaires et se chevauchent
      */
-    private boolean segmentsOverlap(Point a1, Point a2, Point b1, Point b2)
+    private boolean segmentsSeChevauchent(Point a1, Point a2, Point b1, Point b2)
     {
         if (a1.y == a2.y && b1.y == b2.y && a1.y == b1.y)
         {
