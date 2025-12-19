@@ -1,17 +1,13 @@
 package vue.role_classe;
 
-import vue.PanneauDiagramme;
-import controleur.Controleur;
-import java.awt.BorderLayout;
-
 import java.awt.*;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
+import vue.PanneauDiagramme;
 
 public class FenetreModifRole extends JFrame
 {
     private PanneauDiagramme panDiag;
-    private PanelModifRole   panelModifRole;
+    private PanneauModifRole   PanneauModifRole;
 
     public FenetreModifRole(PanneauDiagramme panDiag) 
     {
@@ -28,8 +24,8 @@ public class FenetreModifRole extends JFrame
         this.setLocation(largeur/2, hauteur/2);
 
 
-        this.panelModifRole = new PanelModifRole(this.panDiag);
-        this.add(this.panelModifRole, BorderLayout.CENTER);
+        this.PanneauModifRole = new PanneauModifRole(this.panDiag);
+        this.add(this.PanneauModifRole, BorderLayout.CENTER);
 
         this.setVisible(true);
 
