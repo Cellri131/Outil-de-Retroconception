@@ -369,9 +369,7 @@ public class PanneauDiagramme extends JPanel
 
                     repaint();
                 }
-            }
-
-            
+            }            
         });
 
         // Listener pour la molette de souris (zoom)
@@ -472,16 +470,17 @@ public class PanneauDiagramme extends JPanel
         if (lstLiaisons.isEmpty())
             return;
 
-        // D'abord, passer la liste de toutes les lstLiaisons à chaque liaison
+        // D'abord, passer la liste de toutes les liaisons à chaque liaison
         for (LiaisonVue liaison : lstLiaisons)
             liaison.setToutesLesLiaisons(lstLiaisons);
         
-        // Réinitialiser toutes les lstLiaisons avec le nouvel algorithme
+        // Réinitialiser toutes les liaisons avec le nouvel algorithme
         for (LiaisonVue liaison : lstLiaisons)
             liaison.recalculerAncrages();
 
+
         // Redessiner
-        rafraichirDiagramme();
+        repaint();
     }
 
 
@@ -654,32 +653,15 @@ public class PanneauDiagramme extends JPanel
         requestFocusInWindow();
     }
 
-    public UUID getIdLiaison(){
-        return idLiaison;
-    }
+    public UUID             getIdLiaison          () { return idLiaison          ; }
+    public List<LiaisonVue> getLstLiaisons        () { return lstLiaisons        ; }
+    public boolean          isOrigineLiaison      () { return estOrigineLiaison  ; }
+    public List<BlocClasse> getBlocsClasses       () { return lstBlocsClasses    ; }
+    public BlocClasse       getBlocClique         () { return blocClique         ; }
+    public String           getCheminProjetCourant() { return cheminProjetCourant; }
 
-    public List<LiaisonVue> getLstLiaisons() {
-        return lstLiaisons;
-    }
-
-    public boolean isOrigineLiaison(){
-        return estOrigineLiaison;
-    }
-
-    public List<BlocClasse> getBlocsClasses() {
-        return lstBlocsClasses;
-    }
-
-
-    public BlocClasse getBlocClique() {
-        return blocClique;
-    }
-
-    public String getCheminProjetCourant() {
-        return cheminProjetCourant;
-    }
-
-    public void setAfficherMethodes(boolean b) {
+    public void setAfficherMethodes(boolean b)
+    {
         this.afficherMethodes = b;
         this.repaint();
     }
@@ -709,10 +691,7 @@ public class PanneauDiagramme extends JPanel
             this.fenetrePrincipale.sauvegarderClasses(this.lstBlocsClasses, this.lstLiaisons, cheminProjetCourant);
     }
 
-    public void setSauvegardeAuto(boolean b)
-    {
-        this.sauvegardeAuto = b;
-    }
+    public void setSauvegardeAuto(boolean b) { this.sauvegardeAuto = b; }
 
     public void actionEffectuee()
     {

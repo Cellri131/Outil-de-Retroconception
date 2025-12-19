@@ -15,21 +15,20 @@ public class BlocClasse
 	//        ATTRIBUTS         //
 	//--------------------------//
 
-	private final UUID id;
+	private final UUID 	id					;
 
-	private String       nom           ;
-	private boolean      estInterface  ;
-	private boolean      estSelectionne;
-	private List<String> attributs     ;
-	private List<String> methodes      ;
+	private String       nom                ;
+	private boolean      estInterface       ;
+	private boolean      estSelectionne     ;
+	private List<String> attributs          ;
+	private List<String> methodes           ;
 
-	private int x      ;
-	private int y      ;
-	private int largeur;
-	private int hauteur;
-
-	private int     hauteurCalculee    ;
-	private boolean affichagePleinEcran;
+	private int          x                  ;
+	private int          y                  ;
+	private int          largeur            ;
+	private int          hauteur            ;
+	private int          hauteurCalculee    ;
+	private boolean      affichagePleinEcran;
 
 	// Constantes 
 	private static final int PADDING           = 10;
@@ -48,16 +47,17 @@ public class BlocClasse
 	
 	public BlocClasse(String nom, int x, int y) 
 	{
-		this.id = UUID.randomUUID();
+		this.id					 = UUID.randomUUID();
 
-		this.nom = nom;
-		this.x   = x;
-		this.y   = y;
-		this.largeur = 200;
-		this.hauteur = 150;
+		this.nom                 = nom  ;
+		this.x                   = x    ;
+		this.y                   = y    ;
+		this.largeur             = 200  ;
+		this.hauteur             = 150  ;
 		this.estInterface        = false;
 		this.estSelectionne      = false;
 		this.affichagePleinEcran = false;
+
 		this.attributs = new ArrayList<String>();
 		this.methodes  = new ArrayList<String>();
 	}
