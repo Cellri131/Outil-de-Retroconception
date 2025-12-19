@@ -38,5 +38,5 @@ src/vue/liaison/RenduLiaison.java
 
 src/vue/role_classe/FenetreChangementMultiplicite.java
 src/vue/role_classe/FenetreModifRole.java
-src/vue/role_classe/PanelModif.java
-src/vue/role_classe/PanelModifRole.java
+src/vue/role_classe/PanneauModif.java
+src/vue/role_classe/PanneauModifRole.java

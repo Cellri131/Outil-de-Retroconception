@@ -1,18 +1,17 @@
 package vue.role_classe;
 
-import vue.PanneauDiagramme;
-import vue.liaison.LiaisonVue;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.*;
+import vue.PanneauDiagramme;
+import vue.liaison.LiaisonVue;
 
 /**
  * Panel permettant de modifier le rôle d'une liaison pour un bloc sélectionné.
  * Affiche les associations et interfaces liées au bloc avec des radio-boutons séparés par type.
  */
-public class PanelModifRole extends JPanel implements ActionListener
+public class PanneauModifRole extends JPanel implements ActionListener
 {
     private final PanneauDiagramme panDiag;
     private final String           nomBlocSelectionne;
@@ -38,7 +37,7 @@ public class PanelModifRole extends JPanel implements ActionListener
      *
      * @param panDiag Panneau diagramme contenant le bloc cliqué et la liste des liaisons
      */
-    public PanelModifRole(PanneauDiagramme panDiag)
+    public PanneauModifRole(PanneauDiagramme panDiag)
     {
         this.panDiag            = panDiag;
         this.nomBlocSelectionne = panDiag.getBlocClique().getNom();

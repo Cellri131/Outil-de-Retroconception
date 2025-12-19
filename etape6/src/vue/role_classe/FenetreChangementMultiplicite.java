@@ -1,22 +1,17 @@
 package vue.role_classe;
 
 
-import controleur.Controleur;
-import vue.PanneauDiagramme;
-
 import java.awt.BorderLayout;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import javax.swing.JFrame;
+import vue.PanneauDiagramme;
 
 
 public class FenetreChangementMultiplicite extends JFrame
 {
 
-    private PanelModif panelModif;
+    private PanneauModif PanneauModif;
     private PanneauDiagramme panDiag;
 
 
@@ -34,8 +29,8 @@ public class FenetreChangementMultiplicite extends JFrame
         this.setLocation(largeur/2, hauteur/2);
 
 
-        this.panelModif = new PanelModif(this.panDiag);
-        this.add(this.panelModif, BorderLayout.CENTER);
+        this.PanneauModif = new PanneauModif(this.panDiag);
+        this.add(this.PanneauModif, BorderLayout.CENTER);
         
 
 

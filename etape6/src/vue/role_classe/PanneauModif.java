@@ -1,18 +1,17 @@
 package vue.role_classe;
 
 import java.awt.GridLayout;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import vue.BlocClasse;
 import vue.PanneauDiagramme;
 import vue.liaison.LiaisonVue;
-import java.awt.event.*;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
-import vue.BlocClasse;
 
-public class PanelModif extends JPanel implements ListSelectionListener, ActionListener
+public class PanneauModif extends JPanel implements ListSelectionListener, ActionListener
 {
 	private JTextField txtMultipliciteMin;
 	private JTextField txtMultipliciteMax;
@@ -43,7 +42,7 @@ public class PanelModif extends JPanel implements ListSelectionListener, ActionL
 
 	private BlocClasse blocSelectionne;
 
-	public PanelModif(PanneauDiagramme panDiag)
+	public PanneauModif(PanneauDiagramme panDiag)
 	{
 		this.panDiag = panDiag;
 		this.blocSelectionne = panDiag.getBlocClique();
