@@ -167,53 +167,56 @@ public class PanneauDiagramme extends JPanel
                     return;
                 }
                 
-                // Convertir les coordonnées écran en coordonnées logiques (avec zoom et pan)
-                double logicalX = (e.getX() - panOffsetX - getWidth () / 2) / zoomLevel + getWidth () / (2 * zoomLevel);
-                double logicalY = (e.getY() - panOffsetY - getHeight() / 2) / zoomLevel + getHeight() / (2 * zoomLevel);
+				// Convertir les coordonnées écran en coordonnées logiques (avec zoom et pan)
+				double logicalX = (e.getX() - panOffsetX - getWidth() / 2) / zoomLevel + getWidth() / (2 * zoomLevel);
+				double logicalY = (e.getY() - panOffsetY - getHeight() / 2) / zoomLevel + getHeight() / (2 * zoomLevel);
 
-                // Clic-droit : affichage plein écran d'une classe ou pan
-                if (e.getButton() == MouseEvent.BUTTON3 )
-                {
-                   PanneauDiagramme.this.blocClique = null;
-                   boolean blocValide = false;
+				// Vérifier sur quel bloc on clique
+				PanneauDiagramme.this.blocClique = null;
+				for (BlocClasse bloc : lstBlocsClasses) 
+				{
+					if (bloc.contient((int) logicalX, (int) logicalY)) 
+					{
+						PanneauDiagramme.this.blocClique = bloc;
+						break;
+					}
+				}
 
-                    for (BlocClasse bloc : lstBlocsClasses) 
-                    {
-                        if (bloc.contient((int) logicalX, (int) logicalY)) 
-                        {
-                            PanneauDiagramme.this.blocClique = bloc;
-                            blocValide = true;
-                            break;
-                        }
+				// --- DOUBLE CLIC GAUCHE pour ouvrir le menu ---
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && blocClique != null) 
+				{
+					PanneauDiagramme.this.menuModif.show(e.getComponent(), e.getX(), e.getY());
+					return; // on sort après avoir affiché le menu
+				}
 
-                    }
+				// --- CLIC GAUCHE MAINTENU pour drag ---
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1 && blocClique != null) 
+				{
+					blocEnDeplacement = blocClique;
+					blocClique.setSelectionne(true);
+					pointDernier = e.getPoint();
+				}
 
-                    // Double-clic droit sur un bloc : afficher le menu contextuel
-                    if (e.getClickCount() == 2 && blocClique != null)
-                    {
-                        PanneauDiagramme.this.menuModif.show(e.getComponent(), e.getX(), e.getY());
-                    }
-                    // Si on clique sur un bloc, activer l'affichage plein écran temporairement
-                    if (blocClique != null)
-                    {
-                        blocPleinEcranTemporaire = blocClique;
-                        blocClique.setAffichagePleinEcran(true);
-                        repaint();
-                        return;
-                    }
-                    
-                    // Sinon, commencer le pan
-                    isPanning = true           ;
-                    pointDernier = e.getPoint();
+				// --- CLIC DROIT pour pan / plein écran ---
+				if (SwingUtilities.isRightMouseButton(e)) 
+				{
+					if (blocClique != null) 
+					{
+						blocPleinEcranTemporaire = blocClique;
+						blocClique.setAffichagePleinEcran(true);
+						repaint();
+						return;
+					}
+					isPanning = true;
+					pointDernier = e.getPoint();
+					return;
+				}
 
-                    return;
-                }
-
-                pointDernier              = e.getPoint();
-                blocEnDeplacement         = null        ;
-                liaisonEnDeplacement      = null        ;
-                draggingOriginAnchor      = false       ;
-                draggingDestinationAnchor = false       ;
+				// Réinitialisation par défaut
+				pointDernier = e.getPoint();
+				liaisonEnDeplacement = null;
+				draggingOriginAnchor = false;
+				draggingDestinationAnchor = false;
 
                 // Vérifier si on clique sur un point d'ancrage de liaison
                 for (LiaisonVue liaison : lstLiaisons)
