@@ -18,7 +18,6 @@ public enum ElementStructureProjet
 	TEST_LIB(     "../test-lib"      , TypeElement.DOSSIER),
 
 	// DOSSIERS RACINE
-	BIN(          "bin"           , TypeElement.DOSSIER),
 	DATA(         "data"          , TypeElement.DOSSIER),
 	SRC(          "src"           , TypeElement.DOSSIER),
 
