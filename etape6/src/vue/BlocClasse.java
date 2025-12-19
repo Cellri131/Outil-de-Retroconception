@@ -422,6 +422,7 @@ public class BlocClasse
 	public String       getNom            () { return nom            ; }
 	public List<String> getAttributs      () { return attributs      ; }
 	public List<String> getMethodes       () { return methodes       ; }
+	
 
 	public boolean estSelectionne       () { return estSelectionne     ; }
 	public boolean estInterface         () { return estInterface       ; }

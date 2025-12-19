@@ -44,6 +44,14 @@ public class FenetrePrincipale extends JFrame
         setLocationRelativeTo(null);
         setResizable(true);
 
+        // Charger et définir l'icône de la fenêtre
+        try {
+            Image icon = ImageIO.read(new File("src/res/uml_icon.png"));
+            setIconImage(icon);
+        } catch (Exception e) {
+            System.err.println("Impossible de charger l'icône: " + e.getMessage());
+        }
+
         panneauProjets   = new PanneauProjets  (this);
         panneauDiagramme = new PanneauDiagramme(this);
         panneauProjets.setBackground( new java.awt.Color(15, 15, 70)); 

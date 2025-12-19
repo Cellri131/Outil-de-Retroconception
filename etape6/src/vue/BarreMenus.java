@@ -250,6 +250,12 @@ public class BarreMenus extends JMenuBar
 									JOptionPane.INFORMATION_MESSAGE);
 	}
 
+        + "<div style='text-align:center;'>Projet académique – IUT du Havre</div>"
+        + "<div style='text-align:center;'>SAE 3.01 – Outil de rétroconception Java-UML</div>"
 
+        + "</body></html>";
 
+        JOptionPane.showMessageDialog(null,htmlMessage,"À propos",
+                                    JOptionPane.INFORMATION_MESSAGE);
+    }
 }

@@ -39,7 +39,7 @@ public class Classe
 	{
 		this.nom           = nom          ;
 		this.classeParente = classeParente;
-		this.type    = type   			  ;
+		this.type          = type         ;
 		this.isHeritage    = isHeritage   ;
 		this.nomInterface  = nomInterface ;
 		this.lstAttribut   = lstAttribut  ;
