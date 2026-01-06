@@ -103,7 +103,9 @@ Lorsque l'utilisateur sauvegarde son diagramme, son contenu sera enregistré dan
 **Le contenu du diagramme sera sauvegardé sous format texte dans cette forme :** 
 
 *\<lien du fichier\>*
+
 *\---- Classes \----*
+
 `nomBlocClasse`	`abcisse`    `ordonnee`	`largeur`	`hauteur`	`estInterface`
 >Les données de classes sont traitées lors de la sauvegarde/chargement. Il peut y avoir autant de classes que possible dans un diagramme. Une classe peut contenir une liste de classes et méthodes.
 
@@ -114,6 +116,7 @@ Lorsque l'utilisateur sauvegarde son diagramme, son contenu sera enregistré dan
 >Les attributs et méthodes sont traités comme des chaînes de caractère. Il peut y avoir autant d'attributs et méthodes dans une classe que possible.
 
 *\---- Liaisons \----*
+
 `typeLiaison`	`id`	`blocOrig`	`coteOrig`	`posRelOrig`	`blocDest`	`coteDest`	`posRelDest`	`roleOrig`	`roleDest`	`multiOrig`	`multiDest`
 
 >Les données de liaisons sont traitées lors de la sauvegarde/chargement. Il peut y avoir autant de liaisons que possible dans un diagramme. Une classe peut contenir une liste de classes et méthodes.
