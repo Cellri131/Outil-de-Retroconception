@@ -1,17 +1,3 @@
-### Compilation et exécution
-
-#### Windows
-./run.bat
-
-#### Linux
-./run.sh
-
-### Compiler uniquement
-javac -d class @compile.list
-
-### Exécuter uniquement
-java -cp class controleur.Controleur
-
 # Présentation
 
 - Ce projet est un Outil de rétroconception, il permet de génerer un Diagramme de classes   UML à partir d'un répertoire de classes Java.
@@ -1485,6 +1471,7 @@ Gère les actions des boutons Valider et Annuler : <br>
 </div>
 
 <br><br>
+
 
 *Projet académique – IUT du Havre*
 
