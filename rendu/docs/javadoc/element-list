@@ -1,0 +1,9 @@
+controleur
+metier.lecture
+metier.objet
+metier.sauvegarde
+metier.util
+metier.util.test_structure_projet
+vue
+vue.liaison
+vue.role_classe
