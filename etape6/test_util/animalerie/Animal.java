@@ -1,4 +1,4 @@
-public class Animal 
+public class Animal extends EtreVivant
 {
     private String nom;
     private int age;
@@ -8,6 +8,7 @@ public class Animal
     
     public Animal(String nom, int age) 
     {
+        super();
         this.nom = nom;
         this.age = age;
 
