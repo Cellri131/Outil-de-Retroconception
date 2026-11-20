@@ -78,9 +78,18 @@ C:.
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│  
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├───lecture  
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AnalyseurFichier.java  
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AnalyseurFonctionnement.java<br>
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GenerateurAssociation.java  
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Lecture.java  
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OutilsParseur.java<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParseurAccolades.java<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParseurCSharp.java<br>
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParseurJava.java  
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParseurJavaScript.java<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParseurJson.java<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParseurPhp.java<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParseurPython.java<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParseurSql.java<br>
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UtilitaireType.java  
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│  
 │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├───objet  
@@ -113,6 +122,7 @@ C:.
 │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;BlocClasse.java  
 │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;FenetrePrincipale.java  
 │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;PanneauDiagramme.java  
+│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;PanneauFonctionnement.java<br>
 │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;PanneauProjets.java  
 │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│  
 │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├───liaison  
@@ -134,10 +144,16 @@ C:.
 Cette section décrit le fonctionnement du système d'ouverture/analyse/sauvegarde/chargement de l'aplication.
 <br>Pour une description détaillée de la structure et des classes, voir la section "Description détaillée des classes"
 
+### Vue du fonctionnement interne
+
+Le bouton « Fonctionnement du code » déclenche dans `FenetrePrincipale` un `SwingWorker` qui relit les sources du projet et ouvre un `PanneauFonctionnement` distinct du diagramme UML sauvegardé. `AnalyseurFonctionnement` parcourt les fichiers Java, C# et Python et produit un graphe de nœuds (classes, méthodes, valeurs, éléments externes ou non résolus) et de liens `CONTIENT`, `APPEL`, `CONSTRUCTION`, `REFERENCE`, `AFFECTATION` ou `RETOUR`, avec expressions et numéros de ligne.
+
+L'analyse utilise des règles syntaxiques heuristiques, sans exécuter le code ni résoudre complètement les types, les surcharges, les imports ou les appels dynamiques. La vue propose un point d'entrée détecté (`Awake` ou `main`, par exemple), puis parcourt le graphe en profondeur ; elle ne dessine que les liens vers un niveau strictement supérieur, et les liens `CONTIENT` seulement vers le niveau immédiatement suivant. Les liens masqués restent disponibles dans les détails. Les occurrences de même origine, destination et nature sont regroupées, tout en conservant leurs détails, et la profondeur est réglable.
+
 ### Chargement d'un projet depuis une liste de .java
 
 Lorsque l'utilisateur charge une première fois un projet, le programme va récuperer le chemin absolu de celui ci et l'envoyer au métier (en passant par le controlleur), plus précisément la classe "Lecture".
-Lecture et ses classes associées (AnalyseurFicher, GenerateurAssociation, ParseurJava et UtilitaireType) vont instancier différentes listes de Classes, Interfaces, Heritages et Associations.
+Lecture et ses classes associées (AnalyseurFichier, GenerateurAssociation, les parseurs par langage et UtilitaireType) vont instancier différentes listes de Classes, Interfaces, Heritages et Associations. AnalyseurFichier sélectionne le parseur selon l'extension ; les parseurs C#, JavaScript et PHP partagent ParseurAccolades et chaque parseur garde ses règles propres. ParseurSql traite les déclarations ALTER TABLE après le chargement des tables. ParseurJson représente les champs par leurs types, sans conserver leurs valeurs.
 
 La lecture se fait via un scanner qui analyse ligne par ligne les classes Java pour en extraire des objets tels que :
 - **Classe**   : A un `nom`, un  `type` (*class*/*abstract*). Elle stocke si elle a un héritage avec `isHeritage`, une interface dans `nomInterface`. Elle stocke une liste d'`attributs` et de `méthodes`.

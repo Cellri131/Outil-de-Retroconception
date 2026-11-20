@@ -22,6 +22,8 @@ public class Association extends Liaison
 	private Multiplicite multOrig               ;
 	private Multiplicite multDest               ;
 	private int          num                    ;
+	private String roleOrig = "";
+	private String roleDest = "";
 
 	/**
 	 * Construit une nouvelle association entre deux classes, avec leurs multiplicités
@@ -48,6 +50,9 @@ public class Association extends Liaison
 	public Multiplicite getMultOrig      () { return this.multOrig       ; }
 	public boolean      isUnidirectionnel() { return this.unidirectionnel; }
 	public int          getNum           () { return this.num            ; }
+	public String getRoleOrig() { return roleOrig; }
+	public String getRoleDest() { return roleDest; }
+	public void setRoles(String origine, String destination) { roleOrig = origine; roleDest = destination; }
 
 	public void setMultDest       (Multiplicite multDest)   { this.multDest        = multDest       ; }
 	public void setMultOrig       (Multiplicite multOrig)   { this.multOrig        = multOrig       ; }

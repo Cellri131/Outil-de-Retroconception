@@ -7,12 +7,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import metier.lecture.AnalyseurFonctionnement;
+import metier.lecture.AnalyseurFonctionnement.Graphe;
 import vue.liaison.LiaisonVue;
 
 /**
@@ -29,6 +33,7 @@ public class FenetrePrincipale extends JFrame
     private PanneauProjets   panneauProjets  ;
     private PanneauDiagramme panneauDiagramme;
     private Controleur       controleur      ;
+    private boolean analyseFonctionnementEnCours;
 
     //-------------------------//
     //      CONSTRUCTEUR       //
@@ -91,6 +96,7 @@ public class FenetrePrincipale extends JFrame
             });
 
         }
+
         catch (Exception e)
         {
             String message = "Erreur lors du chargement du projet :\n";
@@ -114,6 +120,70 @@ public class FenetrePrincipale extends JFrame
             );
             e.printStackTrace();
         }
+    }
+
+    public void afficherFonctionnement()
+    {
+        String chemin = panneauDiagramme.getCheminProjetCourant();
+        if (chemin == null)
+        {
+            JOptionPane.showMessageDialog(this, "Ouvrez d'abord un projet.", "Fonctionnement", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        if (analyseFonctionnementEnCours)
+        {
+            JOptionPane.showMessageDialog(this, "L'analyse du fonctionnement est déjà en cours.", "Fonctionnement", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        analyseFonctionnementEnCours = true;
+        setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.WAIT_CURSOR));
+        new SwingWorker<Graphe, Void>()
+        {
+            @Override protected Graphe doInBackground()
+            {
+                return new AnalyseurFonctionnement().analyser(chemin);
+            }
+
+            @Override protected void done()
+            {
+                try
+                {
+                    Graphe graphe = get();
+                    if (graphe.noeuds().isEmpty())
+                    {
+                        JOptionPane.showMessageDialog(FenetrePrincipale.this,
+                            "Aucune classe ou méthode reconnue dans les fichiers Java, Python ou C#.",
+                            "Fonctionnement", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+                    JFrame fenetre = new JFrame("Fonctionnement du code — " + chemin);
+                    fenetre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    fenetre.setContentPane(new PanneauFonctionnement(graphe));
+                    fenetre.setSize(1400, 800);
+                    fenetre.setLocationRelativeTo(FenetrePrincipale.this);
+                    fenetre.setVisible(true);
+                }
+                catch (InterruptedException e)
+                {
+                    Thread.currentThread().interrupt();
+                    JOptionPane.showMessageDialog(FenetrePrincipale.this, "Analyse interrompue.",
+                        "Fonctionnement", JOptionPane.ERROR_MESSAGE);
+                }
+                catch (ExecutionException e)
+                {
+                    Throwable cause = e.getCause();
+                    JOptionPane.showMessageDialog(FenetrePrincipale.this,
+                        "Impossible d'analyser le fonctionnement :\n" + cause.getMessage(),
+                        "Fonctionnement", JOptionPane.ERROR_MESSAGE);
+                    cause.printStackTrace();
+                }
+                finally
+                {
+                    analyseFonctionnementEnCours = false;
+                    setCursor(java.awt.Cursor.getDefaultCursor());
+                }
+            }
+        }.execute();
     }
 
     public void exporterImageDiagramme()
@@ -199,6 +269,11 @@ public class FenetrePrincipale extends JFrame
     public void chargerProjet(String cheminProjet) 
     {
         controleur.chargerProjet(cheminProjet);
+    }
+
+    public boolean estProjetChargeDepuisSauvegarde()
+    {
+        return controleur.estProjetChargeDepuisSauvegarde();
     }
 
     public List<BlocClasse> getBlocClasses()

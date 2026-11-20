@@ -9,6 +9,44 @@ import java.util.List;
  */
 public class GestionnaireIntersections
 {	
+	public long longueurSegmentsCommuns(List<Point> chemin1, List<Point> chemin2)
+	{
+		long longueur = 0;
+		for (int i = 1; i < chemin1.size(); i++)
+			for (int j = 1; j < chemin2.size(); j++)
+			{
+				Point a = chemin1.get(i - 1), b = chemin1.get(i);
+				Point c = chemin2.get(j - 1), d = chemin2.get(j);
+				if (a.y == b.y && c.y == d.y && a.y == c.y)
+					longueur += Math.max(0, Math.min(Math.max(a.x, b.x), Math.max(c.x, d.x))
+						- Math.max(Math.min(a.x, b.x), Math.min(c.x, d.x)));
+				else if (a.x == b.x && c.x == d.x && a.x == c.x)
+					longueur += Math.max(0, Math.min(Math.max(a.y, b.y), Math.max(c.y, d.y))
+						- Math.max(Math.min(a.y, b.y), Math.min(c.y, d.y)));
+			}
+		return longueur;
+	}
+
+	public int nombreCroisements(List<Point> chemin1, List<Point> chemin2)
+	{
+		java.util.Set<Point> croisements = new java.util.HashSet<>();
+		for (int i = 1; i < chemin1.size(); i++)
+			for (int j = 1; j < chemin2.size(); j++)
+			{
+				Point a = chemin1.get(i - 1), b = chemin1.get(i);
+				Point c = chemin2.get(j - 1), d = chemin2.get(j);
+				if (a.y == b.y && c.x == d.x && a.x != b.x && c.y != d.y &&
+					c.x >= Math.min(a.x, b.x) && c.x <= Math.max(a.x, b.x) &&
+					a.y >= Math.min(c.y, d.y) && a.y <= Math.max(c.y, d.y))
+					croisements.add(new Point(c.x, a.y));
+				else if (a.x == b.x && c.y == d.y && a.y != b.y && c.x != d.x &&
+					a.x >= Math.min(c.x, d.x) && a.x <= Math.max(c.x, d.x) &&
+					c.y >= Math.min(a.y, b.y) && c.y <= Math.max(a.y, b.y))
+					croisements.add(new Point(a.x, c.y));
+			}
+		return croisements.size();
+	}
+
 	/**
 	 * Détecte si deux segments orthogonaux se croisent
 	 */

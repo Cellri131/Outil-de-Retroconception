@@ -14,6 +14,22 @@ public class Classe
 	private String  classeParente;
 	private boolean isHeritage   ;
 	private String  nomInterface ;
+	private Langage langage = Langage.JAVA;
+	public static class CleEtrangere
+	{
+		public final String table;
+		public final String colonnesOrigine;
+		public final String colonnesDestination;
+
+		public CleEtrangere(String table, String colonnesOrigine, String colonnesDestination)
+		{
+			this.table = table;
+			this.colonnesOrigine = colonnesOrigine;
+			this.colonnesDestination = colonnesDestination;
+		}
+	}
+
+	private ArrayList<CleEtrangere> clesEtrangeres = new ArrayList<>();
 
 	private ArrayList<Attribut> lstAttribut;
 	private ArrayList<Methode > lstMethode ;
@@ -47,7 +63,11 @@ public class Classe
 	}
 
 	public String              getNom          () { return this.nom          ; }
+	public Langage             getLangage      () { return this.langage      ; }
+	public ArrayList<CleEtrangere> getClesEtrangeres() { return this.clesEtrangeres; }
+	public void setLangage(Langage langage) { this.langage = java.util.Objects.requireNonNull(langage); }
 	public String              getClasseParente() { return this.classeParente; }
+	public void setNomInterface(String interfaces) { this.nomInterface = interfaces; }
 	public boolean             getIsHeritage   () { return this.isHeritage   ; }
 	public String              getTypeClasse   () { return this.type   		 ; }
 	public String              getNomInterface () { return this.nomInterface ; }

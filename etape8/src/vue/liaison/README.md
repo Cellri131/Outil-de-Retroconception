@@ -1,7 +1,7 @@
 ceci est une aide de compréhension du fonctionnement du dossier liaison
 1. DÉCLENCHEMENT
    └─> Controleur charge projet
-       └─> Parse fichiers Java
+       └─> Parse les fichiers des langages pris en charge
            └─> Crée objets métier (Association, Heritage...)
 
 2. CRÉATION LIAISONS
@@ -16,9 +16,11 @@ ceci est une aide de compréhension du fonctionnement du dossier liaison
        └─> Sélectionne meilleur chemin (moins segments + court)
 
 4. GÉNÉRATION CHEMIN
-   └─> CalculateurChemin.creerCheminOrthogonal()
+   └─> RouteurLiaisons coordonne les chemins du diagramme
+       └─> CalculateurChemin.creerCheminEviteObstacles()
        └─> Crée List<Point> avec angles droits
-           └─> Évite coins et obstacles
+           └─> Cherche un couloir libre en tenant compte des chemins précédents,
+               sans déplacer les ancrages (rouge si conflit persistant)
 
 5. AFFICHAGE
    └─> PanneauDiagramme.paintComponent()
@@ -32,7 +34,7 @@ ceci est une aide de compréhension du fonctionnement du dossier liaison
 
 6. MISE À JOUR (si déplacement)
    └─> Bloc déplacé → repaint()
-       └─> Retour à l'étape 5 (recalcul automatique)
+       └─> Retour à l'étape 5 (recalcul automatique en cas de changement de géométrie)
 
 1.
 **Création d'une LiaisonVue:**

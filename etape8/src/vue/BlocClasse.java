@@ -2,8 +2,10 @@ package vue;
 
 import java.util.UUID;
 import java.awt.*;
+import java.awt.font.FontRenderContext;
 import java.util.ArrayList;
 import java.util.List;
+import metier.objet.Langage;
 
 /**
 * L'affichage des blocs de Classe dans le diagramme UML
@@ -18,6 +20,7 @@ public class BlocClasse
 	private final UUID 	id					;
 
 	private String       nom                ;
+	private Langage      langage            = Langage.JAVA;
 	private boolean      estInterface       ;
 	private boolean      estSelectionne     ;
 	private List<String> attributs          ;
@@ -40,6 +43,9 @@ public class BlocClasse
 	private static final Color COULEUR_FOND    = new Color(230, 240, 250);
 	private static final Color COULEUR_BORDURE = new Color(0, 0, 0);
 	private static final Color COULEUR_ENTETE  = new Color(100, 150, 200);
+	private static final Font POLICE_ENTETE = new Font("Arial", Font.BOLD, 12);
+	private static final Font POLICE_MEMBRE = new Font("Arial", Font.PLAIN, 9);
+	private static final FontRenderContext CONTEXTE_POLICE = new FontRenderContext(null, true, true);
 
 	//-------------------------//
 	//      CONSTRUCTEUR       //
@@ -65,76 +71,6 @@ public class BlocClasse
 	//----------------------//
 	//      METHODES        //
 	//----------------------//
-
-	/**
-	 * Formate le texte d'une méthode en wrappant sur plusieurs lignes si nécessaire
-	 * @param methodeStr Chaîne de méthode au format: "visibilite nomMethode(param1, param2, ...) : typeRetour"
-	 * @param maxWidth Largeur maximale disponible en pixels
-	 * @param g2d Graphics2D pour mesurer la largeur du texte
-	 * @return Chaîne formatée avec retours à la ligne si dépasse maxWidth
-	 */
-	private String formatMethodeAvecLargeur(String methodeStr, int maxWidth, Graphics2D g2d) 
-	{
-		FontMetrics fm = g2d.getFontMetrics();
-		
-		// Si rentre sur une ligne, retourner tel quel
-		if (fm.stringWidth(methodeStr) <= maxWidth)
-			return methodeStr;
-		
-		// Si on est en mode plein écran, afficher tous les paramètres avec wrapping
-		if (affichagePleinEcran)
-		{
-			int closeParent = methodeStr.indexOf(")");
-			if (closeParent > 0)
-			{
-				String firstPart  = methodeStr.substring(0, closeParent + 1);
-				String secondPart = methodeStr.substring(closeParent + 1);
-				return firstPart + "\n" + secondPart;
-			}
-			return methodeStr;
-		}
-		
-		// En mode condensé, limiter aussi les paramètres lors du wrapping
-		int closeParent = methodeStr.indexOf(")");
-		if (closeParent <= 0)
-			return methodeStr;
-		
-		String firstPart  = methodeStr.substring(0, closeParent + 1);
-		String secondPart = methodeStr.substring(closeParent + 1);
-		
-		// Vérifier que les deux parties rentrent dans la largeur
-		// Si la première partie est trop longue, on coupe aussi les paramètres
-		if (fm.stringWidth(firstPart) > maxWidth)
-		{
-			// Tronquer les paramètres
-			int openParen = methodeStr.indexOf("(");
-
-			if (openParen > 0)
-			{
-				String   signature = methodeStr.substring(0, openParen + 1);
-				String   params    = methodeStr.substring(openParen + 1, closeParent);
-				String[] paramList = params.split(",");
-				
-				// Garder seulement les 2 premiers paramètres
-				if (paramList.length > 2)
-				{
-					StringBuilder truncated = new StringBuilder(signature);
-					for (int i = 0; i < 2; i++)
-					{
-						truncated.append(paramList[i].trim());
-						if (i < 1) truncated.append(", ");
-					}
-
-					truncated.append(", ...");
-					truncated.append(")");
-					truncated.append(secondPart);
-					firstPart = truncated.toString();
-				}
-			}
-		}
-
-		return firstPart + "\n" + secondPart;
-	}
 
 	/**
 	 * Formate le texte d'une méthode en limitant les paramètres en mode condensé
@@ -233,20 +169,17 @@ public class BlocClasse
 
 	public void dessiner(Graphics2D g, boolean afficherAttributs, boolean afficherMethodes)
 	{
+		largeur = calculerLargeur();
 		hauteurCalculee = calculerHauteur();
 		
 		g.setColor(COULEUR_FOND);
 		g.fillRect(x, y, largeur, hauteurCalculee);
 
-		g.setColor(estSelectionne ? Color.BLUE : COULEUR_BORDURE);
-		g.setStroke(new BasicStroke(estSelectionne ? 2 : 1)); // sert à définir l'apparence du trait
-		g.drawRect(x, y, largeur, hauteurCalculee);
-
 		g.setColor(COULEUR_ENTETE);
 		g.fillRect(x, y, largeur, HAUTEUR_ENTETE); 
 
 		g.setColor(Color.WHITE);
-		g.setFont(new Font("Arial", Font.BOLD, 12));
+		g.setFont(POLICE_ENTETE);
 		FontMetrics fm = g.getFontMetrics();
 		
 		int textY = y + HAUTEUR_ENTETE - (HAUTEUR_ENTETE - fm.getAscent()) / 2;
@@ -278,7 +211,7 @@ public class BlocClasse
 		if (!attributsAffichage.isEmpty())
 		{
 			g.setColor(Color.BLACK);
-			g.setFont(new Font("Arial", Font.PLAIN, 9));
+			g.setFont(POLICE_MEMBRE);
 			FontMetrics fmAttributs = g.getFontMetrics();
 
 			if (afficherAttributs)
@@ -323,22 +256,20 @@ public class BlocClasse
 		if (!methodesAffichage.isEmpty()) 
 		{
 			g.setColor(Color.BLACK);
-			g.setFont(new Font("Arial", Font.PLAIN, 9));
-			Graphics2D g2d = (Graphics2D) g;
+			g.setFont(POLICE_MEMBRE);
 
 			if (afficherMethodes)
 			{
-				int maxMethodeWidth = largeur - 2 * PADDING;
 				for (String met : methodesAffichage) 
 				{
 					// Afficher sur plusieurs lignes si la méthode contient des retours à la ligne
 					String[] lines = met.split("\n");
 					for (String line : lines)
 					{
-						String methodeFormatee = formatMethodeAvecLargeur(line, maxMethodeWidth, g2d);
-						g.drawString(methodeFormatee, x + PADDING, yActuel);
+						g.drawString(line, x + PADDING, yActuel);
 						yActuel += HAUTEUR_LIGNE;
 					}
+
 				}
 			}
 			else 
@@ -346,6 +277,25 @@ public class BlocClasse
 				g.drawString("...", x + PADDING, yActuel);
 				yActuel += HAUTEUR_LIGNE;
 			}
+		}
+		g.setColor(couleurLangage(langage));
+		g.setStroke(new BasicStroke(estSelectionne ? 4 : 2));
+		g.drawRect(x, y, largeur, hauteurCalculee);
+		g.setStroke(new BasicStroke(1));
+	}
+
+	public static Color couleurLangage(Langage langage)
+	{
+		switch (langage)
+		{
+			case JAVA: return new Color(234, 45, 45);
+			case CSHARP: return new Color(103, 33, 122);
+			case PYTHON: return new Color(0, 118, 188);
+			case JAVASCRIPT: return new Color(253, 205, 0);
+			case SQL: return new Color(220, 99, 133);
+			case PHP: return new Color(153, 121, 191);
+			case JSON: return new Color(199, 199, 199);
+			default: throw new IllegalStateException("Langage non reconnu : " + langage);
 		}
 	}
 
@@ -383,13 +333,25 @@ public class BlocClasse
 		return Math.max(h, 80);
 	}
 
+	private int calculerLargeur()
+	{
+		double max = POLICE_ENTETE.getStringBounds(nom, CONTEXTE_POLICE).getWidth();
+		for (String texte : getAttributsAffichage())
+			for (String ligne : texte.replace("\u001B[4m", "").replace("\u001B[0m", "").split("\n"))
+				max = Math.max(max, POLICE_MEMBRE.getStringBounds(ligne, CONTEXTE_POLICE).getWidth());
+		for (String texte : getMethodesAffichage())
+			for (String ligne : texte.split("\n"))
+				max = Math.max(max, POLICE_MEMBRE.getStringBounds(ligne, CONTEXTE_POLICE).getWidth());
+		return Math.max(200, (int) Math.ceil(max) + 2 * PADDING + 8);
+	}
+
 	// Vérifie si le point donné est dans le bloc
 	public boolean contient(int px, int py) 
 	{
 		int hauteurCalculee = calculerHauteur();
 
 		return px >= x                    &&
-			   px <= x + largeur          &&
+			   px <= x + calculerLargeur() &&
 			   py >= y                    &&
 			   py <= y + hauteurCalculee;
 	}
@@ -401,7 +363,7 @@ public class BlocClasse
 		
 		// Vérifier si le rectangle du texte chevauche le rectangle du bloc
 		return !(textX     + textWidth < x   || 
-				 textX > x + largeur         || 
+				 textX > x + calculerLargeur() ||
 				 textY > y + hauteurCalculee || 
 				 textY     - textHeight < y  );
 	}
@@ -416,10 +378,11 @@ public class BlocClasse
 	public UUID         getId             () {return this.id;}
 	public int          getX              () { return x              ; }
 	public int          getY              () { return y              ; }
-	public int          getLargeur        () { return largeur        ; }
+	public int          getLargeur        () { return calculerLargeur(); }
 	public int          getHauteur        () { return hauteur        ; }
-	public int          getHauteurCalculee() { return hauteurCalculee; }
+	public int          getHauteurCalculee() { return calculerHauteur(); }
 	public String       getNom            () { return nom            ; }
+	public Langage      getLangage        () { return langage        ; }
 	public List<String> getAttributs      () { return attributs      ; }
 	public List<String> getMethodes       () { return methodes       ; }
 	
@@ -429,6 +392,7 @@ public class BlocClasse
 	public boolean isAffichagePleinEcran() { return affichagePleinEcran; }
 
 	public void setX(int x) { this.x = x; }
+	public void setLangage(Langage langage) { this.langage = java.util.Objects.requireNonNull(langage); }
 	public void setY(int y) { this.y = y; }
 
 	public void setInterface          (boolean estInterface       ) { this.estInterface        = estInterface       ; }

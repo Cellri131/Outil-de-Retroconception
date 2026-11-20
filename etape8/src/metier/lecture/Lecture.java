@@ -56,11 +56,14 @@ public class Lecture
 
 			if (nomParent != null && !nomParent.isEmpty())
 			{
-				Classe classeParent = getClasse(nomParent);
+				Classe classeParent = getClasse(nomParent, classe);
 
 				if (classeParent != null)
 				{
-					lstHeritage.add(new Heritage(classeParent, classe));
+					if (classe.getLangage() == Langage.CSHARP && classeParent.isInterface() && !classe.isInterface())
+						lstInterface.add(new Interface(classeParent, classe));
+					else
+						lstHeritage.add(new Heritage(classeParent, classe));
 				}
 			}
 		}
@@ -93,7 +96,7 @@ public class Lecture
 				for (String nomInterface : tabNomInterfaces)
 				{
 					nomInterface = nomInterface.replace("{", "").trim();
-					Classe interfaceClasse = getClasse(nomInterface);
+					Classe interfaceClasse = getClasse(nomInterface, classe);
 					//System.out.println("interface : " + interfaceClasse.getNom());
 
 					if (interfaceClasse != null)
@@ -116,11 +119,11 @@ public class Lecture
 	 * @param nomFichier Nom du fichier (classe)
 	 * @return La classe trouvée ou null
 	 */
-	private Classe getClasse(String nomFichier)
+	private Classe getClasse(String nomFichier, Classe origine)
 	{
 		for (Classe classe : hashMapClasses.values())
 		{
-			if (classe.getNom().equals(nomFichier))
+			if (classe.getNom().equals(nomFichier) && classe.getLangage() == origine.getLangage())
 				return classe;
 		}
 		return null;
@@ -146,7 +149,7 @@ public class Lecture
 
             for (File file : tabFichiers)
             {
-                if (file.isFile() && !file.getName().endsWith(".java"))
+                if (file.isFile() && Langage.depuisNomFichier(file.getName()) == null)
                 {
                     lstFichiersInvalides.add(file.getName());
 				}

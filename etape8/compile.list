@@ -1,9 +1,18 @@
 src/controleur/Controleur.java
 
 src/metier/lecture/AnalyseurFichier.java
+src/metier/lecture/AnalyseurFonctionnement.java
 src/metier/lecture/GenerateurAssociation.java
 src/metier/lecture/Lecture.java
+src/metier/lecture/OutilsParseur.java
+src/metier/lecture/ParseurAccolades.java
+src/metier/lecture/ParseurCSharp.java
 src/metier/lecture/ParseurJava.java
+src/metier/lecture/ParseurJavaScript.java
+src/metier/lecture/ParseurJson.java
+src/metier/lecture/ParseurPhp.java
+src/metier/lecture/ParseurPython.java
+src/metier/lecture/ParseurSql.java
 src/metier/lecture/UtilitaireType.java
 
 src/metier/objet/Association.java
@@ -12,6 +21,7 @@ src/metier/objet/Classe.java
 src/metier/objet/Heritage.java
 src/metier/objet/Interface.java
 src/metier/objet/Liaison.java
+src/metier/objet/Langage.java
 src/metier/objet/Methode.java
 src/metier/objet/Multiplicite.java
 src/metier/objet/Parametre.java
@@ -27,9 +37,11 @@ src/vue/BarreMenus.java
 src/vue/BlocClasse.java
 src/vue/FenetrePrincipale.java
 src/vue/PanneauDiagramme.java
+src/vue/PanneauFonctionnement.java
 src/vue/PanneauProjets.java
 
 src/vue/liaison/CalculateurChemin.java
+src/vue/liaison/RouteurLiaisons.java
 src/vue/liaison/DetecteurObstacles.java
 src/vue/liaison/GestionnaireAncrage.java
 src/vue/liaison/GestionnaireIntersections.java

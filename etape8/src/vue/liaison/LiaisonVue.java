@@ -38,6 +38,7 @@ public class LiaisonVue
 	// Références externes
 	private List<BlocClasse> tousLesBlocs      = new ArrayList<>();
 	private List<LiaisonVue> toutesLesLiaisons = new ArrayList<>();
+	private RouteurLiaisons routeur;
 
 	// Classes helper pour calculs et rendu
 	private DetecteurObstacles        detecteurObstacles;
@@ -95,13 +96,23 @@ public class LiaisonVue
      * puis choisit le meilleur chemin parmi tous et l'applique à toutes ces liaisons
      */
     private void chooseBestSides() {
+        if (blocOrigine == blocDestination) {
+            List<LiaisonVue> boucles = new ArrayList<>();
+            for (LiaisonVue liaison : toutesLesLiaisons)
+                if (liaison.blocOrigine == blocOrigine && liaison.blocDestination == blocOrigine)
+                    boucles.add(liaison);
+            if (!boucles.contains(this)) boucles.add(this);
+            for (int i = 0; i < boucles.size(); i++) {
+                LiaisonVue boucle = boucles.get(i);
+                boucle.sideOrigine = boucle.sideDestination = 1;
+                boucle.posRelOrigine = 0.1 + 0.8 * (2 * i + 1) / (2 * boucles.size() + 1);
+                boucle.posRelDestination = 0.1 + 0.8 * (2 * i + 2) / (2 * boucles.size() + 1);
+            }
+            return;
+        }
         // Trouver toutes les liaisons ayant la même origine et destination (ou inversées)
         List<LiaisonVue> liaisonsGroupees = new ArrayList<>();
-        liaisonsGroupees.add(this);
-        
         for (LiaisonVue autre : toutesLesLiaisons) {
-            if (autre == this) continue;
-            
             boolean memeDirection = (autre.blocOrigine == this.blocOrigine && autre.blocDestination == this.blocDestination);
             boolean directionInversee = (autre.blocOrigine == this.blocDestination && autre.blocDestination == this.blocOrigine);
             
@@ -109,14 +120,15 @@ public class LiaisonVue
                 liaisonsGroupees.add(autre);
             }
         }
+        if (!liaisonsGroupees.contains(this)) liaisonsGroupees.add(this);
         
         // Si plusieurs liaisons partagent la même origine/destination
         if (liaisonsGroupees.size() > 1) {
             // Calculer le meilleur chemin pour chaque liaison du groupe
             CheminCandidat meilleurChemin = null;
             
-            for (LiaisonVue liaison : liaisonsGroupees) {
-                CheminCandidat cheminLiaison = calculerMeilleurChemin(liaison.blocOrigine, liaison.blocDestination);
+            {
+                CheminCandidat cheminLiaison = calculerMeilleurChemin(blocOrigine, blocDestination);
                 
                 if (cheminLiaison != null) {
                     if (meilleurChemin == null || estMeilleur(cheminLiaison, meilleurChemin)) {
@@ -128,25 +140,22 @@ public class LiaisonVue
             // Appliquer le meilleur chemin à toutes les liaisons du groupe avec décalage pour éviter superposition
             if (meilleurChemin != null) {
                 int index = 0;
-                double offsetStep = 0.15; // Décalage de 15% par liaison
-                
                 for (LiaisonVue liaison : liaisonsGroupees) {
                     boolean inversee = (liaison.blocOrigine == this.blocDestination && liaison.blocDestination == this.blocOrigine);
                     
                     // Calculer le décalage pour éviter superposition
-                    double origOffset = (index - liaisonsGroupees.size() / 2.0) * offsetStep;
-                    double destOffset = (index - liaisonsGroupees.size() / 2.0) * offsetStep;
+                    double position = 0.1 + 0.8 * (index + 1) / (liaisonsGroupees.size() + 1);
                     
                     if (inversee) {
                         liaison.sideOrigine = meilleurChemin.sideDestination;
                         liaison.sideDestination = meilleurChemin.sideOrigine;
-                        liaison.posRelOrigine = Math.max(0.1, Math.min(0.9, meilleurChemin.posRelDestination + origOffset));
-                        liaison.posRelDestination = Math.max(0.1, Math.min(0.9, meilleurChemin.posRelOrigine + destOffset));
+                        liaison.posRelOrigine = position;
+                        liaison.posRelDestination = position;
                     } else {
                         liaison.sideOrigine = meilleurChemin.sideOrigine;
                         liaison.sideDestination = meilleurChemin.sideDestination;
-                        liaison.posRelOrigine = Math.max(0.1, Math.min(0.9, meilleurChemin.posRelOrigine + origOffset));
-                        liaison.posRelDestination = Math.max(0.1, Math.min(0.9, meilleurChemin.posRelDestination + destOffset));
+                        liaison.posRelOrigine = position;
+                        liaison.posRelDestination = position;
                     }
                     
                     liaison.ancrageOrigine = GestionnaireAncrage.getPointSurCote(liaison.blocOrigine, liaison.sideOrigine, liaison.posRelOrigine);
@@ -172,7 +181,7 @@ public class LiaisonVue
         final boolean destIsBelow = dy > oy, destIsAbove = dy < oy;
         
         // Positions à tester (privilégier centre et coins)
-        double[] positions = {0.5, 0.0, 1.0, 0.25, 0.75, 0.33, 0.67};
+        double[] positions = {0.5, 0.25, 0.75, 0.33, 0.67, 0.1, 0.9};
         
         // Tester TOUTES les combinaisons de côtés et positions
         for (int origSide = 0; origSide < 4; origSide++) {
@@ -519,12 +528,7 @@ public class LiaisonVue
 		{
 			if (autre == this) continue;
 
-			Point autreOrig     = GestionnaireAncrage.getPointSurCote(autre.blocOrigine, autre.sideOrigine, autre.posRelOrigine);
-			Point autreDest     = GestionnaireAncrage.getPointSurCote(autre.blocDestination, autre.sideDestination, autre.posRelDestination);
-			List<Point> autreOrigPath = calculateurChemin.creerCheminOrthogonal(autreOrig, autreDest, autre.sideOrigine, autre.sideDestination);
-
-			int autreOffset = autre.calculatePathOffset(autreOrigPath);
-			List<Point> autrePath = (autreOffset != 0) ? calculateurChemin.appliquerDecalageAuChemin(autreOrigPath, autreOffset) : autreOrigPath;
+			List<Point> autrePath = autre.getChemin();
 
 			for (int i = 0; i < myPath.size() - 1; i++)
 			{
@@ -561,12 +565,11 @@ public class LiaisonVue
 		ancrageOrigine      = GestionnaireAncrage.getPointSurCote(blocOrigine, sideOrigine, posRelOrigine);
 		ancrageDestination  = GestionnaireAncrage.getPointSurCote(blocDestination, sideDestination, posRelDestination);
 
-		List<Point> originalPath = calculateurChemin.creerCheminOrthogonal(ancrageOrigine, ancrageDestination, sideOrigine, sideDestination);
-		int offset = calculatePathOffset(originalPath);
-		List<Point> path = (offset != 0) ? calculateurChemin.appliquerDecalageAuChemin(originalPath, offset) : originalPath;
+		List<Point> path = getChemin();
 		List<Point> intersections = findIntersections(path);
 
-		g.setColor(Color.BLACK);
+		g.setColor(calculateurChemin.cheminADesCollisions(path) ||
+			(routeur != null && routeur.aChevauchement(this)) ? Color.RED : Color.BLACK);
 		Stroke normalStroke = type.equals("interface") ?
 			new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{5.0f, 5.0f}, 0) :
 			new BasicStroke(1);
@@ -584,8 +587,7 @@ public class LiaisonVue
 				renduLiaison.dessinerLigneAvecPonts(g, p1, p2, segmentIntersections, normalStroke);
 		}
 
-
-        // Dessiner les flèches au dernier point réel du chemin (après offset)
+        // Dessiner les flèches au dernier point réel du chemin
         Point pointFleche = path.get(path.size() - 1);
         
         if (type.equals("association") && unidirectionnel) {
@@ -596,6 +598,18 @@ public class LiaisonVue
         }
 
 		drawMultiplicityAndRoles(g);
+	}
+
+	public List<Point> getChemin()
+	{
+		return routeur != null ? routeur.getChemin(this) : calculerChemin(List.of());
+	}
+
+	List<Point> calculerChemin(List<List<Point>> cheminsExistants)
+	{
+		Point origine = GestionnaireAncrage.getPointSurCote(blocOrigine, sideOrigine, posRelOrigine);
+		Point destination = GestionnaireAncrage.getPointSurCote(blocDestination, sideDestination, posRelDestination);
+		return calculateurChemin.creerCheminEviteObstacles(origine, destination, sideOrigine, sideDestination, cheminsExistants);
 	}
 
 	private void drawMultiplicityAndRoles(Graphics2D g)
@@ -619,17 +633,10 @@ public class LiaisonVue
 			g.drawString(multDest, pos.x, pos.y);
 		}
 
-		if (roleOrig != null && !roleOrig.isEmpty())
-		{
-			Point rolePos = GestionnaireAncrage.calculerPositionRole(ancrageOrigine, sideOrigine, fm.stringWidth(roleOrig), fm.getAscent(), fm.getAscent());
-			g.drawString(roleOrig, rolePos.x, rolePos.y);
-		}
-
-		if (roleDest != null && !roleDest.isEmpty())
-		{
-			Point rolePos = GestionnaireAncrage.calculerPositionRole(ancrageDestination, sideDestination, fm.stringWidth(roleDest), fm.getAscent(), fm.getAscent());
-			g.drawString(roleDest, rolePos.x, rolePos.y);
-		}
+		Point[] roles = GestionnaireAncrage.calculerPositionsRoles(ancrageOrigine, sideOrigine, roleOrig,
+			ancrageDestination, sideDestination, roleDest, fm);
+		if (roles[0] != null) g.drawString(roleOrig, roles[0].x, roles[0].y);
+		if (roles[1] != null) g.drawString(roleDest, roles[1].x, roles[1].y);
 	}
 
 	private List<Point> getSegmentIntersections(Point p1, Point p2, List<Point> allIntersections)
@@ -661,14 +668,20 @@ public class LiaisonVue
 	// =========================
 	// Gestion des ancrages (drag, vérifications)
 	// =========================
-public boolean isOnOriginAnchor(Point m) { return GestionnaireAncrage.estSurAncrage(ancrageOrigine, m, 1, 0, 0, 0, 0); }
-        public boolean isOnOriginAnchor(Point m, double z, int px, int py, int w, int h) { return GestionnaireAncrage.estSurAncrage(ancrageOrigine, m, z, px, py, w, h); }
-        public boolean isOnDestinationAnchor(Point m) { return GestionnaireAncrage.estSurAncrage(ancrageDestination, m, 1, 0, 0, 0, 0); }
-        public boolean isOnDestinationAnchor(Point m, double z, int px, int py, int w, int h) { return GestionnaireAncrage.estSurAncrage(ancrageDestination, m, z, px, py, w, h); }
+	public boolean isOnOriginAnchor(Point m) { return isOnOriginAnchor(m, 1, 0, 0, 0, 0); }
+	public boolean isOnOriginAnchor(Point m, double z, int px, int py, int w, int h)
+	{
+		return GestionnaireAncrage.estSurAncrage(GestionnaireAncrage.getPointSurCote(blocOrigine, sideOrigine, posRelOrigine), m, z, px, py, w, h);
+	}
+	public boolean isOnDestinationAnchor(Point m) { return isOnDestinationAnchor(m, 1, 0, 0, 0, 0); }
+	public boolean isOnDestinationAnchor(Point m, double z, int px, int py, int w, int h)
+	{
+		return GestionnaireAncrage.estSurAncrage(GestionnaireAncrage.getPointSurCote(blocDestination, sideDestination, posRelDestination), m, z, px, py, w, h);
+	}
 
 	private void dragAnchor(Point m, double z, int px, int py, int w, int h, BlocClasse bloc, boolean isOrig)
 	{
-		Point lm = z == 1.0 ? m : new Point((int)((m.x - px - w / 2) / z + w / (2 * z)), (int)((m.y - py - h / 2) / z + h / (2 * z)));
+		Point lm = new Point((int)((m.x - px - w / 2) / z + w / (2 * z)), (int)((m.y - py - h / 2) / z + h / (2 * z)));
 int s = GestionnaireAncrage.getCoteLePlusProche(lm, bloc);
                 double p = GestionnaireAncrage.getPosRelativeDepuisSouris(lm, bloc, s);
 
@@ -696,6 +709,9 @@ int s = GestionnaireAncrage.getCoteLePlusProche(lm, bloc);
 
 	public void setToutesLesLiaisons(List<LiaisonVue> liaisons) { this.toutesLesLiaisons = liaisons; }
 	public void setTousLesBlocs(List<BlocClasse> blocs) { this.tousLesBlocs = blocs; initializeHelpers(); }
+	public void setRouteur(RouteurLiaisons routeur) { this.routeur = routeur; }
+	public int getCoteOrigine() { return sideOrigine; }
+	public int getCoteDestination() { return sideDestination; }
 
 	public void adjustPositionToAvoidOverlap(List<LiaisonVue> allLiaisons, int index)
 	{

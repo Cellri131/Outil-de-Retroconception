@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import metier.util.*;
+import metier.objet.Langage;
 import vue.BlocClasse;
 import vue.liaison.LiaisonVue;
 
@@ -115,6 +116,8 @@ public class GestionSauvegarde
 				// Multiplicité
 				String multiOrig = tabLigne[10].trim();
 				String multiDest = tabLigne[11].trim();
+				if (multiOrig.equals("?")) multiOrig = "";
+				if (multiDest.equals("?")) multiDest = "";
 				
 				LiaisonVue liaisonVue;
 
@@ -254,6 +257,8 @@ public class GestionSauvegarde
 							// Créer le bloc
 							blocCourant = new BlocClasse(nomBloc, x, y);
 							blocCourant.setInterface(estInterface);
+							if (parts.length >= 7)
+								blocCourant.setLangage(Langage.valueOf(parts[6].trim()));
 							
 							mapBlocClasses.put(nomBloc, blocCourant);
 						}
@@ -261,7 +266,8 @@ public class GestionSauvegarde
 					else if ((  ligne.startsWith(this.COMMENTAIRE)  ||
 								ligne.startsWith("-")       || 
 							    ligne.startsWith("+")       ||  
-								ligne.startsWith("~"))      && 
+								ligne.startsWith("~")       ||
+								ligne.startsWith("\u001B[4m")) &&
 								blocCourant != null)
 					{
 						// C'est un attribut ou une méthode
@@ -357,7 +363,7 @@ public class GestionSauvegarde
 			bw.newLine();
 			bw.write(this.SECTION_CLASSES);
 			bw.newLine();
-			bw.write("#nomBloc\tx\ty\tlargeur\thauteur\testInterface");
+			bw.write("#nomBloc\tx\ty\tlargeur\thauteur\testInterface\tlangage");
 			bw.newLine();
 
 			// Écrire tous les blocs de classe avec leurs attributs et méthodes
@@ -369,7 +375,8 @@ public class GestionSauvegarde
 						blocClasse.getY()           + this.SEPARATEUR +
 						blocClasse.getLargeur()     + this.SEPARATEUR +
 						blocClasse.getHauteur()     + this.SEPARATEUR +
-						blocClasse.estInterface());
+						blocClasse.estInterface()   + this.SEPARATEUR +
+						blocClasse.getLangage());
 				bw.newLine();
 
 				// Écrire les attributs

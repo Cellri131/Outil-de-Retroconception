@@ -33,7 +33,7 @@ public class ParseurJava
 		this.lstMethode  = new ArrayList<Methode >();
 
 		// Variables pour stocker les informations de la classe
-		String  nomFichier    = nomFichierAvExt.replace(".java", "");
+		String  nomFichier    = nomFichierAvExt.replaceFirst("(?i)\\.java$", "");
 		String  classeParente = null;
 		boolean isHeritage    = false;
 		String  typeClasse    = "";

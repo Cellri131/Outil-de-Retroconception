@@ -1,13 +1,14 @@
 package vue;
 
 import java.io.File;
-import java.util.ArrayList;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import metier.util.ConstantesChemins;
 
 /**
 * Barre de menu du haut de la fenêtre principale. 
@@ -67,6 +68,9 @@ public class BarreMenus extends JMenuBar
 
 			add(menu);
 		}
+		JButton fonctionnement = new JButton("Fonctionnement du code");
+		fonctionnement.addActionListener(e -> fenetrePrincipale.afficherFonctionnement());
+		add(fonctionnement);
 	}
 
 
@@ -142,7 +146,9 @@ public class BarreMenus extends JMenuBar
         
     private void actionOuvrirProjet() 
     {
-        JFileChooser chooser = new JFileChooser();
+        File dossierCourant = new File(ConstantesChemins.BASE);
+        File dossierEtape8 = new File(dossierCourant, "etape8");
+        JFileChooser chooser = new JFileChooser(dossierEtape8.isDirectory() ? dossierEtape8 : dossierCourant);
 
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
@@ -155,34 +161,12 @@ public class BarreMenus extends JMenuBar
             File fichierSelectionne = chooser.getSelectedFile();
             String cheminAbsolu     = fichierSelectionne.getAbsolutePath();
 
-            verifierFichiersProjet(cheminAbsolu);
-            
             sauvegardeProjetXml(cheminAbsolu);
         } 
         else 
         {
             System.err.println("Aucun fichier choisi");
         }    
-    }
-
-    private void verifierFichiersProjet(String cheminFichier)
-    {
-        ArrayList<String> lstFichiersInvalides = fenetrePrincipale.getLstFichiersInvalides(cheminFichier);
-        String messageInvalide = lstFichiersInvalides.size() == 1
-               ? "Attention, fichier non valide detectés :\n ( "
-               : "Attention, fichiers non valides detectés :\n ( ";
-
-        if (lstFichiersInvalides.isEmpty()) return;
-
-        for(String fichierInvalide : lstFichiersInvalides)
-        {
-            messageInvalide += fichierInvalide + ", ";
-        }
-        // Retirer la derniere virgule
-        messageInvalide = messageInvalide.substring(0, messageInvalide.length() - 2);
-        messageInvalide += " )";
-
-        JOptionPane.showMessageDialog(null, messageInvalide, "Attention", JOptionPane.WARNING_MESSAGE);
     }
 
     private void sauvegardeProjetXml(String cheminFichier) 

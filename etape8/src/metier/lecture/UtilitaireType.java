@@ -13,10 +13,12 @@ public class UtilitaireType
 	 */
 	public static String nettoyerType(String type)
 	{
-		type = type.trim();
-		if (type.endsWith("[]")) return type.substring(0, type.length() - 2);
-		if (type.startsWith("List<") && type.endsWith(">")) return type.substring(5, type.length() - 1);
-		if (type.startsWith("Set<")  && type.endsWith(">")) return type.substring(4, type.length() - 1);
+		type = type.trim().replaceAll("\\s+", "");
+		if (type.startsWith("?")) type = type.substring(1);
+		if (type.endsWith("?")) type = type.substring(0, type.length() - 1);
+		if (type.endsWith("[]")) type = type.substring(0, type.length() - 2);
+		else if (type.matches("(?:List|Set|IList|ICollection|IEnumerable|HashSet)<[^<>]+>"))
+			type = type.substring(type.indexOf('<') + 1, type.length() - 1);
 		if (type.startsWith("Map<")  && type.endsWith(">")) 
 		{
 			// Pour les Map, extraire le type de la valeur
@@ -25,10 +27,11 @@ public class UtilitaireType
 
 			if (virgule != -1) 
 			{
-				return contenu.substring(virgule + 1).trim();
+				type = contenu.substring(virgule + 1).trim();
 			}
 		}
-		return type;
+		int point = type.lastIndexOf('.');
+		return point >= 0 ? type.substring(point + 1) : type;
 	}
 
 	/**
@@ -38,8 +41,11 @@ public class UtilitaireType
 	 */
 	public static boolean estMultiInstance(String type)
 	{
-		type = type.trim();
+		type = type.trim().replaceAll("\\s+", "");
+		if (type.endsWith("?")) type = type.substring(0, type.length() - 1);
 		return type.endsWith("[]")     || type.startsWith("List<")    || 
-		       type.startsWith("Set<") || type.startsWith("Map<")      ;
+		       type.startsWith("Set<") || type.startsWith("Map<") ||
+		       type.startsWith("IList<") || type.startsWith("ICollection<") ||
+		       type.startsWith("IEnumerable<") || type.startsWith("HashSet<");
 	}
 }

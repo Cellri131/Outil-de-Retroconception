@@ -1,6 +1,8 @@
 package vue.liaison;
 
 import java.awt.Point;
+import java.awt.FontMetrics;
+import java.awt.Rectangle;
 import vue.BlocClasse;
 
 /**
@@ -183,5 +185,31 @@ public class GestionnaireAncrage
 		}
 
 		return new Point(x, y);
+	}
+
+	public static Point[] calculerPositionsRoles(Point origine, int coteOrigine, String roleOrigine,
+		Point destination, int coteDestination, String roleDestination, FontMetrics police)
+	{
+		Point[] positions = new Point[2];
+		if (roleOrigine != null && !roleOrigine.isEmpty())
+			positions[0] = calculerPositionRole(origine, coteOrigine, police.stringWidth(roleOrigine),
+				police.getAscent(), police.getAscent());
+		if (roleDestination != null && !roleDestination.isEmpty())
+			positions[1] = calculerPositionRole(destination, coteDestination, police.stringWidth(roleDestination),
+				police.getAscent(), police.getAscent());
+		if (positions[0] != null && positions[1] != null)
+		{
+			Rectangle premier = new Rectangle(positions[0].x, positions[0].y - police.getAscent(),
+				police.stringWidth(roleOrigine), police.getHeight());
+			Rectangle second = new Rectangle(positions[1].x, positions[1].y - police.getAscent(),
+				police.stringWidth(roleDestination), police.getHeight());
+			if (premier.intersects(second))
+			{
+				positions[1].y = premier.y - police.getDescent() - 3;
+				if (coteDestination == 1 || coteDestination == 3)
+					positions[1].y = Math.min(positions[1].y, destination.y - police.getDescent() - 3);
+			}
+		}
+		return positions;
 	}
 }

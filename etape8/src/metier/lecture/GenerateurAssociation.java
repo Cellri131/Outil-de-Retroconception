@@ -25,11 +25,31 @@ public class GenerateurAssociation
 	 */
 	public ArrayList<Association> generer()
 	{
-		ArrayList<Attribut> attributsARetirer = new ArrayList<Attribut>();
+		Map<Classe, ArrayList<Attribut>> retraits = new HashMap<>();
 
 		for (String nomFichier : hashMapClasses.keySet())
 		{
 			Classe classeOrig = hashMapClasses.get(nomFichier);
+			if (classeOrig.getLangage() == Langage.SQL)
+			{
+				for (Classe.CleEtrangere cle : classeOrig.getClesEtrangeres())
+				{
+					Classe cible = hashMapClasses.values().stream()
+						.filter(c -> c.getLangage() == Langage.SQL && c.getNom().equalsIgnoreCase(cle.table))
+						.findFirst().orElse(null);
+					if (cible != null)
+					{
+						Association association = new Association(cible, classeOrig, null, null, true);
+						association.setRoles(cle.colonnesOrigine, cle.colonnesDestination);
+						lstAssociations.add(association);
+					}
+					else
+						System.err.println("Table SQL référencée introuvable : " + cle.table + " (depuis " + classeOrig.getNom() + ")");
+				}
+				continue;
+			}
+			ArrayList<Attribut> attributsARetirer = new ArrayList<>();
+			retraits.put(classeOrig, attributsARetirer);
 
 			// Compteur : clé = type nettoyé, valeur = nb occurrences
 			Map<String, Integer> compteur = new HashMap<>();
@@ -45,12 +65,13 @@ public class GenerateurAssociation
 				if (UtilitaireType.estMultiInstance(typeOriginal))
 				{
 					listeMultiInstance.add(typeNettoye);
-					attributsARetirer .add(attr       );
+					if (trouverClasse(typeNettoye, classeOrig) != null)
+						attributsARetirer.add(attr);
 				}
 				else // Simple instance
 				{
 					compteur.put(typeNettoye, compteur.getOrDefault(typeNettoye, 0) + 1);
-					if (hashMapClasses.containsKey(typeNettoye + ".java"))
+					if (trouverClasse(typeNettoye, classeOrig) != null)
 					{
 						attributsARetirer.add(attr);
 					}
@@ -64,12 +85,12 @@ public class GenerateurAssociation
 			traiterSimpleInstance(classeOrig, compteur);
 
 			// Nettoyage des associations
-			nettoyerAssociations();
 			
 			// Suppression des attributs de relation
-			classeOrig.getLstAttribut().removeAll(attributsARetirer);
 		}
-
+		nettoyerAssociations();
+		for (Map.Entry<Classe, ArrayList<Attribut>> retrait : retraits.entrySet())
+			retrait.getKey().getLstAttribut().removeAll(retrait.getValue());
 		return this.lstAssociations;
 	}
 
@@ -81,10 +102,9 @@ public class GenerateurAssociation
 		for (String typeDest : listeMultiInstance)
 		{
 			// Vérifier que la classe existe
-			if (!hashMapClasses.containsKey(typeDest + ".java"))
+			Classe classeDest = trouverClasse(typeDest, classeOrig);
+			if (classeDest == null)
 				continue;
-
-			Classe classeDest = hashMapClasses.get(typeDest + ".java");
 
 			Multiplicite multOrig = new Multiplicite(1, 1);
 			Multiplicite multDest = new Multiplicite(0, "*");
@@ -117,10 +137,9 @@ public class GenerateurAssociation
 			int    max      = entry.getValue();
 
 			// Vérifier que la classe existe
-			if (!hashMapClasses.containsKey(typeDest + ".java"))
+			Classe classeDest = trouverClasse(typeDest, classeOrig);
+			if (classeDest == null)
 				continue;
-
-			Classe classeDest = hashMapClasses.get(typeDest + ".java");
 
 			Multiplicite multOrig = new Multiplicite(1, 1  );
 			Multiplicite multDest = new Multiplicite(1, max);
@@ -169,6 +188,11 @@ public class GenerateurAssociation
 
 		for (Association asso : lstAssociations)
 		{
+			if (asso.getClasseOrig().getLangage() == Langage.SQL)
+			{
+				uniques.put("SQL-" + asso.getNum(), asso);
+				continue;
+			}
 			String origine = asso.getClasseOrig().getNom();
 			String dest    = asso.getClasseDest().getNom();
 
@@ -195,4 +219,10 @@ public class GenerateurAssociation
 	}
 
 	public ArrayList<Association> getLstAssociations() { return this.lstAssociations; }
+
+	private Classe trouverClasse(String nom, Classe origine)
+	{
+		Classe classe = hashMapClasses.get(nom);
+		return classe != null && classe.getLangage() == origine.getLangage() ? classe : null;
+	}
 }

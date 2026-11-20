@@ -2,6 +2,7 @@ package vue.liaison;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Point;
 import vue.BlocClasse;
 
 /**
@@ -18,6 +19,32 @@ public class DetecteurObstacles
 		this.blocOrigine     = origine    ;
 		this.blocDestination = destination;
 		this.tousLesBlocs    = blocs      ;
+	}
+
+	public List<BlocClasse> getBlocs()
+	{
+		List<BlocClasse> blocs = new ArrayList<>(tousLesBlocs);
+		if (!blocs.contains(blocOrigine)) blocs.add(blocOrigine);
+		if (!blocs.contains(blocDestination)) blocs.add(blocDestination);
+		return blocs;
+	}
+
+	public boolean traverseInterieurExtremite(Point a, Point b)
+	{
+		return traverseInterieur(blocOrigine, a, b) || traverseInterieur(blocDestination, a, b);
+	}
+
+	private boolean traverseInterieur(BlocClasse bloc, Point a, Point b)
+	{
+		int gauche = bloc.getX();
+		int haut = bloc.getY();
+		int droite = gauche + bloc.getLargeur();
+		int bas = haut + bloc.getHauteurCalculee();
+		if (a.y == b.y)
+			return a.y > haut && a.y < bas && Math.max(a.x, b.x) > gauche && Math.min(a.x, b.x) < droite;
+		if (a.x == b.x)
+			return a.x > gauche && a.x < droite && Math.max(a.y, b.y) > haut && Math.min(a.y, b.y) < bas;
+		return true;
 	}
 	
 	/**

@@ -26,6 +26,7 @@ public class Controleur
 
     private List<LiaisonVue>    lstLiaisons;
     private List<BlocClasse>    lstBlocs   ;
+    private boolean projetChargeDepuisSauvegarde;
 
     //-------------------------//
     //      CONSTRUCTEUR       //
@@ -69,18 +70,25 @@ public class Controleur
         lstLiaisons.clear();
         // Test si le projet est déjà présent dans les sauvegardes .xml
         String intituleProjet = gestionSauvegarde.getIntituleFromLien(cheminProjet);
-        if (gestionSauvegarde.projetEstSauvegarde(cheminProjet) && 
-            gestionSauvegarde.fichierDeSauvegardeExiste(intituleProjet)) 
+        projetChargeDepuisSauvegarde = gestionSauvegarde.projetEstSauvegarde(cheminProjet) &&
+            gestionSauvegarde.fichierDeSauvegardeExiste(intituleProjet);
+        if (projetChargeDepuisSauvegarde)
         {
             System.out.println("--- Le projet est sauvegardé. Chargement complet depuis " + intituleProjet + ".xml ---"); // à laisser :)
             chargerProjetDepuisXml(intituleProjet);
         } 
+
         else
         {
             System.out.println("--- Le projet n'est pas sauvegardé. On charge depuis ce chemin : " + cheminProjet + " ---"); // à laisser aussi
             chargerProjetDepuisJava(cheminProjet);
 
         }
+    }
+
+    public boolean estProjetChargeDepuisSauvegarde()
+    {
+        return projetChargeDepuisSauvegarde;
     }
 
     /**
@@ -105,8 +113,6 @@ public class Controleur
     */
     public void chargerProjetDepuisJava(String cheminProjet)
     {
-        lecture = new Lecture(cheminProjet);
-
         // hasmap pour associer les noms de classes aux blocs
         HashMap<String, BlocClasse> mapBlocsParNom  = new HashMap<>();
 
@@ -141,8 +147,6 @@ public class Controleur
 
         this.lstLiaisons = creerLiaisonsDepuisInterface    (lecture.getLstInterface(), mapBlocsParNom, this.lstLiaisons);
 
-        fenetrePrincipale.optimiserPositionsClasses();
-        fenetrePrincipale.optimiserPositionsLiaisons();
     }
 
     /**
@@ -155,6 +159,7 @@ public class Controleur
     public BlocClasse creerBlocAPartirDeClasse(Classe classe, int x, int y) 
     {
         BlocClasse bloc = new BlocClasse(classe.getNom(), x, y);
+        bloc.setLangage(classe.getLangage());
 
         // Définir si c'est une interface
         bloc.setInterface(classe.isInterface());
@@ -251,6 +256,8 @@ public class Controleur
 
             LiaisonVue liaison = new LiaisonVue(blocOrigine, blocDestination, "association", 
                                                 assoc.isUnidirectionnel()   , multOrig, multDest );
+            liaison.setRoleOrig(assoc.getRoleOrig());
+            liaison.setRoleDest(assoc.getRoleDest());
 
             lstLiaisons.add(liaison);
         }
